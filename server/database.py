@@ -1,61 +1,42 @@
 """
 Placify AI - Database Module
-SQLite database initialization and helper functions.
+MongoDB Atlas connection using PyMongo.
 """
 
 import os
-import sqlite3
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "placify.db")
+from pymongo import ASCENDING, MongoClient
+from pymongo.database import Database
 
-
-def get_db():
-    """Get a database connection."""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
-    return conn
+_client: MongoClient | None = None
+_db: Database | None = None
 
 
-def init_db():
-    """Initialize database tables."""
-    conn = get_db()
-    cursor = conn.cursor()
+def get_db() -> Database:
+    """Return the MongoDB database instance (lazy singleton)."""
+    global _client, _db
+    if _db is None:
+        uri = os.getenv("MONGODB_URI")
+        if not uri:
+            raise RuntimeError(
+                "MONGODB_URI environment variable is not set. "
+                "Add it to server/.env or export it before starting the server."
+            )
+        _client = MongoClient(uri)
+        db_name = os.getenv("MONGODB_DB_NAME", "placify")
+        _db = _client[db_name]
+    return _db
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        """
-    )
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS analyses (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            resume_filename TEXT,
-            input_data TEXT NOT NULL,
-            results TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-        """
-    )
+def init_db() -> None:
+    """Verify the MongoDB connection and create indexes."""
+    db = get_db()
 
-    cursor.execute(
-        """
-        CREATE INDEX IF NOT EXISTS idx_analyses_user_id
-        ON analyses(user_id)
-        """
-    )
+    # users: unique index on email for fast lookup + duplicate prevention
+    db.users.create_index([("email", ASCENDING)], unique=True)
 
-    conn.commit()
-    conn.close()
-    print("[ok] Database initialized successfully.")
+    # analyses: index on user_id (most common query) and created_at (sorting)
+    db.analyses.create_index([("user_id", ASCENDING)])
+    db.analyses.create_index([("created_at", ASCENDING)])
+
+    print("[ok] MongoDB connected and indexes verified.")

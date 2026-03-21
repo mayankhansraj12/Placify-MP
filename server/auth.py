@@ -21,7 +21,8 @@ except ImportError:
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-SECRET_KEY = os.getenv("PLACIFY_SECRET_KEY", "placify-ai-secret-key-2024-super-secure")
+# SECRET_KEY is loaded from .env via main.py's load_dotenv() at startup
+SECRET_KEY = os.getenv("PLACIFY_SECRET_KEY", "placify-ai-secret-key-change-this-in-env")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 EMAIL_PATTERN = re.compile(r"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$", re.IGNORECASE)
@@ -30,7 +31,6 @@ security = HTTPBearer()
 
 
 def normalize_email(value: str) -> str:
-    """Normalize and validate an email address."""
     email = value.strip().lower()
     if not EMAIL_PATTERN.fullmatch(email):
         raise ValueError("Enter a valid email address")
@@ -38,12 +38,10 @@ def normalize_email(value: str) -> str:
 
 
 def hash_password(password: str) -> str:
-    """Hash a password using bcrypt directly for Python 3.14 compatibility."""
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password: str, password_hash: str) -> bool:
-    """Verify a plaintext password against a bcrypt hash."""
     try:
         return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
     except ValueError:
@@ -105,7 +103,7 @@ def create_token(user_id: str) -> str:
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Extract and verify the current user from JWT."""
+    """Extract and verify the current user from the JWT bearer token."""
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -115,33 +113,32 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     except JWTError as exc:
         raise HTTPException(status_code=401, detail="Invalid or expired token") from exc
 
-    conn = get_db()
-    user = conn.execute("SELECT id, name, email FROM users WHERE id = ?", (user_id,)).fetchone()
-    conn.close()
+    db = get_db()
+    user = db.users.find_one({"_id": user_id}, {"_id": 1, "name": 1, "email": 1})
 
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
 
-    return dict(user)
+    return {"id": user["_id"], "name": user["name"], "email": user["email"]}
 
 
 @router.post("/register", response_model=TokenResponse)
 def register(req: RegisterRequest):
-    conn = get_db()
-    existing = conn.execute("SELECT id FROM users WHERE email = ?", (req.email,)).fetchone()
-    if existing:
-        conn.close()
+    db = get_db()
+
+    if db.users.find_one({"email": req.email}, {"_id": 1}):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     user_id = str(uuid.uuid4())
     password_hash = hash_password(req.password)
 
-    conn.execute(
-        "INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-        (user_id, req.name, req.email, password_hash),
-    )
-    conn.commit()
-    conn.close()
+    db.users.insert_one({
+        "_id": user_id,
+        "name": req.name,
+        "email": req.email,
+        "password_hash": password_hash,
+        "created_at": datetime.now(timezone.utc),
+    })
 
     token = create_token(user_id)
     return TokenResponse(
@@ -152,20 +149,16 @@ def register(req: RegisterRequest):
 
 @router.post("/login", response_model=TokenResponse)
 def login(req: LoginRequest):
-    conn = get_db()
-    user = conn.execute(
-        "SELECT id, name, email, password_hash FROM users WHERE email = ?",
-        (req.email,),
-    ).fetchone()
-    conn.close()
+    db = get_db()
+    user = db.users.find_one({"email": req.email})
 
     if not user or not verify_password(req.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    token = create_token(user["id"])
+    token = create_token(user["_id"])
     return TokenResponse(
         access_token=token,
-        user=UserResponse(id=user["id"], name=user["name"], email=user["email"]),
+        user=UserResponse(id=user["_id"], name=user["name"], email=user["email"]),
     )
 
 

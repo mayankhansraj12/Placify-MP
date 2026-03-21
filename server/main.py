@@ -6,8 +6,14 @@ FastAPI application with CORS, route mounting, and startup initialization.
 import os
 import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-# Add server directory to path for script-style imports
+# Load .env before any local imports so os.getenv() picks up the values
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
+# Add server directory to path for script-style (python main.py) imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI

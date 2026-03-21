@@ -10,3 +10,5 @@ joblib>=1.5,<1.6
 pydantic>=2.12,<2.13
 bcrypt>=5.0,<5.1
 nltk>=3.9,<4.0
+pymongo[srv]>=4.0,<6.0
+python-dotenv>=1.0,<3.0

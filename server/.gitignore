@@ -1,0 +1,26 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── SQLite (legacy - no longer used) ─────────────────────────────────────────
+*.db
+*.sqlite3
+
+# ── NLTK Data (auto-downloaded on first run, do not commit) ───────────────────
+nltk_data/
+
+# ── Environment Variables ─────────────────────────────────────────────────────
+.env
+.env.local
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.tmp
+*.bak
