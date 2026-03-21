@@ -1,0 +1,122 @@
+[
+    {
+        "LeetCode Problems": 0,
+        "Predicted Tier": "Service-Based",
+        "CTC (LPA)": 5.3,
+        "FAANG Probability": "0.7%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 50,
+        "Predicted Tier": "Service-Based",
+        "CTC (LPA)": 5.35,
+        "FAANG Probability": "0.7%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 100,
+        "Predicted Tier": "Service-Based",
+        "CTC (LPA)": 5.44,
+        "FAANG Probability": "0.7%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 200,
+        "Predicted Tier": "Service-Based",
+        "CTC (LPA)": 5.84,
+        "FAANG Probability": "0.7%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 300,
+        "Predicted Tier": "Product-Based",
+        "CTC (LPA)": 10.03,
+        "FAANG Probability": "1.4%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 400,
+        "Predicted Tier": "Fintech",
+        "CTC (LPA)": 22.6,
+        "FAANG Probability": "5.2%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 500,
+        "Predicted Tier": "Top-Tier",
+        "CTC (LPA)": 35.54,
+        "FAANG Probability": "80.0%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 650,
+        "Predicted Tier": "Top-Tier",
+        "CTC (LPA)": 38.03,
+        "FAANG Probability": "92.0%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 800,
+        "Predicted Tier": "Top-Tier",
+        "CTC (LPA)": 38.03,
+        "FAANG Probability": "99.0%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    },
+    {
+        "LeetCode Problems": 1000,
+        "Predicted Tier": "Top-Tier",
+        "CTC (LPA)": 38.03,
+        "FAANG Probability": "99.0%",
+        "Weak Skills": [
+            "Machine Learning: WEAK (Gap: 50)",
+            "Data Analytics: WEAK (Gap: 45)",
+            "Cloud/DevOps: WEAK (Gap: 30)"
+        ],
+        "Top Quick Action": "Urgently improve Machine Learning (currently 10/100). Complete Andrew Ng's ML Specialization. Implement 5 ML models from scratch."
+    }
+]
