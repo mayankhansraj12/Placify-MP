@@ -65,28 +65,25 @@ SKILL_KEYWORDS = {
 
 
 def ensure_nltk_resources():
-    """Load or download required NLTK resources on demand."""
+    """Download required NLTK resources if not already present."""
     global NLTK_READY
     if NLTK_READY:
         return
 
-    missing = []
+    for package in NLTK_RESOURCES:
+        nltk.download(package, quiet=True)
+
+    # Verify all resources are accessible after download
     for package, resource_path in NLTK_RESOURCES.items():
         try:
             nltk.data.find(resource_path)
         except LookupError:
-            missing.append(package)
-
-    if missing:
-        print("Downloading NLTK NLP models...")
-        for package in missing:
-            nltk.download(package, quiet=True)
-
-    for package, resource_path in NLTK_RESOURCES.items():
-        try:
-            nltk.data.find(resource_path)
-        except LookupError as exc:
-            raise RuntimeError(f"Missing required NLTK resource: {package}") from exc
+            # punkt_tab may live under a different path in newer NLTK — try the zip path
+            zip_path = resource_path + ".zip"
+            try:
+                nltk.data.find(zip_path)
+            except LookupError as exc:
+                raise RuntimeError(f"Missing required NLTK resource: {package}") from exc
 
     NLTK_READY = True
 

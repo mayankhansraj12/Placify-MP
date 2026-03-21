@@ -18,11 +18,13 @@ try:
     from .database import init_db
     from .ml.predictor import load_models
     from .routes.analysis import router as analysis_router
+    from .utils.resume_parser import ensure_nltk_resources
 except ImportError:
     from auth import router as auth_router
     from database import init_db
     from ml.predictor import load_models
     from routes.analysis import router as analysis_router
+    from utils.resume_parser import ensure_nltk_resources
 
 
 def configure_console_output() -> None:
@@ -47,6 +49,8 @@ async def lifespan(_: FastAPI):
     print("Placify AI Server starting...")
     init_db()
     load_models()
+    print("Downloading / verifying NLTK models...")
+    ensure_nltk_resources()
     print("Server ready!")
     yield
 

@@ -4,9 +4,12 @@ Handles resume upload, analysis, and history retrieval.
 """
 
 import json
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+
+logger = logging.getLogger(__name__)
 
 try:
     from ..auth import get_current_user
@@ -60,8 +63,9 @@ async def create_analysis(
         resume_features = parse_resume(content)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to process the resume. Please try a different file.")
+    except Exception as e:
+        logger.exception("Resume parsing failed")
+        raise HTTPException(status_code=500, detail=f"Failed to process the resume: {str(e)}")
 
     # ── Build feature dict ──────────────────────────────────────────────────
     features = {
