@@ -62,16 +62,16 @@ export default function Landing() {
     cvs.height = window.innerHeight
     const ctx  = cvs.getContext('2d')
 
-    const particles = Array.from({ length: 260 }, () => {
+    const particles = Array.from({ length: 340 }, () => {
       const angle = Math.random() * Math.PI * 2
-      const speed = 1.5 + Math.random() * 7
+      const speed = 4 + Math.random() * 16
       return {
         x: burstOrigin.x, y: burstOrigin.y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - Math.random() * 2,
+        vy: Math.sin(angle) * speed,
         life: 1,
-        decay: 0.014 + Math.random() * 0.022,
-        r: 0.4 + Math.random() * 0.9,
+        decay: 0.030 + Math.random() * 0.040,
+        r: 0.4 + Math.random() * 0.8,
         color: GCOLORS[Math.floor(Math.random() * 4)],
       }
     })
@@ -82,7 +82,7 @@ export default function Landing() {
       let alive = false
       for (const p of particles) {
         p.x  += p.vx; p.y += p.vy
-        p.vy += 0.12; p.vx *= 0.97; p.vy *= 0.97
+        p.vx *= 0.91; p.vy *= 0.91
         p.life -= p.decay
         if (p.life <= 0) continue
         alive = true
@@ -207,9 +207,6 @@ export default function Landing() {
               letterSpacing: '-0.035em',
               color: '#111111',
             }
-            const colorIdx  = displayed.length % 4
-            const c1        = GCOLORS[colorIdx]
-            const c2        = GCOLORS[(colorIdx + 1) % 4]
             const showCursor = cursorPhase === 'typing' ||
                                (cursorPhase === 'blinking' && blinkOn)
             const cursor = showCursor ? (
@@ -219,11 +216,11 @@ export default function Landing() {
                   display:       'inline-block',
                   width:         '3px',
                   height:        '0.88em',
-                  background:    `linear-gradient(180deg, ${c1} 0%, ${c2} 100%)`,
+                  background:    'linear-gradient(180deg, #888 0%, #222 20%, #000 50%, #1a1a1a 80%, #555 100%)',
+                  boxShadow:     '0 0 3px rgba(255,255,255,0.18), inset 0 0 2px rgba(255,255,255,0.08)',
                   marginLeft:    '4px',
                   verticalAlign: 'middle',
                   borderRadius:  '1px',
-                  boxShadow:     `0 0 8px ${c1}, 0 0 18px ${c1}99, 0 0 32px ${c2}55`,
                 }}
               />
             ) : null
