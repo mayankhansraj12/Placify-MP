@@ -1,44 +1,126 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Lenis from 'lenis'
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent } from 'framer-motion'
 import logo from '../assets/logo.png'
 import HeroCanvas from '../components/HeroCanvas'
 
+// ─── shared animation variants ───────────────────────────────────────────────
+const fadeUp   = { hidden: { opacity: 0, y: 48 }, visible: { opacity: 1, y: 0 } }
+const fadeLeft = { hidden: { opacity: 0, x: -60 }, visible: { opacity: 1, x: 0 } }
+const fadeRight= { hidden: { opacity: 0, x:  60 }, visible: { opacity: 1, x: 0 } }
+const VP       = { once: true, margin: '-80px' }
+
+const FEATURE_CARDS = [
+  { metric: 'PDF → Data',   title: 'Resume Intelligence',      desc: 'NLP-powered parsing extracts skills, projects, and ATS signals from your resume in seconds.',      tag: 'Structured in seconds' },
+  { metric: '3 ML Models',  title: 'Role, Tier & Salary',      desc: 'Three models predict your job role, company tier, and expected package — all at once.',             tag: 'Working in parallel'   },
+  { metric: '8+ Domains',   title: 'Know What\u2019s Missing', desc: 'Gaps exposed across DSA, Web Dev, ML, System Design, and more — scored and ranked by priority.',    tag: 'Skill gap analysis'    },
+  { metric: 'Actionable',   title: 'Fix It Fast',               desc: 'Concrete next steps — coding targets, project ideas, and tailored interview prep plans.',           tag: 'Step-by-step roadmap'  },
+]
+
+function FeatureCard({ card, i, progress, isActive, anyActive }) {
+  const s = i / 4
+  const m = s + 1 / 8
+  const e = (i + 1) / 4
+
+  const y     = useTransform(progress, [s, m, e], ['0vh', '-22vh', '0vh'])
+  const scale = useTransform(progress, [s, m, e], [1, 1.14, 1])
+
+  return (
+    <motion.div
+      layout
+      style={{ y, scale, zIndex: isActive ? 10 : 1, position: 'relative' }}
+      animate={{ opacity: anyActive && !isActive ? 0.28 : 1 }}
+      transition={{ opacity: { duration: 0.35 }, layout: { type: 'spring', stiffness: 200, damping: 28 } }}
+      className="bg-white/75 backdrop-blur-2xl rounded-3xl overflow-hidden cursor-default shadow-sm"
+    >
+      {/* title only — always visible, centered */}
+      <div className="flex items-center justify-center text-center px-6 py-10">
+        <div className="font-headline font-black text-[17px] text-[#111111] tracking-tight leading-snug">
+          {card.title}
+        </div>
+      </div>
+
+      {/* expanded details — scroll-activated */}
+      <AnimatePresence initial={false}>
+        {isActive && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className="px-6 pb-8 text-center border-t border-[#111111]/8 space-y-3 pt-5">
+              <div className="text-2xl font-headline font-black text-[#111111]">{card.metric}</div>
+              <p className="text-[#111111]/60 font-body text-sm leading-relaxed">{card.desc}</p>
+              <span className="inline-block text-[10px] font-headline font-bold uppercase tracking-widest text-[#111111]/35 border border-[#111111]/10 rounded-full px-3 py-1">
+                {card.tag}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
 export default function Landing() {
   const containerRef = useRef(null)
-  const lenisRef = useRef(null)
-  const rafRef = useRef(null)
+  const lenisRef     = useRef(null)
+  const rafRef       = useRef(null)
 
-  const LINE1 = 'Know Your Placement Readiness'
-  const LINE2 = 'Before the Drive'
-  const FULL_TEXT = LINE1 + '\n' + LINE2
+  const LINE1      = 'Know Your Placement Readiness'
+  const LINE2      = 'Before the Drive'
+  const FULL_TEXT  = LINE1 + '\n' + LINE2
 
-  const [displayed,    setDisplayed]    = useState('')
-  const [typingDone,   setTypingDone]   = useState(false)
-  // 'typing' → 'blinking' → 'burst' → 'done'
-  const [cursorPhase,  setCursorPhase]  = useState('typing')
-  const [blinkOn,      setBlinkOn]      = useState(true)
-  const [burstOrigin,  setBurstOrigin]  = useState(null)
+  const [displayed,   setDisplayed]   = useState('')
+  const [typingDone,  setTypingDone]  = useState(false)
+  const [cursorPhase, setCursorPhase] = useState('typing')
+  const [blinkOn,     setBlinkOn]     = useState(true)
+  const [burstOrigin, setBurstOrigin] = useState(null)
   const cursorRef      = useRef(null)
   const burstCanvasRef = useRef(null)
+  const featureSectionRef = useRef(null)
 
   const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
 
-  // Typewriter — on finish enter blinking phase instead of immediate done
+  // ── scroll-driven bg via framer-motion ────────────────────────────────────
+  const { scrollY } = useScroll()
+  const bgColor = useTransform(
+    scrollY,
+    [0, typeof window !== 'undefined' ? window.innerHeight : 800],
+    ['#ffffff', '#000000'],
+  )
+
+  // ── scroll-driven feature cards ───────────────────────────────────────────
+  const [activeCard,     setActiveCard]     = useState(-1)
+  const [featureEntered, setFeatureEntered] = useState(false)
+  const { scrollYProgress: featureProgress } = useScroll({
+    target: featureSectionRef,
+    offset: ['start start', 'end end'],
+  })
+  useMotionValueEvent(featureProgress, 'change', (v) => {
+    const entered = v > 0.02
+    setFeatureEntered(entered)
+    if (entered) setActiveCard(v < 0.25 ? 0 : v < 0.5 ? 1 : v < 0.75 ? 2 : 3)
+  })
+
+  // cards invisible until feature section is fully in view (hides them during hero scroll)
+  const gridOpacity = useTransform(featureProgress, [0, 0.04], [0, 1])
+
+  // ── typewriter ────────────────────────────────────────────────────────────
   useEffect(() => {
     let i = 0
     const id = setInterval(() => {
       i++
       setDisplayed(FULL_TEXT.slice(0, i))
-      if (i >= FULL_TEXT.length) {
-        clearInterval(id)
-        setCursorPhase('blinking')
-      }
-    }, 55)
+      if (i >= FULL_TEXT.length) { clearInterval(id); setCursorPhase('blinking') }
+    }, 65)
     return () => clearInterval(id)
   }, [])
 
-  // Blink 4 times (8 half-cycles at 260 ms each), capture burst origin, then burst
+  // ── blink 4× then burst ───────────────────────────────────────────────────
   useEffect(() => {
     if (cursorPhase !== 'blinking') return
     if (cursorRef.current) {
@@ -54,23 +136,21 @@ export default function Landing() {
     return () => clearInterval(id)
   }, [cursorPhase])
 
-  // Particle burst from cursor position
+  // ── canvas burst ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (cursorPhase !== 'burst' || !burstOrigin) return
-    const cvs = burstCanvasRef.current
+    const cvs  = burstCanvasRef.current
     cvs.width  = window.innerWidth
     cvs.height = window.innerHeight
     const ctx  = cvs.getContext('2d')
 
     const particles = Array.from({ length: 340 }, () => {
       const angle = Math.random() * Math.PI * 2
-      const speed = 4 + Math.random() * 16
+      const speed = 0.3 + Math.random() * 1.8
       return {
         x: burstOrigin.x, y: burstOrigin.y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life: 1,
-        decay: 0.030 + Math.random() * 0.040,
+        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        life: 1, decay: 0.002 + Math.random() * 0.003,
         r: 0.4 + Math.random() * 0.8,
         color: GCOLORS[Math.floor(Math.random() * 4)],
       }
@@ -81,8 +161,8 @@ export default function Landing() {
       ctx.clearRect(0, 0, cvs.width, cvs.height)
       let alive = false
       for (const p of particles) {
-        p.x  += p.vx; p.y += p.vy
-        p.vx *= 0.91; p.vy *= 0.91
+        p.x += p.vx; p.y += p.vy
+        p.vx *= 0.99; p.vy *= 0.99
         p.life -= p.decay
         if (p.life <= 0) continue
         alive = true
@@ -93,7 +173,6 @@ export default function Landing() {
         ctx.fill()
       }
       ctx.globalAlpha = 1
-      ctx.shadowBlur  = 0
       if (alive) raf = requestAnimationFrame(animate)
       else { ctx.clearRect(0, 0, cvs.width, cvs.height); setCursorPhase('done') }
     }
@@ -101,11 +180,13 @@ export default function Landing() {
     return () => cancelAnimationFrame(raf)
   }, [cursorPhase, burstOrigin])
 
-  // Logo reveals after burst is fully done
   useEffect(() => {
-    if (cursorPhase === 'done') setTypingDone(true)
+    if (cursorPhase !== 'burst') return
+    const t = setTimeout(() => setTypingDone(true), 200)
+    return () => clearTimeout(t)
   }, [cursorPhase])
 
+  // ── lenis smooth scroll ───────────────────────────────────────────────────
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -114,17 +195,9 @@ export default function Landing() {
       touchMultiplier: 1.5,
     })
     lenisRef.current = lenis
-
-    function raf(time) {
-      lenis.raf(time)
-      rafRef.current = requestAnimationFrame(raf)
-    }
+    function raf(time) { lenis.raf(time); rafRef.current = requestAnimationFrame(raf) }
     rafRef.current = requestAnimationFrame(raf)
-
-    return () => {
-      cancelAnimationFrame(rafRef.current)
-      lenis.destroy()
-    }
+    return () => { cancelAnimationFrame(rafRef.current); lenis.destroy() }
   }, [])
 
   const scrollToFeatures = (e) => {
@@ -132,33 +205,52 @@ export default function Landing() {
     lenisRef.current?.scrollTo('#features', { offset: -80, duration: 1.4 })
   }
 
+  // ── typewriter cursor ─────────────────────────────────────────────────────
+  const hasNewline  = displayed.includes('\n')
+  const line1Typed  = hasNewline ? LINE1 : displayed
+  const line2Typed  = hasNewline ? displayed.slice(LINE1.length + 1) : ''
+  const showCursor  = cursorPhase === 'typing' || (cursorPhase === 'blinking' && blinkOn)
+  const textStyle   = {
+    fontFamily: '"Funnel Sans", sans-serif',
+    fontSize: 'clamp(2rem, 6vw, 5.5rem)',
+    fontWeight: 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111',
+  }
+  const cursor = showCursor ? (
+    <span ref={cursorRef} style={{
+      display: 'inline-block', width: '6px', height: '0.88em',
+      background: 'linear-gradient(180deg, #888 0%, #222 20%, #000 50%, #1a1a1a 80%, #555 100%)',
+      boxShadow: '0 0 3px rgba(255,255,255,0.18)',
+      marginLeft: '4px', verticalAlign: 'middle', borderRadius: '1px',
+    }} />
+  ) : null
+
   return (
     <div ref={containerRef} className="relative min-h-screen font-body text-[#111111] overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
-      {/* Particle field — fixed behind all content */}
+
+      {/* ── scroll-driven background (framer-motion) ── */}
+      <motion.div style={{ backgroundColor: bgColor, position: 'fixed', inset: 0, zIndex: -2 }} />
+
       <HeroCanvas />
 
-      {/* Cursor burst canvas — fixed overlay, only active during burst */}
-      <canvas
-        ref={burstCanvasRef}
-        style={{
-          position: 'fixed', inset: 0,
-          width: '100%', height: '100%',
-          zIndex: 9999,
-          pointerEvents: 'none',
-          display: cursorPhase === 'burst' ? 'block' : 'none',
-        }}
-      />
+      {/* burst canvas */}
+      <canvas ref={burstCanvasRef} style={{
+        position: 'fixed', inset: 0, width: '100%', height: '100%',
+        zIndex: 9999, pointerEvents: 'none',
+        display: cursorPhase === 'burst' ? 'block' : 'none',
+      }} />
 
-      {/* Navbar — full-width flat */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/96 backdrop-blur-sm border-b border-[#111111]/5">
+      {/* ── navbar ── */}
+      <motion.nav
+        initial={{ y: -64, opacity: 0 }}
+        animate={{ y: 0,   opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 26, delay: 0.2 }}
+        className="fixed top-0 left-0 right-0 z-50 bg-white/96 backdrop-blur-sm border-b border-[#111111]/5"
+      >
         <div className="max-w-7xl mx-auto px-8 h-14 flex items-center justify-between gap-8">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0 no-underline">
             <img src={logo} alt="Placify AI" className="h-6 w-auto" />
             <span className="text-sm font-bold text-[#111111] tracking-tight">Placify AI</span>
           </Link>
-
-          {/* Nav links — center */}
           <div className="hidden md:flex items-center gap-7 flex-1 justify-center">
             <a href="#features" onClick={scrollToFeatures} className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 cursor-pointer no-underline">Features</a>
             <a href="#" className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Pricing</a>
@@ -166,114 +258,93 @@ export default function Landing() {
             <Link to="/analyze"   className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Analyze</Link>
             <a href="#" className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Blog</a>
           </div>
-
-          {/* Auth — right */}
           <div className="flex items-center gap-5 flex-shrink-0">
-            <Link to="/login" className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Sign In</Link>
+            <Link to="/login"    className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Sign In</Link>
             <Link to="/register" className="flex items-center gap-1.5 bg-[#111111] text-white text-[13px] font-semibold px-5 py-2 rounded-full hover:bg-[#222222] transition-colors duration-150 no-underline">
               Get Started <span className="text-base leading-none">↗</span>
             </Link>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <main className="relative pb-20 z-10">
-        {/* Atmospheric Background Element */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-20 pointer-events-none -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-container via-transparent to-transparent"></div>
-        
-        {/* ── Typewriter Hero ── */}
-        <section className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-          {/* Logo — slides up after typing is done */}
-          <div
-            className={`flex items-center gap-4 mb-10 transition-all duration-700 ease-out ${
-              typingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-            }`}
-          >
-            <img src={logo} alt="Placify AI" className="h-14 w-auto" />
-            <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-20 pointer-events-none -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-container via-transparent to-transparent" />
+
+        {/* ── hero ── strictly first viewport ── */}
+        <section className="h-screen flex flex-col items-center justify-center text-center px-6">
+
+          {/* fixed-height logo slot */}
+          <div className="h-14 mb-8 flex items-center justify-center">
+            <AnimatePresence>
+              {typingDone && (
+                <motion.div
+                  key="logo"
+                  initial={{ opacity: 0, y: 24, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0,  scale: 1    }}
+                  transition={{ duration: 1.4, ease: [0.07, 1, 0.3, 1] }}
+                  className="flex items-center gap-4"
+                >
+                  <img src={logo} alt="Placify AI" className="h-14 w-auto" />
+                  <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-
-          {/* Typewriter text — ghost span sets stable dimensions; typed text overlays from the exact left edge */}
-          {(() => {
-            const hasNewline = displayed.includes('\n')
-            const line1Typed = hasNewline ? LINE1 : displayed
-            const line2Typed = hasNewline ? displayed.slice(LINE1.length + 1) : ''
-            const textStyle = {
-              fontFamily: '"Funnel Sans", sans-serif',
-              fontSize: 'clamp(2rem, 6vw, 5.5rem)',
-              fontWeight: 200,
-              lineHeight: 1.1,
-              letterSpacing: '-0.035em',
-              color: '#111111',
-            }
-            const showCursor = cursorPhase === 'typing' ||
-                               (cursorPhase === 'blinking' && blinkOn)
-            const cursor = showCursor ? (
-              <span
-                ref={cursorRef}
-                style={{
-                  display:       'inline-block',
-                  width:         '3px',
-                  height:        '0.88em',
-                  background:    'linear-gradient(180deg, #888 0%, #222 20%, #000 50%, #1a1a1a 80%, #555 100%)',
-                  boxShadow:     '0 0 3px rgba(255,255,255,0.18), inset 0 0 2px rgba(255,255,255,0.08)',
-                  marginLeft:    '4px',
-                  verticalAlign: 'middle',
-                  borderRadius:  '1px',
-                }}
-              />
-            ) : null
-            return (
-              <div style={{ ...textStyle, textAlign: 'center' }}>
-                <div>
-                  <div style={{ display: 'inline-block', position: 'relative' }}>
-                    <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
-                    <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
-                      {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <div style={{ display: 'inline-block', position: 'relative' }}>
-                    <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE2}</span>
-                    <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
-                      {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
-                    </span>
-                  </div>
-                </div>
+          {/* typewriter */}
+          <div style={{ ...textStyle, textAlign: 'center' }}>
+            <div>
+              <div style={{ display: 'inline-block', position: 'relative' }}>
+                <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
+                <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
+                  {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
+                </span>
               </div>
-            )
-          })()}
-        </section>
-
-        {/* Stats Row */}
-        <section className="container mx-auto px-6 mb-40">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 p-10 rounded-3xl text-center transition-transform hover:-translate-y-2">
-              <div className="text-4xl font-headline font-black text-[#111111] mb-2">15K+</div>
-              <div className="text-xs font-headline font-bold uppercase tracking-widest text-[#111111]/60">Students</div>
             </div>
-            <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 p-10 rounded-3xl text-center transition-transform hover:-translate-y-2">
-              <div className="text-4xl font-headline font-black text-[#111111] mb-2">92%</div>
-              <div className="text-xs font-headline font-bold uppercase tracking-widest text-[#111111]/60">Accuracy</div>
-            </div>
-            <div className="bg-white/40 backdrop-blur-2xl border border-primary/10 p-10 rounded-3xl text-center transition-transform hover:-translate-y-2">
-              <div className="text-4xl font-headline font-black text-[#111111] mb-2">₹8.5M+</div>
-              <div className="text-xs font-headline font-bold uppercase tracking-widest text-[#111111]/60">Avg Package</div>
-            </div>
-            <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 p-10 rounded-3xl text-center transition-transform hover:-translate-y-2">
-              <div className="text-4xl font-headline font-black text-[#111111] mb-2">450+</div>
-              <div className="text-xs font-headline font-bold uppercase tracking-widest text-[#111111]/60">Hiring Partners</div>
+            <div>
+              <div style={{ display: 'inline-block', position: 'relative' }}>
+                <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE2}</span>
+                <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
+                  {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
+                </span>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* ── feature cards — 2nd viewport only ── */}
+        <div ref={featureSectionRef} style={{ height: '500vh' }} className="relative">
+          <div className="sticky top-0 h-screen flex items-center">
+            <div className="w-full px-4 sm:px-6 md:px-10">
+              <motion.div
+                style={{ opacity: gridOpacity }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto"
+              >
+                {FEATURE_CARDS.map((card, i) => (
+                  <FeatureCard
+                    key={card.title}
+                    card={card}
+                    i={i}
+                    progress={featureProgress}
+                    isActive={featureEntered && i === activeCard}
+                    anyActive={featureEntered}
+                  />
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── features ── */}
         <section id="features" className="container mx-auto px-6 space-y-32">
-          {/* Feature 1 */}
+
+          {/* feature 1 */}
           <div className="flex flex-col md:flex-row items-center gap-20">
-            <div className="flex-1 space-y-8">
+            <motion.div
+              variants={fadeLeft} initial="hidden" whileInView="visible" viewport={VP}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="flex-1 space-y-8"
+            >
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
@@ -282,45 +353,53 @@ export default function Landing() {
               <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-[#111111] leading-tight">Editorial-Grade Behavioral Mapping</h2>
               <p className="text-[#111111]/70 text-lg leading-relaxed font-body">Our proprietary AI analyzes over 200 behavioral markers to map your core competencies against top-tier corporate requirements, ensuring a perfect cultural fit.</p>
               <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-[#111111]">
-                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">✓</span>
-                  Sentiment Analysis Engine
-                </li>
-                <li className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-[#111111]">
-                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">✓</span>
-                  Bias-Free Benchmarking
-                </li>
+                {['Sentiment Analysis Engine', 'Bias-Free Benchmarking'].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-[#111111]">
+                    <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">✓</span>
+                    {item}
+                  </li>
+                ))}
               </ul>
-            </div>
-            {/* Feature 1 Visual */}
-            <div className="flex-1 relative">
+            </motion.div>
+            <motion.div
+              variants={fadeRight} initial="hidden" whileInView="visible" viewport={VP}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.15 }}
+              className="flex-1 relative"
+            >
               <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 aspect-square rounded-[4rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.08)] group">
-                <div className="w-64 h-64 bg-gradient-to-br from-primary-container to-secondary-container rounded-full blur-[80px] opacity-30 absolute animate-pulse z-10 pointer-events-none"></div>
+                <div className="w-64 h-64 bg-gradient-to-br from-primary-container to-secondary-container rounded-full blur-[80px] opacity-30 absolute animate-pulse z-10 pointer-events-none" />
                 <img
                   src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80&fit=crop"
-                  alt="Professional behavioral analysis session"
+                  alt="Behavioral analysis"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/30 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/30 via-transparent to-transparent" />
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Feature 2: Asymmetric Flip */}
+          {/* feature 2 */}
           <div className="flex flex-col-reverse md:flex-row items-center gap-20">
-            {/* Feature 2 Visual */}
-            <div className="flex-1 relative">
+            <motion.div
+              variants={fadeLeft} initial="hidden" whileInView="visible" viewport={VP}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.15 }}
+              className="flex-1 relative"
+            >
               <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 aspect-[4/3] rounded-[4rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.08)] group">
-                <div className="w-80 h-80 bg-gradient-to-tr from-secondary/20 to-primary/20 rounded-full blur-[100px] opacity-40 absolute z-10 pointer-events-none"></div>
+                <div className="w-80 h-80 bg-gradient-to-tr from-secondary/20 to-primary/20 rounded-full blur-[100px] opacity-40 absolute z-10 pointer-events-none" />
                 <img
                   src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fit=crop"
-                  alt="Salary analytics and placement data dashboard"
+                  alt="Salary analytics dashboard"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/30 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/30 via-transparent to-transparent" />
               </div>
-            </div>
-            <div className="flex-1 space-y-8">
+            </motion.div>
+            <motion.div
+              variants={fadeRight} initial="hidden" whileInView="visible" viewport={VP}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="flex-1 space-y-8"
+            >
               <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
@@ -333,15 +412,19 @@ export default function Landing() {
                 <div className="text-xs font-headline font-black uppercase tracking-widest text-[#111111]/80 mb-1">Target Achievement</div>
                 <div className="text-3xl font-headline font-black text-[#111111]">₹12.4 Lakhs <span className="text-sm font-medium text-[#111111]/50">/ per annum</span></div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* CTA / Massive Glass Card */}
-        <section className="container mx-auto px-6 mt-40">
+        {/* ── CTA ── */}
+        <motion.section
+          variants={fadeUp} initial="hidden" whileInView="visible" viewport={VP}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="container mx-auto px-6 mt-40"
+        >
           <div className="bg-white/40 backdrop-blur-3xl border border-outline-variant/15 p-12 md:p-24 rounded-[4rem] relative overflow-hidden text-center shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-48 -mt-48"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -ml-48 -mb-48"></div>
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-48 -mt-48" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -ml-48 -mb-48" />
             <div className="relative z-10 max-w-3xl mx-auto space-y-12">
               <h2 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tighter text-[#111111]">Ready for the Next Chapter?</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
@@ -361,16 +444,23 @@ export default function Landing() {
                 </div>
               </div>
               <div className="pt-8 relative z-20">
-                <Link to="/analyze" className="inline-block px-12 py-6 bg-primary text-white font-headline font-bold text-sm uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:shadow-blue transition-all active:scale-95 pointer-events-auto">
-                  Start Your Placement Analysis
-                </Link>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 340, damping: 22 }}
+                  className="inline-block"
+                >
+                  <Link to="/analyze" className="inline-block px-12 py-6 bg-primary text-white font-headline font-bold text-sm uppercase tracking-[0.2em] rounded-full hover:shadow-blue transition-shadow pointer-events-auto">
+                    Start Your Placement Analysis
+                  </Link>
+                </motion.div>
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
       </main>
 
-      {/* Footer */}
+      {/* ── footer ── */}
       <footer className="bg-[#111111] text-on-surface-variant font-body tracking-tight text-sm z-20 relative">
         <div className="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
           <div className="space-y-6">
