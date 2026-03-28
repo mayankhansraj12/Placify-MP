@@ -24,3 +24,5 @@ logs/
 # ── Test Artifacts ────────────────────────────────────────────────────────────
 test_results.json
 test_10_results.json
+
+.agent/

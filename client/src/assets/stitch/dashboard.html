@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Placify AI Dashboard</title>
+<!-- Google Fonts: Epilogue & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#c1c7d2",
+                        "on-secondary-container": "#443a87",
+                        "surface-tint": "#0962a0",
+                        "on-surface-variant": "#414750",
+                        "surface-container": "#eceef3",
+                        "background": "#f8f9ff",
+                        "secondary-fixed-dim": "#c7bfff",
+                        "surface": "#f8f9ff",
+                        "on-background": "#191c20",
+                        "secondary-container": "#b3a9ff",
+                        "surface-container-high": "#e7e8ee",
+                        "inverse-on-surface": "#eff0f6",
+                        "on-primary-fixed": "#001d35",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-container": "#004a7c",
+                        "on-surface": "#191c20",
+                        "surface-dim": "#d8dae0",
+                        "on-tertiary-fixed": "#101a35",
+                        "surface-container-low": "#f2f3f9",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#e5deff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#bcc5e9",
+                        "on-tertiary-container": "#3d4664",
+                        "secondary": "#5d54a3",
+                        "on-primary-fixed-variant": "#00497b",
+                        "primary-fixed": "#d1e4ff",
+                        "on-secondary-fixed": "#18075d",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#9dcaff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#453b89",
+                        "surface-container-highest": "#e1e2e8",
+                        "on-tertiary-fixed-variant": "#3c4663",
+                        "inverse-surface": "#2e3135",
+                        "primary-fixed-dim": "#9dcaff",
+                        "tertiary": "#545d7c",
+                        "tertiary-container": "#acb5d8",
+                        "on-error": "#ffffff",
+                        "outline": "#717781",
+                        "primary-container": "#7bbbff",
+                        "tertiary-fixed": "#dbe1ff",
+                        "primary": "#0962a0",
+                        "surface-variant": "#e1e2e8",
+                        "on-error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        "headline": ["Epilogue"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(193, 199, 210, 0.15);
+        }
+        .tonal-shift-via-blur {
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-8 py-4">
+<div class="rounded-full mt-4 mx-auto max-w-fit px-6 py-2 border border-white/15 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl shadow-[0_20px_40px_rgba(9,98,160,0.04)] flex items-center gap-8">
+<span class="text-xl font-black tracking-tighter text-slate-900 dark:text-slate-50 font-headline">Placify AI</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-headline tracking-tighter font-bold uppercase text-xs text-slate-600 hover:text-slate-900 hover:scale-105 transition-all duration-300" href="#">Features</a>
+<a class="font-headline tracking-tighter font-bold uppercase text-xs text-blue-600 border-b-2 border-blue-600 pb-1 hover:scale-105 transition-all duration-300" href="#">Dashboard</a>
+<a class="font-headline tracking-tighter font-bold uppercase text-xs text-slate-600 hover:text-slate-900 hover:scale-105 transition-all duration-300" href="#">Analyze</a>
+<a class="font-headline tracking-tighter font-bold uppercase text-xs text-slate-600 hover:text-slate-900 hover:scale-105 transition-all duration-300" href="#">Results</a>
+</div>
+<div class="flex items-center gap-3">
+<button class="font-headline tracking-tighter font-bold uppercase text-xs px-4 py-2 rounded-full bg-primary text-white hover:scale-105 hover:shadow-blue-500/20 active:scale-98 transition-all duration-300">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+<!-- Welcome Header -->
+<header class="mb-16">
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter text-on-surface mb-2">
+                Welcome back, Alex
+            </h1>
+<p class="text-on-surface-variant text-lg max-w-2xl">
+                Your career trajectory is currently outperforming 84% of your peer group. Ready for your next move?
+            </p>
+</header>
+<!-- Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+<!-- Growth Card (Deep Navy) -->
+<div class="p-8 rounded-[2rem] bg-[#050F2A] text-white flex flex-col justify-between aspect-square md:aspect-auto">
+<div>
+<span class="material-symbols-outlined mb-4 text-primary-container" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<h3 class="font-label text-sm uppercase tracking-widest opacity-70">Growth Index</h3>
+</div>
+<div class="mt-auto">
+<span class="font-headline text-5xl font-black">+24%</span>
+<p class="text-xs opacity-60 mt-1">vs last quarter</p>
+</div>
+</div>
+<!-- Score Card (Periwinkle) -->
+<div class="p-8 rounded-[2rem] bg-primary-container text-on-primary-container flex flex-col justify-between aspect-square md:aspect-auto">
+<div>
+<span class="material-symbols-outlined mb-4" style="font-variation-settings: 'FILL' 1;">stars</span>
+<h3 class="font-label text-sm uppercase tracking-widest opacity-80">Skill Score</h3>
+</div>
+<div class="mt-auto">
+<span class="font-headline text-5xl font-black">92.8</span>
+<p class="text-xs opacity-70 mt-1">Tier 1 Professional</p>
+</div>
+</div>
+<!-- Market Card (Lavender) -->
+<div class="p-8 rounded-[2rem] bg-[#EDE9FF] text-on-secondary-container flex flex-col justify-between aspect-square md:aspect-auto">
+<div>
+<span class="material-symbols-outlined mb-4" style="font-variation-settings: 'FILL' 1;">hub</span>
+<h3 class="font-label text-sm uppercase tracking-widest opacity-80">Market Fit</h3>
+</div>
+<div class="mt-auto">
+<span class="font-headline text-5xl font-black">Optimum</span>
+<p class="text-xs opacity-70 mt-1">Across 12 industries</p>
+</div>
+</div>
+<!-- Expected CTC (White Glass) -->
+<div class="p-8 rounded-[2rem] glass-card flex flex-col justify-between aspect-square md:aspect-auto">
+<div>
+<span class="material-symbols-outlined mb-4 text-primary" style="font-variation-settings: 'FILL' 1;">payments</span>
+<h3 class="font-label text-sm uppercase tracking-widest text-on-surface-variant">Expected CTC</h3>
+</div>
+<div class="mt-auto">
+<div class="flex items-baseline gap-1">
+<span class="font-label text-xl font-medium text-primary">₹</span>
+<span class="font-headline text-4xl font-black text-on-surface">42.5L</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Market standard max</p>
+</div>
+</div>
+</section>
+<!-- CTA Banner -->
+<section class="mb-20">
+<div class="bg-[#050F2A] rounded-[2.5rem] overflow-hidden relative p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 group">
+<div class="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
+<img alt="" class="w-full h-full object-cover grayscale brightness-50" data-alt="abstract technological digital pattern with glowing blue lines and network structures in dark space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmLgIwyL2re05fU85i8g1Xyu6BJuAztdf-Wc7sfSSB7dGHjUrUFVBCqguOMWBjb1Gzpg1MgjATjctdyWU-irP_pVdlmzZaDvrhDwUiOp_zJnCjd7YB20acKpbzzGFwVMnFbP8RvWA3txHK9cuvZBvRIAqsRaH2rkLMeSfnj8kMtZHTYYSqgffMCfSVyOZaw-vb36vQewCkDaBAMdLvb8nsdVw-c6I5eRRPBzqIhcaqRTLGZeLKR9N-eQqrdNI87CNr3PvlzMcbZTQ"/>
+</div>
+<div class="relative z-10 text-center md:text-left">
+<h2 class="font-headline text-3xl md:text-5xl font-bold text-white tracking-tighter mb-4">Ready for a new career sprint?</h2>
+<p class="text-primary-fixed-dim text-lg opacity-80">Run our latest neural analysis to find your next jump.</p>
+</div>
+<div class="relative z-10 shrink-0">
+<button class="bg-primary-container text-on-primary-container px-8 py-5 rounded-full font-headline font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl shadow-blue-500/10">
+                        Start New Analysis
+                    </button>
+</div>
+</div>
+</section>
+<!-- Analysis History Grid -->
+<section>
+<div class="flex items-center justify-between mb-10">
+<h2 class="font-headline text-3xl font-extrabold tracking-tighter">Analysis History</h2>
+<button class="text-primary font-bold font-label flex items-center gap-2 hover:translate-x-1 transition-transform">
+                    View All <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Analysis Card 1 -->
+<div class="glass-card p-10 rounded-[2rem] hover:shadow-2xl transition-shadow duration-500 group">
+<div class="flex justify-between items-start mb-12">
+<div class="bg-primary-container/20 p-4 rounded-2xl">
+<span class="material-symbols-outlined text-primary scale-125">robot_2</span>
+</div>
+<div class="text-right">
+<span class="font-headline text-4xl font-black text-on-surface">94%</span>
+<p class="font-label text-xs uppercase tracking-widest text-primary font-bold">Match Score</p>
+</div>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-2">Senior AI Engineer</h3>
+<p class="text-on-surface-variant mb-10">Generative Models &amp; Infrastructure</p>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/20">
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Estimated Comp</p>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-bold">₹</span>
+<span class="text-xl font-bold">55.0L - 68.0L</span>
+</div>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center group-hover:bg-on-surface group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</button>
+</div>
+</div>
+<!-- Analysis Card 2 -->
+<div class="glass-card p-10 rounded-[2rem] hover:shadow-2xl transition-shadow duration-500 group">
+<div class="flex justify-between items-start mb-12">
+<div class="bg-[#EDE9FF]/50 p-4 rounded-2xl">
+<span class="material-symbols-outlined text-secondary scale-125">architecture</span>
+</div>
+<div class="text-right">
+<span class="font-headline text-4xl font-black text-on-surface">88%</span>
+<p class="font-label text-xs uppercase tracking-widest text-secondary font-bold">Match Score</p>
+</div>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-2">Lead Solution Architect</h3>
+<p class="text-on-surface-variant mb-10">Cloud Native Systems &amp; Governance</p>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/20">
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Estimated Comp</p>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-bold">₹</span>
+<span class="text-xl font-bold">48.0L - 52.5L</span>
+</div>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center group-hover:bg-on-surface group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</button>
+</div>
+</div>
+<!-- Analysis Card 3 -->
+<div class="glass-card p-10 rounded-[2rem] hover:shadow-2xl transition-shadow duration-500 group">
+<div class="flex justify-between items-start mb-12">
+<div class="bg-primary-container/20 p-4 rounded-2xl">
+<span class="material-symbols-outlined text-primary scale-125">psychology</span>
+</div>
+<div class="text-right">
+<span class="font-headline text-4xl font-black text-on-surface">91%</span>
+<p class="font-label text-xs uppercase tracking-widest text-primary font-bold">Match Score</p>
+</div>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-2">Machine Learning Lead</h3>
+<p class="text-on-surface-variant mb-10">NLP Research &amp; Implementation</p>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/20">
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Estimated Comp</p>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-bold">₹</span>
+<span class="text-xl font-bold">52.0L - 60.0L</span>
+</div>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center group-hover:bg-on-surface group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</button>
+</div>
+</div>
+<!-- Analysis Card 4 -->
+<div class="glass-card p-10 rounded-[2rem] hover:shadow-2xl transition-shadow duration-500 group">
+<div class="flex justify-between items-start mb-12">
+<div class="bg-[#EDE9FF]/50 p-4 rounded-2xl">
+<span class="material-symbols-outlined text-secondary scale-125">strategy</span>
+</div>
+<div class="text-right">
+<span class="font-headline text-4xl font-black text-on-surface">82%</span>
+<p class="font-label text-xs uppercase tracking-widest text-secondary font-bold">Match Score</p>
+</div>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-2">Technical Product Head</h3>
+<p class="text-on-surface-variant mb-10">FinTech Transformation Pillar</p>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/20">
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Estimated Comp</p>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-bold">₹</span>
+<span class="text-xl font-bold">45.0L - 50.0L</span>
+</div>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center group-hover:bg-on-surface group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-950 w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 text-slate-500">
+<div class="md:col-span-1">
+<span class="text-lg font-bold text-white font-headline">Placify AI</span>
+<p class="mt-4 font-['Inter'] tracking-tight text-sm leading-relaxed">
+                Empowering career leaps through neural market intelligence and precision matchmaking.
+            </p>
+</div>
+<div>
+<h4 class="text-white font-medium mb-4">Product</h4>
+<ul class="space-y-2 font-['Inter'] text-sm">
+<li><a class="hover:text-blue-400 transition-colors duration-200" href="#">Features</a></li>
+<li><a class="hover:text-blue-400 transition-colors duration-200" href="#">API</a></li>
+<li><a class="hover:text-blue-400 transition-colors duration-200" href="#">Support</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-medium mb-4">Legal</h4>
+<ul class="space-y-2 font-['Inter'] text-sm">
+<li><a class="hover:text-blue-400 transition-colors duration-200" href="#">Privacy</a></li>
+<li><a class="hover:text-blue-400 transition-colors duration-200" href="#">Terms</a></li>
+</ul>
+</div>
+<div>
+<p class="font-['Inter'] tracking-tight text-sm">© 2024 Placify AI. All rights reserved. Prices in ₹.</p>
+<div class="mt-6 flex gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">language</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">share</span>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analyze Portfolio - Placify AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline-variant": "#c1c7d2",
+              "on-secondary-container": "#443a87",
+              "surface-tint": "#0962a0",
+              "on-surface-variant": "#414750",
+              "surface-container": "#eceef3",
+              "background": "#f8f9ff",
+              "secondary-fixed-dim": "#c7bfff",
+              "surface": "#f8f9ff",
+              "on-background": "#191c20",
+              "secondary-container": "#b3a9ff",
+              "surface-container-high": "#e7e8ee",
+              "inverse-on-surface": "#eff0f6",
+              "on-primary-fixed": "#001d35",
+              "surface-bright": "#f8f9ff",
+              "on-primary-container": "#004a7c",
+              "on-surface": "#191c20",
+              "surface-dim": "#d8dae0",
+              "on-tertiary-fixed": "#101a35",
+              "surface-container-low": "#f2f3f9",
+              "on-secondary": "#ffffff",
+              "secondary-fixed": "#e5deff",
+              "error-container": "#ffdad6",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed-dim": "#bcc5e9",
+              "on-tertiary-container": "#3d4664",
+              "secondary": "#5d54a3",
+              "on-primary-fixed-variant": "#00497b",
+              "primary-fixed": "#d1e4ff",
+              "on-secondary-fixed": "#18075d",
+              "on-tertiary": "#ffffff",
+              "inverse-primary": "#9dcaff",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#453b89",
+              "surface-container-highest": "#e1e2e8",
+              "on-tertiary-fixed-variant": "#3c4663",
+              "inverse-surface": "#2e3135",
+              "primary-fixed-dim": "#9dcaff",
+              "tertiary": "#545d7c",
+              "tertiary-container": "#acb5d8",
+              "on-error": "#ffffff",
+              "outline": "#717781",
+              "primary-container": "#7bbbff",
+              "tertiary-fixed": "#dbe1ff",
+              "primary": "#0962a0",
+              "surface-variant": "#e1e2e8",
+              "on-error-container": "#93000a"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(193, 199, 210, 0.15);
+        }
+        .ethereal-bg {
+            background: radial-gradient(circle at 0% 0%, #d1e4ff 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, #e5deff 0%, transparent 50%),
+                        #f8f9ff;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: #eceef3;
+            border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #0962a0;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(9, 98, 160, 0.2);
+        }
+    </style>
+</head>
+<body class="ethereal-bg font-body text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-8 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-full mt-4 mx-auto max-w-fit py-2 border border-white/15 shadow-[0_20px_40px_rgba(9,98,160,0.04)]">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black tracking-tighter text-slate-900 dark:text-slate-50">Placify AI</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:scale-105 transition-all duration-300" href="#">Features</a>
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:scale-105 transition-all duration-300" href="#">Dashboard</a>
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-blue-600 dark:text-blue-400 font-bold border-b-2 border-blue-600 pb-1 hover:scale-105 transition-all duration-300" href="#">Analyze</a>
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:scale-105 transition-all duration-300" href="#">Results</a>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-8">
+<button class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 px-4 py-2">Sign In</button>
+<button class="bg-blue-600 text-white font-['Epilogue'] tracking-tighter font-bold uppercase text-xs px-6 py-2 rounded-full hover:scale-105 hover:shadow-blue-500/20 transition-all duration-300 active:scale-98">Get Started</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center pt-32 pb-24 px-6 max-w-7xl mx-auto w-full">
+<!-- Header Section -->
+<header class="text-center mb-16 space-y-4">
+<h1 class="text-5xl md:text-7xl font-black font-headline tracking-tighter text-on-surface leading-none">
+                Analyze <span class="text-primary">Intelligence.</span>
+</h1>
+<p class="text-lg text-on-surface-variant max-w-xl mx-auto font-light">
+                Upload your portfolio and calibrate your core competencies for high-precision career placement matching.
+            </p>
+</header>
+<!-- Dynamic Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-stretch">
+<!-- Left: Upload Dropzone -->
+<section class="lg:col-span-7 group">
+<div class="h-full border-2 border-dashed border-primary-container rounded-[2rem] bg-surface-container-lowest/30 backdrop-blur-md p-12 flex flex-col items-center justify-center transition-all duration-500 hover:border-primary hover:bg-surface-container-lowest/60 group-hover:shadow-[0_40px_80px_rgba(9,98,160,0.08)] relative overflow-hidden">
+<!-- Atmospheric Glow Background -->
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-primary-container/20 blur-[100px] rounded-full"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary-container/20 blur-[100px] rounded-full"></div>
+<div class="relative z-10 flex flex-col items-center text-center space-y-6">
+<div class="w-24 h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(123,187,255,0.4)] transition-transform duration-500 group-hover:scale-110">
+<span class="material-symbols-outlined text-5xl text-primary" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<div class="space-y-2">
+<h3 class="text-3xl font-headline font-bold tracking-tight text-on-surface">Upload Portfolio</h3>
+<p class="text-on-surface-variant font-medium">Drag and drop your PDF or DOCX files here</p>
+</div>
+<button class="mt-4 px-8 py-3 bg-surface-container-highest/50 rounded-full font-headline font-bold text-sm tracking-tighter uppercase border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
+                            Browse Files
+                        </button>
+</div>
+</div>
+</section>
+<!-- Right: Configuration Controls -->
+<section class="lg:col-span-5">
+<div class="glass-card h-full rounded-[2rem] p-10 space-y-10 shadow-2xl flex flex-col">
+<h4 class="text-xl font-headline font-bold tracking-tight border-b border-outline-variant/10 pb-6">Calibration Profiles</h4>
+<!-- Aptitude Slider -->
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<label class="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Aptitude Score</label>
+<span class="text-primary font-bold font-headline text-2xl">85<span class="text-xs text-on-surface-variant/60 ml-1">%</span></span>
+</div>
+<input class="w-full" max="100" min="0" type="range" value="85"/>
+</div>
+<!-- Communication Dropdown -->
+<div class="space-y-4">
+<label class="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Communication Style</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-4 appearance-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface font-medium">
+<option>Articulate &amp; Persuasive</option>
+<option>Direct &amp; Technical</option>
+<option>Collaborative &amp; Empathetic</option>
+<option>Executive &amp; Concise</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Solved Problems Numeric -->
+<div class="space-y-4">
+<label class="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Complex Problems Solved</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant/20 rounded-xl overflow-hidden group focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined px-4 text-on-surface-variant" data-icon="terminal">terminal</span>
+<input class="w-full border-none bg-transparent py-4 text-on-surface font-bold focus:ring-0" placeholder="000" type="number" value="124"/>
+<div class="flex flex-col border-l border-outline-variant/10">
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-xs" data-icon="stat_1">expand_less</span></button>
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-xs" data-icon="stat_minus_1">expand_more</span></button>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 text-center">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-bold">Calibration Active</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Call to Action -->
+<div class="mt-20 w-full max-w-2xl">
+<button class="group w-full relative overflow-hidden py-8 px-12 bg-primary text-white rounded-[2rem] font-headline font-black text-2xl md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(9,98,160,0.4)] active:scale-95">
+<!-- Inner Glow Pulse -->
+<div class="absolute inset-0 bg-white/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative z-10 flex items-center justify-center gap-6">
+<span>Launch AI Engine</span>
+<span class="material-symbols-outlined text-4xl animate-pulse" data-icon="bolt">bolt</span>
+</div>
+<!-- Background decorative elements -->
+<div class="absolute -right-12 -top-12 w-40 h-40 bg-secondary-container/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+</button>
+<p class="text-center mt-6 text-on-surface-variant/60 font-medium text-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="security" style="font-variation-settings: 'FILL' 1;">security</span>
+                Data is encrypted and processed in isolated VPC environments.
+            </p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-950 w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 relative overflow-hidden">
+<!-- Inner Glow -->
+<div class="absolute top-0 left-0 w-64 h-64 bg-blue-900/20 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute bottom-0 right-0 w-64 h-64 bg-blue-900/20 blur-[120px] rounded-full translate-x-1/2 translate-y-1/2"></div>
+<div class="md:col-span-1 space-y-4 relative z-10">
+<span class="text-lg font-bold text-white">Placify AI</span>
+<p class="text-slate-500 text-sm font-['Inter'] leading-relaxed">
+                The future of precision recruitment. Engineered for speed, built for intelligence.
+            </p>
+</div>
+<div class="space-y-4 relative z-10">
+<h5 class="text-white font-medium text-sm">Solutions</h5>
+<div class="flex flex-col gap-3">
+<a class="text-slate-500 hover:text-blue-400 transition-colors duration-200 text-sm" href="#">Portfolio Analysis</a>
+<a class="text-slate-500 hover:text-blue-400 transition-colors duration-200 text-sm" href="#">Skill Calibration</a>
+<a class="text-slate-500 hover:text-blue-400 transition-colors duration-200 text-sm" href="#">Matching Engine</a>
+</div>
+</div>
+<div class="space-y-4 relative z-10">
+<h5 class="text-white font-medium text-sm">Company</h5>
+<div class="flex flex-col gap-3">
+<a class="text-slate-500 hover:text-blue-400 transition-colors duration-200 text-sm" href="#">About</a>
+<a class="text-slate-500 hover:text-blue-400 transition-colors duration-200 text-sm" href="#">Privacy</a>
+<a class="text-slate-500 hover:text-blue-400 transition-colors duration-200 text-sm" href="#">Terms</a>
+</div>
+</div>
+<div class="space-y-4 relative z-10">
+<h5 class="text-white font-medium text-sm">Legal</h5>
+<p class="text-slate-500 text-xs leading-relaxed">
+                © 2024 Placify AI. All rights reserved. Prices in ₹.
+            </p>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-500 hover:text-white cursor-pointer transition-colors" data-icon="public">public</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-white cursor-pointer transition-colors" data-icon="share">share</span>
+</div>
+</div>
+</footer>
+</body></html>
