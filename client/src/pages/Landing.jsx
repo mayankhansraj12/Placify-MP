@@ -13,10 +13,18 @@ export default function Landing() {
   const LINE2 = 'Before the Drive'
   const FULL_TEXT = LINE1 + '\n' + LINE2
 
-  const [displayed, setDisplayed] = useState('')
-  const [typingDone, setTypingDone] = useState(false)
+  const [displayed,    setDisplayed]    = useState('')
+  const [typingDone,   setTypingDone]   = useState(false)
+  // 'typing' → 'blinking' → 'burst' → 'done'
+  const [cursorPhase,  setCursorPhase]  = useState('typing')
+  const [blinkOn,      setBlinkOn]      = useState(true)
+  const [burstOrigin,  setBurstOrigin]  = useState(null)
+  const cursorRef      = useRef(null)
+  const burstCanvasRef = useRef(null)
 
-  // Typewriter effect — runs once on mount
+  const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
+
+  // Typewriter — on finish enter blinking phase instead of immediate done
   useEffect(() => {
     let i = 0
     const id = setInterval(() => {
@@ -24,11 +32,79 @@ export default function Landing() {
       setDisplayed(FULL_TEXT.slice(0, i))
       if (i >= FULL_TEXT.length) {
         clearInterval(id)
-        setTypingDone(true)
+        setCursorPhase('blinking')
       }
     }, 55)
     return () => clearInterval(id)
   }, [])
+
+  // Blink 4 times (8 half-cycles at 260 ms each), capture burst origin, then burst
+  useEffect(() => {
+    if (cursorPhase !== 'blinking') return
+    if (cursorRef.current) {
+      const r = cursorRef.current.getBoundingClientRect()
+      setBurstOrigin({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
+    }
+    let ticks = 0
+    const id = setInterval(() => {
+      ticks++
+      setBlinkOn(v => !v)
+      if (ticks >= 8) { clearInterval(id); setCursorPhase('burst') }
+    }, 260)
+    return () => clearInterval(id)
+  }, [cursorPhase])
+
+  // Particle burst from cursor position
+  useEffect(() => {
+    if (cursorPhase !== 'burst' || !burstOrigin) return
+    const cvs = burstCanvasRef.current
+    cvs.width  = window.innerWidth
+    cvs.height = window.innerHeight
+    const ctx  = cvs.getContext('2d')
+
+    const particles = Array.from({ length: 260 }, () => {
+      const angle = Math.random() * Math.PI * 2
+      const speed = 1.5 + Math.random() * 7
+      return {
+        x: burstOrigin.x, y: burstOrigin.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - Math.random() * 2,
+        life: 1,
+        decay: 0.014 + Math.random() * 0.022,
+        r: 0.4 + Math.random() * 0.9,
+        color: GCOLORS[Math.floor(Math.random() * 4)],
+      }
+    })
+
+    let raf
+    const animate = () => {
+      ctx.clearRect(0, 0, cvs.width, cvs.height)
+      let alive = false
+      for (const p of particles) {
+        p.x  += p.vx; p.y += p.vy
+        p.vy += 0.12; p.vx *= 0.97; p.vy *= 0.97
+        p.life -= p.decay
+        if (p.life <= 0) continue
+        alive = true
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.globalAlpha = p.life
+        ctx.fillStyle   = p.color
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+      ctx.shadowBlur  = 0
+      if (alive) raf = requestAnimationFrame(animate)
+      else { ctx.clearRect(0, 0, cvs.width, cvs.height); setCursorPhase('done') }
+    }
+    animate()
+    return () => cancelAnimationFrame(raf)
+  }, [cursorPhase, burstOrigin])
+
+  // Logo reveals after burst is fully done
+  useEffect(() => {
+    if (cursorPhase === 'done') setTypingDone(true)
+  }, [cursorPhase])
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -60,6 +136,18 @@ export default function Landing() {
     <div ref={containerRef} className="relative min-h-screen font-body text-[#111111] overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
       {/* Particle field — fixed behind all content */}
       <HeroCanvas />
+
+      {/* Cursor burst canvas — fixed overlay, only active during burst */}
+      <canvas
+        ref={burstCanvasRef}
+        style={{
+          position: 'fixed', inset: 0,
+          width: '100%', height: '100%',
+          zIndex: 9999,
+          pointerEvents: 'none',
+          display: cursorPhase === 'burst' ? 'block' : 'none',
+        }}
+      />
 
       {/* Navbar — full-width flat */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/96 backdrop-blur-sm border-b border-[#111111]/5">
@@ -119,19 +207,33 @@ export default function Landing() {
               letterSpacing: '-0.035em',
               color: '#111111',
             }
-            const cursor = (
+            const colorIdx  = displayed.length % 4
+            const c1        = GCOLORS[colorIdx]
+            const c2        = GCOLORS[(colorIdx + 1) % 4]
+            const showCursor = cursorPhase === 'typing' ||
+                               (cursorPhase === 'blinking' && blinkOn)
+            const cursor = showCursor ? (
               <span
-                className="animate-blink"
-                style={{ display: 'inline-block', width: '2px', height: '0.85em', background: '#111111', marginLeft: '3px', verticalAlign: 'middle' }}
+                ref={cursorRef}
+                style={{
+                  display:       'inline-block',
+                  width:         '3px',
+                  height:        '0.88em',
+                  background:    `linear-gradient(180deg, ${c1} 0%, ${c2} 100%)`,
+                  marginLeft:    '4px',
+                  verticalAlign: 'middle',
+                  borderRadius:  '1px',
+                  boxShadow:     `0 0 8px ${c1}, 0 0 18px ${c1}99, 0 0 32px ${c2}55`,
+                }}
               />
-            )
+            ) : null
             return (
               <div style={{ ...textStyle, textAlign: 'center' }}>
                 <div>
                   <div style={{ display: 'inline-block', position: 'relative' }}>
                     <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
                     <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
-                      {line1Typed}{!typingDone && !hasNewline && cursor}
+                      {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
                     </span>
                   </div>
                 </div>
@@ -139,7 +241,7 @@ export default function Landing() {
                   <div style={{ display: 'inline-block', position: 'relative' }}>
                     <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE2}</span>
                     <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
-                      {line2Typed}{!typingDone && hasNewline && cursor}
+                      {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
                     </span>
                   </div>
                 </div>
