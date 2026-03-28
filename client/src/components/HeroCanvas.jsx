@@ -1,16 +1,13 @@
 import { useRef, useEffect } from 'react'
 
-// Google brand palette
 const COLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
-
-const COUNT = 700
+const COUNT  = 300
 
 function makeParticle(W, H) {
   const cx    = W / 2
   const cy    = H / 2
   const angle = Math.random() * Math.PI * 2
-  const maxR  = Math.hypot(cx, cy)
-  const r     = Math.sqrt(Math.random()) * maxR
+  const r     = Math.sqrt(Math.random()) * Math.hypot(cx, cy)
 
   return {
     x:       cx + Math.cos(angle) * r,
@@ -58,11 +55,8 @@ export default function HeroCanvas() {
       ctx.clearRect(0, 0, W, H)
 
       for (const p of particles) {
-        const ax = Math.cos(p.angle) * p.speed
-        const ay = Math.sin(p.angle) * p.speed
-
-        p.x += ax
-        p.y += ay
+        p.x += Math.cos(p.angle) * p.speed
+        p.y += Math.sin(p.angle) * p.speed
 
         if (p.opacity < 1) p.opacity = Math.min(1, p.opacity + 0.007)
 
@@ -72,7 +66,7 @@ export default function HeroCanvas() {
 
         ctx.save()
         ctx.translate(p.x, p.y)
-        ctx.rotate(Math.atan2(ay, ax))
+        ctx.rotate(Math.atan2(Math.sin(p.angle) * p.speed, Math.cos(p.angle) * p.speed))
         ctx.globalAlpha = p.opacity
         ctx.fillStyle   = p.color
         ctx.fillRect(-p.len / 2, -p.thick / 2, p.len, p.thick)
