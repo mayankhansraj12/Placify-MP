@@ -12,55 +12,148 @@ const fadeRight= { hidden: { opacity: 0, x:  60 }, visible: { opacity: 1, x: 0 }
 const VP       = { once: true, margin: '-80px' }
 
 const FEATURE_CARDS = [
-  { metric: 'PDF → Data',   title: 'Resume Intelligence',      desc: 'NLP-powered parsing extracts skills, projects, and ATS signals from your resume in seconds.',      tag: 'Structured in seconds' },
-  { metric: '3 ML Models',  title: 'Role, Tier & Salary',      desc: 'Three models predict your job role, company tier, and expected package — all at once.',             tag: 'Working in parallel'   },
-  { metric: '8+ Domains',   title: 'Know What\u2019s Missing', desc: 'Gaps exposed across DSA, Web Dev, ML, System Design, and more — scored and ranked by priority.',    tag: 'Skill gap analysis'    },
-  { metric: 'Actionable',   title: 'Fix It Fast',               desc: 'Concrete next steps — coding targets, project ideas, and tailored interview prep plans.',           tag: 'Step-by-step roadmap'  },
+  { metric: 'PDF → Data',   title: 'Resume Intelligence',      desc: 'NLP-powered parsing extracts skills, projects, and ATS signals from your resume in seconds.',   tag: 'Structured in seconds', img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80&fit=crop' },
+  { metric: '3 ML Models',  title: 'Role, Tier & Salary',      desc: 'Three models predict your job role, company tier, and expected package — all at once.',          tag: 'Working in parallel',   img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80&fit=crop' },
+  { metric: '8+ Domains',   title: 'Know What\u2019s Missing', desc: 'Gaps exposed across DSA, Web Dev, ML, System Design, and more — scored and ranked by priority.', tag: 'Skill gap analysis',    img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=700&q=80&fit=crop' },
+  { metric: 'Actionable',   title: 'Fix It Fast',              desc: 'Concrete next steps — coding targets, project ideas, and tailored interview prep plans.',         tag: 'Step-by-step roadmap',  img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=700&q=80&fit=crop' },
 ]
 
-function FeatureCard({ card, i, progress, isActive, anyActive }) {
-  const s = i / 4
-  const m = s + 1 / 8
-  const e = (i + 1) / 4
+function FeatureCard({ card, i, progress, isActive, isExpanded }) {
+  const cardRef = useRef(null)
+  const [tx, setTx] = useState(0)
+  const [ty, setTy] = useState(0)
 
-  const y     = useTransform(progress, [s, m, e], ['0vh', '-22vh', '0vh'])
-  const scale = useTransform(progress, [s, m, e], [1, 1.14, 1])
+  useEffect(() => {
+    const measure = () => {
+      if (!cardRef.current) return
+      const rect = cardRef.current.getBoundingClientRect()
+      setTx(window.innerWidth / 2 - (rect.left + rect.width / 2))
+      setTy(rect.height + 24)
+      document.documentElement.style.setProperty('--feat-card-h', `${rect.height}px`)
+    }
+    const id = setTimeout(measure, 80)
+    window.addEventListener('resize', measure)
+    return () => { clearTimeout(id); window.removeEventListener('resize', measure) }
+  }, [])
+
+  const RANGES = [
+    [0.04, 0.11, 0.17, 0.23, 0.28],
+    [0.28, 0.35, 0.41, 0.47, 0.52],
+    [0.52, 0.59, 0.65, 0.71, 0.76],
+    [0.76, 0.83, 0.89, 0.95, 1.00],
+  ]
+  const [s, m1, m2, m3, e] = RANGES[i]
+  // outer stays at center from m1 → m3 (hold + collapse buffer)
+  const x = useTransform(progress, [s, m1, m3, e], [0, tx, tx, 0])
+  const y = useTransform(progress, [s, m1, m3, e], [0, ty, ty, 0])
+
+  const expandedW = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.9, 680) : 680
+  const spring = { type: 'spring', stiffness: 280, damping: 30 }
 
   return (
+    // outer: real grid item (in-flow), provides x/y transform, no visuals
     <motion.div
-      layout
-      style={{ y, scale, zIndex: isActive ? 10 : 1, position: 'relative' }}
-      animate={{ opacity: anyActive && !isActive ? 0.28 : 1 }}
-      transition={{ opacity: { duration: 0.35 }, layout: { type: 'spring', stiffness: 200, damping: 28 } }}
-      className="bg-white/75 backdrop-blur-2xl rounded-3xl overflow-hidden cursor-default shadow-sm"
+      ref={cardRef}
+      style={{ x, y, position: 'relative', zIndex: isActive ? 30 : 2 }}
+      className="aspect-square self-start overflow-visible"
     >
-      {/* title only — always visible, centered */}
-      <div className="flex items-center justify-center text-center px-6 py-10">
-        <div className="font-headline font-black text-[17px] text-[#111111] tracking-tight leading-snug">
-          {card.title}
-        </div>
-      </div>
+      {/* inner: the ONE visible card — fills outer when travelling, breaks out at hold */}
+      <motion.div
+        layout
+        style={isExpanded ? {
+          position: 'absolute',
+          top: 0,
+          left: `calc(50% - ${expandedW / 2}px)`,
+          right: 'auto',
+          bottom: 'auto',
+          width: expandedW,
+          height: expandedW / 2,
+          zIndex: 40,
+        } : {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: 'auto',
+          height: 'auto',
+          zIndex: 2,
+        }}
+        transition={{ layout: spring }}
+        className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-sm"
+      >
+        {/* content fills inner — height:100% tracks the animated card size */}
+        <motion.div
+          layout
+          style={{
+            display: 'flex',
+            flexDirection: isExpanded ? 'row' : 'column',
+            height: '100%',
+            minHeight: 0,
+          }}
+          transition={{ layout: spring }}
+        >
 
-      {/* expanded details — scroll-activated */}
-      <AnimatePresence initial={false}>
-        {isActive && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div className="px-6 pb-8 text-center border-t border-[#111111]/8 space-y-3 pt-5">
-              <div className="text-2xl font-headline font-black text-[#111111]">{card.metric}</div>
-              <p className="text-[#111111]/60 font-body text-sm leading-relaxed">{card.desc}</p>
-              <span className="inline-block text-[10px] font-headline font-bold uppercase tracking-widest text-[#111111]/35 border border-[#111111]/10 rounded-full px-3 py-1">
-                {card.tag}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* content column — always rendered */}
+          <div style={{
+            display: 'flex', flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: isExpanded ? 'flex-start' : 'center',
+            flex: 1,
+            padding: isExpanded ? '28px 32px' : '16px',
+            gap: isExpanded ? '10px' : 0,
+            overflow: 'hidden',
+            minWidth: 0,
+          }}>
+            {/* title: always present, FLIP-animates from center → top-left */}
+            <motion.div
+              layout
+              transition={{ layout: spring }}
+              style={{ textAlign: isExpanded ? 'left' : 'center' }}
+              className={`font-headline font-black text-[#111111] tracking-tight leading-snug ${
+                isExpanded ? 'text-base md:text-2xl' : 'text-[9px] sm:text-[12px] md:text-[16px]'
+              }`}
+            >
+              {card.title}
+            </motion.div>
+
+            {/* extra detail — slides up when expanding, down when collapsing */}
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  key="details"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 16 }}
+                  transition={{ duration: 0.22, delay: 0.14, ease: [0.2, 0, 0.1, 1] }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden', minWidth: 0 }}
+                >
+                  <div className="font-headline font-black text-xl md:text-3xl text-[#111111]">{card.metric}</div>
+                  <p className="text-[#111111]/55 font-body text-[11px] md:text-sm leading-relaxed">{card.desc}</p>
+                  <span className="self-start text-[9px] md:text-[10px] font-headline font-bold uppercase tracking-widest text-[#111111]/45 border border-[#111111]/12 rounded-full px-3 py-1">{card.tag}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* image — slides in from right */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                key="img"
+                initial={{ opacity: 0, x: 32 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 32 }}
+                transition={{ duration: 0.28, delay: 0.06 }}
+                style={{ flex: 1, minHeight: 0, minWidth: 0, position: 'relative', overflow: 'hidden' }}
+              >
+                <img src={card.img} alt={card.title} className="absolute inset-0 w-full h-full object-cover" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+        </motion.div>
+      </motion.div>
     </motion.div>
   )
 }
@@ -95,19 +188,30 @@ export default function Landing() {
 
   // ── scroll-driven feature cards ───────────────────────────────────────────
   const [activeCard,     setActiveCard]     = useState(-1)
+  const [expandedCard,   setExpandedCard]   = useState(-1)
   const [featureEntered, setFeatureEntered] = useState(false)
   const { scrollYProgress: featureProgress } = useScroll({
     target: featureSectionRef,
     offset: ['start start', 'end end'],
   })
   useMotionValueEvent(featureProgress, 'change', (v) => {
-    const entered = v > 0.02
+    const entered = v > 0.04
     setFeatureEntered(entered)
-    if (entered) setActiveCard(v < 0.25 ? 0 : v < 0.5 ? 1 : v < 0.75 ? 2 : 3)
+    if (entered) {
+      setActiveCard(v < 0.28 ? 0 : v < 0.52 ? 1 : v < 0.76 ? 2 : 3)
+      // expand only during hold phase [m1, m2]; outer stays at center until m3
+      const EXPAND_ZONES = [
+        [0.11, 0.17],
+        [0.35, 0.41],
+        [0.59, 0.65],
+        [0.83, 0.89],
+      ]
+      const hit = EXPAND_ZONES.findIndex(([a, b]) => v >= a && v <= b)
+      setExpandedCard(hit)
+    } else {
+      setExpandedCard(-1)
+    }
   })
-
-  // cards invisible until feature section is fully in view (hides them during hero scroll)
-  const gridOpacity = useTransform(featureProgress, [0, 0.04], [0, 1])
 
   // ── typewriter ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -225,7 +329,7 @@ export default function Landing() {
   ) : null
 
   return (
-    <div ref={containerRef} className="relative min-h-screen font-body text-[#111111] overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+    <div ref={containerRef} className="relative min-h-screen font-body text-[#111111] overflow-x-clip selection:bg-primary-container selection:text-on-primary-container">
 
       {/* ── scroll-driven background (framer-motion) ── */}
       <motion.div style={{ backgroundColor: bgColor, position: 'fixed', inset: 0, zIndex: -2 }} />
@@ -312,14 +416,10 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── feature cards — 2nd viewport only ── */}
-        <div ref={featureSectionRef} style={{ height: '500vh' }} className="relative">
-          <div className="sticky top-0 h-screen flex items-center">
+        <div ref={featureSectionRef} style={{ height: '700vh' }} className="relative">
+          <div className="sticky top-0 h-screen flex items-start pt-[18vh] overflow-visible">
             <div className="w-full px-4 sm:px-6 md:px-10">
-              <motion.div
-                style={{ opacity: gridOpacity }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto"
-              >
+              <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-5xl mx-auto">
                 {FEATURE_CARDS.map((card, i) => (
                   <FeatureCard
                     key={card.title}
@@ -327,10 +427,11 @@ export default function Landing() {
                     i={i}
                     progress={featureProgress}
                     isActive={featureEntered && i === activeCard}
+                    isExpanded={featureEntered && i === expandedCard}
                     anyActive={featureEntered}
                   />
                 ))}
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
