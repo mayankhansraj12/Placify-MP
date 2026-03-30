@@ -29,7 +29,7 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
       if (!cardRef.current) return
       const rect = cardRef.current.getBoundingClientRect()
       setTx(window.innerWidth / 2 - (rect.left + rect.width / 2))
-      setTy(rect.height + 24)
+      setTy(rect.height - 20)
       setOuterDim(rect.width)
       document.documentElement.style.setProperty('--feat-card-h', `${rect.height}px`)
     }
@@ -48,7 +48,14 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
   const x = useTransform(progress, [s, m0, m3, e], [0, tx, tx, 0])
   const y = useTransform(progress, [s, m0, m3, e], [0, ty, ty, 0])
 
-  const expandedW = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.9, 680) : 680
+  const expandedW          = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.9, 680) : 680
+  const colW               = expandedW / 2
+  const colPad             = Math.max(14, Math.min(colW * 0.08, 28))
+  const collapsedTitleSzN  = Math.max(10, Math.min(outerDim * 0.68 * 0.11, 18))
+  const expandedTitleSzN   = Math.max(12, Math.min(colW * 0.058, 20))
+  const metricSz           = `${Math.max(16, Math.min(colW * 0.096, 30))}px`
+  const descSz             = `${Math.max(10, Math.min(colW * 0.038, 13))}px`
+  const tagSz              = `${Math.max(8,  Math.min(colW * 0.030, 10))}px`
 
   // 0 = fully collapsed, 1 = fully expanded — tracks scroll directly
   // ramp up over 0.03, hold at peak, ramp down over 0.03
@@ -60,9 +67,12 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
   const collapsedDim   = outerDim * 0.68
   const cardWidth      = useTransform(expandProgress, [0, 1], [collapsedDim, expandedW])
   const cardHeight     = useTransform(expandProgress, [0, 1], [collapsedDim, expandedW / 2])
-  // spacer pushes title to vertical center; details maxH collapses them out of layout
-  const spacerHeight   = useTransform(expandProgress, [0, 1], [collapsedDim * 0.36, 0])
-  const detailsMaxH    = useTransform(expandProgress, [0.15, 0.65], [0, 300])
+  // font size animates from collapsed-card-relative → expanded-col-relative
+  const titleFontSize  = useTransform(expandProgress, [0, 1], [collapsedTitleSzN, expandedTitleSzN])
+  // symmetric flex spacers above/below title collapse to 0 as card expands → perfect y-center when closed
+  const spacerFlex     = useTransform(expandProgress, [0, 0.3], [1, 0])
+  const leftColPad     = useTransform(expandProgress, [0, 1], [Math.max(8, collapsedDim * 0.06), colPad])
+  const detailsMaxH    = useTransform(expandProgress, [0.15, 0.65], [0, 500])
   const imageColWidth  = useTransform(expandProgress, [0, 1], [0, expandedW / 2])
   const detailsOpacity = useTransform(expandProgress, [0.4, 0.9], [0, 1])
 
@@ -88,22 +98,34 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
       >
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'row' }}>
           {/* left column — title always present, moves from center to top-left */}
-          <div style={{
+          <motion.div style={{
             flex: 1, display: 'flex', flexDirection: 'column',
-            padding: '0 20px 20px', gap: 8,
+            paddingLeft: leftColPad, paddingRight: leftColPad,
+            paddingTop: leftColPad, paddingBottom: leftColPad,
             overflow: 'hidden', minWidth: 0,
           }}>
-            {/* spacer shrinks to push title from vertical center down to top */}
-            <motion.div style={{ height: spacerHeight, flexShrink: 0 }} />
-            <div className="font-headline font-black text-[#111111] tracking-tight leading-snug text-[9px] sm:text-[12px] md:text-[16px] text-center">
+            {/* top spacer — shrinks to 0 as card expands, centering title vertically when collapsed */}
+            <motion.div style={{ flexGrow: spacerFlex, flexShrink: 1, minHeight: 0 }} />
+            <motion.div
+              className="font-headline font-black text-[#111111] tracking-tight leading-snug text-center"
+              style={{ fontSize: titleFontSize, wordBreak: 'break-word' }}
+            >
               {card.title}
-            </div>
-            <motion.div style={{ opacity: detailsOpacity, maxHeight: detailsMaxH, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div className="font-headline font-black text-xl md:text-3xl text-[#111111]">{card.metric}</div>
-              <p className="text-[#111111]/55 font-body text-[11px] md:text-sm leading-relaxed">{card.desc}</p>
-              <span className="self-start text-[9px] md:text-[10px] font-headline font-bold uppercase tracking-widest text-[#111111]/45 border border-[#111111]/12 rounded-full px-3 py-1">{card.tag}</span>
             </motion.div>
-          </div>
+            <motion.div style={{ flex: 1, maxHeight: detailsMaxH, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <motion.div style={{
+                opacity: detailsOpacity, flex: 1,
+                paddingTop: 8, display: 'flex', flexDirection: 'column',
+                justifyContent: 'center', alignItems: 'center', gap: 8,
+              }}>
+                <div className="font-headline font-black text-[#111111]" style={{ fontSize: metricSz, textAlign: 'center' }}>{card.metric}</div>
+                <p className="text-[#111111]/55 font-body leading-relaxed" style={{ fontSize: descSz, textAlign: 'center' }}>{card.desc}</p>
+                <span className="font-headline font-bold uppercase tracking-widest text-[#111111]/45 border border-[#111111]/12 rounded-full px-3 py-1" style={{ fontSize: tagSz }}>{card.tag}</span>
+              </motion.div>
+            </motion.div>
+            {/* bottom spacer — mirrors top spacer for symmetric vertical centering */}
+            <motion.div style={{ flexGrow: spacerFlex, flexShrink: 1, minHeight: 0 }} />
+          </motion.div>
 
           {/* image column — grows from 0 to half width */}
           <motion.div style={{
