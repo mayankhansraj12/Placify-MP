@@ -12,10 +12,34 @@ const fadeRight= { hidden: { opacity: 0, x:  60 }, visible: { opacity: 1, x: 0 }
 const VP       = { once: true, margin: '-80px' }
 
 const FEATURE_CARDS = [
-  { metric: 'PDF → Data',   title: 'Resume Intelligence',      desc: 'NLP-powered parsing extracts skills, projects, and ATS signals from your resume in seconds.',   tag: 'Structured in seconds', img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80&fit=crop' },
-  { metric: '3 ML Models',  title: 'Role, Tier & Salary',      desc: 'Three models predict your job role, company tier, and expected package — all at once.',          tag: 'Working in parallel',   img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80&fit=crop' },
-  { metric: '8+ Domains',   title: 'Know What\u2019s Missing', desc: 'Gaps exposed across DSA, Web Dev, ML, System Design, and more — scored and ranked by priority.', tag: 'Skill gap analysis',    img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=700&q=80&fit=crop' },
-  { metric: 'Actionable',   title: 'Fix It Fast',              desc: 'Concrete next steps — coding targets, project ideas, and tailored interview prep plans.',         tag: 'Step-by-step roadmap',  img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=700&q=80&fit=crop' },
+  {
+    metric: 'CV → Features',
+    title: 'Resume Intelligence',
+    desc: 'Extracts skills, projects, and ATS signals using NLP — converted into structured features for prediction.',
+    tag: 'Parsed in seconds',
+    img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80&fit=crop'
+  },
+  {
+    metric: '3 ML Models',
+    title: 'Role, Tier & Salary',
+    desc: 'Random Forest models predict your role, company tier, and salary using real feature inputs.',
+    tag: 'Prediction engine',
+    img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80&fit=crop'
+  },
+  {
+    metric: 'Skill Gap Score',
+    title: 'Know What’s Missing',
+    desc: 'Compares your profile against industry benchmarks across DSA, Web, ML, and more.',
+    tag: 'Prioritized gaps',
+    img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=700&q=80&fit=crop'
+  },
+  {
+    metric: 'Execution Plan',
+    title: 'Fix It Fast',
+    desc: 'Clear next steps — coding targets, projects, and interview prep tailored to your gaps.',
+    tag: 'Actionable roadmap',
+    img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=700&q=80&fit=crop'
+  }
 ]
 
 function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
