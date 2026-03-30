@@ -51,9 +51,12 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
   useEffect(() => {
     const measure = () => {
       if (!cardRef.current) return
-      const rect = cardRef.current.getBoundingClientRect()
+      const rect        = cardRef.current.getBoundingClientRect()
+      const expandedH   = Math.min(window.innerWidth * 0.9, 680) / 2
+      const centerTy    = window.innerHeight / 2 - rect.top - expandedH / 2
+      const belowCardsTy = rect.height + 24
       setTx(window.innerWidth / 2 - (rect.left + rect.width / 2))
-      setTy(rect.height - 20)
+      setTy(Math.max(centerTy, belowCardsTy))
       setOuterDim(rect.width)
       document.documentElement.style.setProperty('--feat-card-h', `${rect.height}px`)
     }
