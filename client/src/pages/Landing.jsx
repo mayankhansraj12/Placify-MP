@@ -159,7 +159,7 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
               }}>
                 <div className="font-headline font-black text-[#111111]" style={{ fontSize: metricSz, textAlign: 'center' }}>{card.metric}</div>
                 <p className="text-[#111111]/55 font-body leading-relaxed" style={{ fontSize: descSz, textAlign: 'center' }}>{card.desc}</p>
-                <span className="font-headline font-bold uppercase tracking-widest text-[#111111]/45 border border-[#111111]/12 rounded-full px-3 py-1" style={{ fontSize: tagSz }}>{card.tag}</span>
+                <span className="font-headline font-bold uppercase tracking-widest text-white rounded-full px-3 py-1" style={{ fontSize: tagSz, background: 'linear-gradient(180deg, #3a3a3a 0%, #0f0f0f 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }}>{card.tag}</span>
               </motion.div>
             </motion.div>
             {/* bottom spacer — mirrors top spacer for symmetric vertical centering */}
