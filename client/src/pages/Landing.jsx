@@ -54,7 +54,11 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
   const cardRef = useRef(null)
   const [tx, setTx]           = useState(0)
   const [ty, setTy]           = useState(0)
-  const [outerDim, setOuterDim] = useState(100)
+  const [outerDim, setOuterDim] = useState(() => {
+    if (typeof window === 'undefined') return 244
+    // estimate grid cell width: (min(vw - px-10 padding, max-w-5xl) - 3×gap) ÷ 4 cols
+    return Math.floor((Math.min(window.innerWidth - 80, 1024) - 48) / 4)
+  })
   const [expandedW, setExpandedW] = useState(680)
 
   useEffect(() => {
