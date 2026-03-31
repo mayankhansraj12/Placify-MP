@@ -4,6 +4,10 @@ import Lenis from 'lenis'
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent } from 'framer-motion'
 import logo from '../assets/logo.png'
 import HeroCanvas from '../components/HeroCanvas'
+import imageforcard1 from '../assets/imageforcard1.png';
+import imageforcard2 from '../assets/imageforcard2.png';
+import imageforcard3 from '../assets/imageforcard3.png';
+import imageforcard4 from '../assets/imageforcard4.png';
 
 // ─── shared animation variants ───────────────────────────────────────────────
 const fadeUp   = { hidden: { opacity: 0, y: 48 }, visible: { opacity: 1, y: 0 } }
@@ -17,48 +21,56 @@ const FEATURE_CARDS = [
     title: 'Resume Intelligence',
     desc: 'Extracts skills, projects, and ATS signals using NLP — converted into structured features for prediction.',
     tag: 'Parsed in seconds',
-    img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80&fit=crop'
+    img: imageforcard1
+    //img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80&fit=crop'
   },
   {
     metric: '3 ML Models',
     title: 'Role, Tier & Salary',
     desc: 'Random Forest models predict your role, company tier, and salary using real feature inputs.',
     tag: 'Prediction engine',
-    img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80&fit=crop'
+    img: imageforcard2
+    //img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80&fit=crop'
   },
   {
     metric: 'Skill Gap Score',
     title: 'Know What’s Missing',
     desc: 'Compares your profile against industry benchmarks across DSA, Web, ML, and more.',
     tag: 'Prioritized gaps',
-    img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=700&q=80&fit=crop'
+    img: imageforcard3
+    //img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=700&q=80&fit=crop'
   },
   {
     metric: 'Execution Plan',
     title: 'Fix It Fast',
     desc: 'Clear next steps — coding targets, projects, and interview prep tailored to your gaps.',
     tag: 'Actionable roadmap',
-    img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=700&q=80&fit=crop'
+    img: imageforcard4
+    //img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=700&q=80&fit=crop'
   }
 ]
 
 function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
   const cardRef = useRef(null)
-  const [tx, setTx] = useState(0)
-  const [ty, setTy] = useState(0)
+  const [tx, setTx]           = useState(0)
+  const [ty, setTy]           = useState(0)
   const [outerDim, setOuterDim] = useState(100)
+  const [expandedW, setExpandedW] = useState(680)
 
   useEffect(() => {
     const measure = () => {
       if (!cardRef.current) return
-      const rect         = cardRef.current.getBoundingClientRect()
-      const expandedH    = Math.min(window.innerWidth * 0.9, 680) / 2
-      const centerTy     = window.innerHeight / 2 - rect.top - expandedH / 2
-      const minTy        = rect.height + Math.max(16, window.innerHeight * 0.02)
-      const maxTy        = window.innerHeight - rect.top - expandedH - Math.max(20, window.innerHeight * 0.04)
+      const rect    = cardRef.current.getBoundingClientRect()
+      const ew      = Math.min(window.innerWidth * 0.9, 680)
+      const eh      = ew / 2
+      const pt      = window.innerHeight * 0.18        // matches pt-[18vh], correct regardless of scroll
+      const centerTy = window.innerHeight / 2 - pt - eh / 2
+      const minTy    = rect.height + Math.max(16, window.innerHeight * 0.02)
+      const maxTy    = window.innerHeight - pt - eh - Math.max(20, window.innerHeight * 0.04)
       setTx(window.innerWidth / 2 - (rect.left + rect.width / 2))
       setTy(Math.min(Math.max(centerTy, minTy), maxTy))
       setOuterDim(rect.width)
+      setExpandedW(ew)
       document.documentElement.style.setProperty('--feat-card-h', `${rect.height}px`)
     }
     const id = setTimeout(measure, 80)
@@ -76,7 +88,6 @@ function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
   const x = useTransform(progress, [s, m0, m3, e], [0, tx, tx, 0])
   const y = useTransform(progress, [s, m0, m3, e], [0, ty, ty, 0])
 
-  const expandedW          = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.9, 680) : 680
   const colW               = expandedW / 2
   const colPad             = Math.max(14, Math.min(colW * 0.08, 28))
   const collapsedTitleSzN  = Math.max(10, Math.min(outerDim * 0.68 * 0.11, 18))
