@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Lenis from 'lenis'
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import logo from '../assets/logo.png'
 import HeroCanvas from '../components/HeroCanvas'
 import imageforcard1 from '../assets/imageforcard1.png';
@@ -50,132 +50,79 @@ const FEATURE_CARDS = [
   }
 ]
 
-function FeatureCard({ card, i, progress, isActive, isAtHold, anyActive }) {
-  const cardRef = useRef(null)
-  const [tx, setTx]           = useState(0)
-  const [ty, setTy]           = useState(0)
-  const [outerDim, setOuterDim] = useState(100)
-  const [expandedW, setExpandedW] = useState(680)
+function FeatureCard({ card, myIdx, hoveredIdx, setHoveredIdx }) {
+  const cardRef  = useRef(null)
+  const [cellSize, setCellSize] = useState(200)
+  const hovered  = hoveredIdx === myIdx
+  const anyHov   = hoveredIdx !== -1
 
   useEffect(() => {
     const measure = () => {
-      if (!cardRef.current) return
-      const rect    = cardRef.current.getBoundingClientRect()
-      const ew      = Math.min(window.innerWidth * 0.9, 680)
-      const eh      = ew / 2
-      const pt      = window.innerHeight * 0.18        // matches pt-[18vh], correct regardless of scroll
-      const centerTy = window.innerHeight / 2 - pt - eh / 2
-      const minTy    = rect.height + Math.max(16, window.innerHeight * 0.02)
-      const maxTy    = window.innerHeight - pt - eh - Math.max(20, window.innerHeight * 0.04)
-      setTx(window.innerWidth / 2 - (rect.left + rect.width / 2))
-      setTy(Math.min(Math.max(centerTy, minTy), maxTy))
-      setOuterDim(rect.width)
-      setExpandedW(ew)
-      document.documentElement.style.setProperty('--feat-card-h', `${rect.height}px`)
+      if (cardRef.current) setCellSize(cardRef.current.getBoundingClientRect().width)
     }
-    const id = setTimeout(measure, 80)
+    const id = setTimeout(measure, 50)
     window.addEventListener('resize', measure)
     return () => { clearTimeout(id); window.removeEventListener('resize', measure) }
   }, [])
 
-  const RANGES = [
-    [0.04, 0.08, 0.12, 0.20, 0.24, 0.28],
-    [0.28, 0.32, 0.36, 0.44, 0.48, 0.52],
-    [0.52, 0.56, 0.60, 0.68, 0.72, 0.76],
-    [0.76, 0.80, 0.84, 0.92, 0.96, 1.00],
-  ]
-  const [s, m0, m1, m2, m3, e] = RANGES[i]
-  const x = useTransform(progress, [s, m0, m3, e], [0, tx, tx, 0])
-  const y = useTransform(progress, [s, m0, m3, e], [0, ty, ty, 0])
-
-  const colW               = expandedW / 2
-  const colPad             = Math.max(14, Math.min(colW * 0.08, 28))
-  const collapsedTitleSzN  = Math.max(10, Math.min(outerDim * 0.68 * 0.11, 18))
-  const expandedTitleSzN   = Math.max(12, Math.min(colW * 0.058, 20))
-  const metricSz           = `${Math.max(16, Math.min(colW * 0.096, 30))}px`
-  const descSz             = `${Math.max(10, Math.min(colW * 0.038, 13))}px`
-  const tagSz              = `${Math.max(8,  Math.min(colW * 0.030, 10))}px`
-
-  // 0 = fully collapsed, 1 = fully expanded — tracks scroll directly
-  // ramp up over 0.03, hold at peak, ramp down over 0.03
-  const expandProgress = useTransform(
-    progress,
-    [m1, m1 + 0.03, m3 - 0.03, m3],
-    [0, 1, 1, 0],
-  )
-  const collapsedDim   = outerDim * 0.68
-  const cardWidth      = useTransform(expandProgress, [0, 1], [collapsedDim, expandedW])
-  const cardHeight     = useTransform(expandProgress, [0, 1], [collapsedDim, expandedW / 2])
-  // font size animates from collapsed-card-relative → expanded-col-relative
-  const titleFontSize  = useTransform(expandProgress, [0, 1], [collapsedTitleSzN, expandedTitleSzN])
-  // symmetric flex spacers above/below title collapse to 0 as card expands → perfect y-center when closed
-  const spacerFlex     = useTransform(expandProgress, [0, 0.3], [1, 0])
-  const leftColPad     = useTransform(expandProgress, [0, 1], [Math.max(8, collapsedDim * 0.06), colPad])
-  const detailsMaxH    = useTransform(expandProgress, [0.15, 0.65], [0, 500])
-  const imageColWidth  = useTransform(expandProgress, [0, 1], [0, expandedW / 2])
-  const detailsOpacity = useTransform(expandProgress, [0.4, 0.9], [0, 1])
+  const expandedW    = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.85, 600) : 600
+  const expandedH    = expandedW / 2
+  const collapsedDim = cellSize * 0.72
+  const colW         = expandedW / 2
+  const titleSzC     = Math.max(10, Math.min(collapsedDim * 0.09, 16))
+  const titleSzE     = Math.max(14, Math.min(colW * 0.06, 20))
+  const metricSz     = Math.max(16, Math.min(colW * 0.096, 28))
+  const descSz       = Math.max(10, Math.min(colW * 0.038, 13))
+  const tagSz        = Math.max(8,  Math.min(colW * 0.030, 10))
+  const colPad       = Math.max(14, Math.min(colW * 0.08, 26))
+  const springT      = { type: 'spring', stiffness: 280, damping: 28 }
 
   return (
-    <motion.div
-      ref={cardRef}
-      style={{ x, y, position: 'relative', zIndex: isActive ? 30 : 2 }}
-      animate={{ opacity: isAtHold ? 0.9 : isActive ? 0.7 : anyActive ? 0.4 : 1 }}
-      transition={{ opacity: { duration: 0.4 } }}
-      className="aspect-square self-start overflow-visible"
-    >
+    <div ref={cardRef} className="aspect-square relative">
       <motion.div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          x: '-50%',
-          width: cardWidth,
-          height: cardHeight,
-          zIndex: 2,
+        onHoverStart={() => setHoveredIdx(myIdx)}
+        onHoverEnd={() => setHoveredIdx(-1)}
+        animate={{
+          width:   hovered ? expandedW    : collapsedDim,
+          height:  hovered ? expandedH    : collapsedDim,
+          opacity: anyHov && !hovered ? 0.4 : 1,
         }}
-        className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-sm"
+        transition={springT}
+        style={{ position: 'absolute', top: 0, left: '50%', x: '-50%', zIndex: hovered ? 30 : 2 }}
+        className="bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer"
       >
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'row' }}>
-          {/* left column — title always present, moves from center to top-left */}
-          <motion.div style={{
-            flex: 1, display: 'flex', flexDirection: 'column',
-            paddingLeft: leftColPad, paddingRight: leftColPad,
-            paddingTop: leftColPad, paddingBottom: leftColPad,
-            overflow: 'hidden', minWidth: 0,
-          }}>
-            {/* top spacer — shrinks to 0 as card expands, centering title vertically when collapsed */}
-            <motion.div style={{ flexGrow: spacerFlex, flexShrink: 1, minHeight: 0 }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0, padding: hovered ? `${colPad}px` : `${Math.max(8, collapsedDim * 0.08)}px` }}>
+            <motion.div animate={{ flex: hovered ? 0 : 1 }} transition={springT} style={{ minHeight: 0 }} />
             <motion.div
-              className="font-headline font-black text-[#111111] tracking-tight leading-snug text-center"
-              style={{ fontSize: titleFontSize, wordBreak: 'break-word' }}
+              animate={{ fontSize: hovered ? titleSzE : titleSzC }}
+              transition={springT}
+              className="font-headline font-black text-[#111111] tracking-tight text-center leading-snug"
+              style={{ wordBreak: 'break-word' }}
             >
               {card.title}
             </motion.div>
-            <motion.div style={{ flex: 1, maxHeight: detailsMaxH, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <motion.div style={{
-                opacity: detailsOpacity, flex: 1,
-                paddingTop: 8, display: 'flex', flexDirection: 'column',
-                justifyContent: 'center', alignItems: 'center', gap: 8,
-              }}>
-                <div className="font-headline font-black text-[#111111]" style={{ fontSize: metricSz, textAlign: 'center' }}>{card.metric}</div>
-                <p className="text-[#111111]/55 font-body leading-relaxed" style={{ fontSize: descSz, textAlign: 'center' }}>{card.desc}</p>
-                <span className="font-headline font-bold uppercase tracking-widest text-white rounded-full px-3 py-1" style={{ fontSize: tagSz, background: 'linear-gradient(180deg, #3a3a3a 0%, #0f0f0f 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }}>{card.tag}</span>
-              </motion.div>
+            <motion.div
+              animate={{ opacity: hovered ? 1 : 0, maxHeight: hovered ? 300 : 0 }}
+              transition={{ duration: 0.22 }}
+              style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 8 }}
+            >
+              <div className="font-headline font-black text-[#111111] text-center" style={{ fontSize: metricSz }}>{card.metric}</div>
+              <p className="text-[#111111]/55 font-body text-center leading-relaxed" style={{ fontSize: descSz }}>{card.desc}</p>
+              <span className="font-headline font-bold uppercase tracking-widest text-white rounded-full px-3 py-1" style={{ fontSize: tagSz, background: 'linear-gradient(180deg,#3a3a3a 0%,#0f0f0f 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }}>{card.tag}</span>
             </motion.div>
-            {/* bottom spacer — mirrors top spacer for symmetric vertical centering */}
-            <motion.div style={{ flexGrow: spacerFlex, flexShrink: 1, minHeight: 0 }} />
-          </motion.div>
-
-          {/* image column — grows from 0 to half width */}
-          <motion.div style={{
-            width: imageColWidth, flexShrink: 0,
-            minHeight: 0, position: 'relative', overflow: 'hidden',
-          }}>
+            <motion.div animate={{ flex: hovered ? 0 : 1 }} transition={springT} style={{ minHeight: 0 }} />
+          </div>
+          <motion.div
+            animate={{ width: hovered ? expandedW / 2 : 0 }}
+            transition={springT}
+            style={{ flexShrink: 0, position: 'relative', overflow: 'hidden' }}
+          >
             <img src={card.img} alt={card.title} className="absolute inset-0 w-full h-full object-cover" />
           </motion.div>
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -195,7 +142,6 @@ export default function Landing() {
   const [burstOrigin, setBurstOrigin] = useState(null)
   const cursorRef      = useRef(null)
   const burstCanvasRef = useRef(null)
-  const featureSectionRef = useRef(null)
 
   const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
 
@@ -206,33 +152,7 @@ export default function Landing() {
     [0, typeof window !== 'undefined' ? window.innerHeight : 800],
     ['#ffffff', '#000000'],
   )
-
-  // ── scroll-driven feature cards ───────────────────────────────────────────
-  const [activeCard,     setActiveCard]     = useState(-1)
-  const [holdCard,       setHoldCard]       = useState(-1)
-  const [featureEntered, setFeatureEntered] = useState(false)
-  const { scrollYProgress: featureProgress } = useScroll({
-    target: featureSectionRef,
-    offset: ['start start', 'end end'],
-  })
-  useMotionValueEvent(featureProgress, 'change', (v) => {
-    const entered = v > 0.04
-    setFeatureEntered(entered)
-    if (entered) {
-      setActiveCard(v < 0.28 ? 0 : v < 0.52 ? 1 : v < 0.76 ? 2 : 3)
-      // hold = entire stationary phase [m0, m3] — opacity stays 0.9 until depart
-      const AT_HOLD_ZONES = [
-        [0.08, 0.24],
-        [0.32, 0.48],
-        [0.56, 0.72],
-        [0.80, 0.96],
-      ]
-      const holdHit = AT_HOLD_ZONES.findIndex(([a, b]) => v >= a && v <= b)
-      setHoldCard(holdHit)
-    } else {
-      setHoldCard(-1)
-    }
-  })
+  const [hoveredIdx, setHoveredIdx] = useState(-1)
 
   // ── typewriter ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -437,25 +357,19 @@ export default function Landing() {
           </div>
         </section>
 
-        <div ref={featureSectionRef} style={{ height: '1400vh' }} className="relative">
-          <div className="sticky top-0 h-screen flex items-start pt-[18vh] overflow-visible">
-            <div className="w-full px-4 sm:px-6 md:px-10">
-              <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-5xl mx-auto">
-                {FEATURE_CARDS.map((card, i) => (
-                  <FeatureCard
-                    key={card.title}
-                    card={card}
-                    i={i}
-                    progress={featureProgress}
-                    isActive={featureEntered && i === activeCard}
-                    isAtHold={featureEntered && i === holdCard}
-                    anyActive={featureEntered}
-                  />
-                ))}
-              </div>
-            </div>
+        <section className="py-20 px-4 sm:px-6 md:px-10">
+          <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-5xl mx-auto">
+            {FEATURE_CARDS.map((card, i) => (
+              <FeatureCard
+                key={card.title}
+                card={card}
+                myIdx={i}
+                hoveredIdx={hoveredIdx}
+                setHoveredIdx={setHoveredIdx}
+              />
+            ))}
           </div>
-        </div>
+        </section>
 
         {/* ── features ── */}
         <section id="features" className="container mx-auto px-6 space-y-32">
