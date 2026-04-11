@@ -467,21 +467,26 @@ export default function Landing() {
               transition={{ duration: 0.7, ease: 'easeOut' }}
               className="flex-1 space-y-8"
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
                 </svg>
               </div>
-              <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-[#111111] leading-tight">Editorial-Grade Behavioral Mapping</h2>
-              <p className="text-[#111111]/70 text-lg leading-relaxed font-body">Our proprietary AI analyzes over 200 behavioral markers to map your core competencies against top-tier corporate requirements, ensuring a perfect cultural fit.</p>
+              <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-white leading-tight">Peer Benchmarking</h2>
+              <p className="text-white/70 text-lg leading-relaxed font-body">Understand your position among other students — not in isolation.</p>
               <ul className="space-y-4">
-                {['Sentiment Analysis Engine', 'Bias-Free Benchmarking'].map(item => (
-                  <li key={item} className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-[#111111]">
-                    <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">✓</span>
-                    {item}
+                {[
+                  { text: 'Percentile ranking across profiles',                          color: '#EA4335' },
+                  { text: 'Confidence score for prediction reliability',                  color: '#34A853' },
+                  { text: 'Tier probability distribution (Startup, Product, Service, etc.)', color: '#4285F4' },
+                ].map(({ text, color }) => (
+                  <li key={text} className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-white">
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0" style={{ border: `1.5px solid ${color}`, color }}>✓</span>
+                    {text}
                   </li>
                 ))}
               </ul>
+              <p className="text-white/60 text-sm font-body italic">Know if you're ahead, average, or behind — with data.</p>
             </motion.div>
             <motion.div
               variants={fadeRight} initial="hidden" whileInView="visible" viewport={VP}
