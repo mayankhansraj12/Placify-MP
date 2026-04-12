@@ -251,18 +251,23 @@ export default function Landing() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-20 pointer-events-none -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-container via-transparent to-transparent" />
 
         {/* ── hero ── */}
-        <section className="min-h-screen flex flex-col items-center justify-center text-center px-6">
+        <section className="min-h-screen relative flex items-center justify-center text-center px-6">
 
-          {/* logo — slides up after typing done */}
-          <div className={`flex items-center gap-4 mb-10 transition-all duration-700 ease-out ${
-            typingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-          }`}>
-            <img src={logo} alt="Placify AI" className="h-14 w-auto" />
-            <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
+          {/* logo — absolutely above text center, never disturbs text centering */}
+          <div
+            className={`absolute left-0 right-0 flex justify-center transition-all duration-700 ease-out ${
+              typingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+            }`}
+            style={{ bottom: 'calc(50% + clamp(1rem, 6vw, 5.5rem) * 1.1 + 28px)' }}
+          >
+            <div className="flex items-center gap-4">
+              <img src={logo} alt="Placify AI" className="h-14 w-auto" />
+              <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
+            </div>
           </div>
 
-          {/* typewriter — ghost span locks width; typed text overlays from left edge */}
-          <div style={{ fontFamily: '"Funnel Sans", sans-serif', fontSize: 'clamp(2rem, 6vw, 5.5rem)', fontWeight: 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111', textAlign: 'center' }}>
+          {/* typewriter — only element in flex flow, sits exactly at 50vh center */}
+          <div style={{ fontFamily: '"Funnel Sans", sans-serif', fontSize: 'clamp(1rem, 6vw, 5.5rem)', fontWeight: 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111', textAlign: 'center' }}>
             <div>
               <div style={{ display: 'inline-block', position: 'relative' }}>
                 <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
