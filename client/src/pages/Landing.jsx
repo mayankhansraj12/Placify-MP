@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Lenis from 'lenis'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import logo from '../assets/logo.png'
 import HeroCanvas from '../components/HeroCanvas'
 import BounceCards from '../components/BounceCards'
@@ -67,8 +67,6 @@ export default function Landing() {
   const [burstOrigin, setBurstOrigin] = useState(null)
   const cursorRef      = useRef(null)
   const burstCanvasRef = useRef(null)
-  const heroWrapRef    = useRef(null)
-  const heroTextRef    = useRef(null)
 
   const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
 
@@ -187,24 +185,6 @@ export default function Landing() {
     return () => { cancelAnimationFrame(rafRef.current); lenis.destroy() }
   }, [])
 
-  // ── hero text auto-fit — max size, shrink only if touching edges ─────────
-  useEffect(() => {
-    const fit = () => {
-      const wrap = heroWrapRef.current
-      const text = heroTextRef.current
-      if (!wrap || !text) return
-      text.style.fontSize = '20vw'
-      const wrapW = wrap.getBoundingClientRect().width
-      const textW = text.scrollWidth
-      if (textW > wrapW) {
-        text.style.fontSize = `${(wrapW / textW) * 20 * 0.97}vw`
-      }
-    }
-    const id = setTimeout(fit, 0)
-    window.addEventListener('resize', fit)
-    return () => { clearTimeout(id); window.removeEventListener('resize', fit) }
-  }, [])
-
   const scrollToFeatures = (e) => {
     e.preventDefault()
     lenisRef.current?.scrollTo('#features', { offset: -80, duration: 1.4 })
@@ -271,47 +251,36 @@ export default function Landing() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-20 pointer-events-none -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-container via-transparent to-transparent" />
 
         {/* ── hero ── */}
-        <section className="relative h-screen">
+        <section className="min-h-screen flex flex-col items-center justify-center text-center px-6">
 
-          {/* text block — pinned so line 1 sits on the vertical center axis */}
-          <div ref={heroWrapRef} style={{
-            position: 'absolute',
-            top: '50%',
-            left: '5%',
-            right: '5%',
-            transform: 'translateY(-50%)',
-            textAlign: 'center',
-          }}>
-
-            {/* logo — floats above line 1, never displaces the text */}
-            <div style={{ position: 'absolute', bottom: '100%', left: 0, right: 0, paddingBottom: '16px', display: 'flex', justifyContent: 'center' }}>
-              <AnimatePresence>
-                {typingDone && (
-                  <motion.div
-                    key="logo"
-                    initial={{ opacity: 0, y: -16, scale: 0.88 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 1.2, ease: [0.07, 1, 0.3, 1] }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                  >
-                    <img src={logo} alt="Placify AI" style={{ height: '36px', width: 'auto' }} />
-                    <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#111111', letterSpacing: '-0.03em' }}>Placify AI</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* line 1 and line 2 */}
-            <div ref={heroTextRef} style={{ fontFamily: '"Funnel Sans", sans-serif', fontWeight: 200, lineHeight: 1.2, letterSpacing: '-0.035em', color: '#111111', fontSize: '10vw' }}>
-              <div>
-                {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
-              </div>
-              <div>
-                {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
-              </div>
-            </div>
-
+          {/* logo — slides up after typing done */}
+          <div className={`flex items-center gap-4 mb-10 transition-all duration-700 ease-out ${
+            typingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+          }`}>
+            <img src={logo} alt="Placify AI" className="h-14 w-auto" />
+            <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
           </div>
+
+          {/* typewriter — ghost span locks width; typed text overlays from left edge */}
+          <div style={{ fontFamily: '"Funnel Sans", sans-serif', fontSize: 'clamp(2rem, 6vw, 5.5rem)', fontWeight: 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111', textAlign: 'center' }}>
+            <div>
+              <div style={{ display: 'inline-block', position: 'relative' }}>
+                <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
+                <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
+                  {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
+                </span>
+              </div>
+            </div>
+            <div>
+              <div style={{ display: 'inline-block', position: 'relative' }}>
+                <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE2}</span>
+                <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
+                  {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
+                </span>
+              </div>
+            </div>
+          </div>
+
         </section>
 
         <section className="py-20 px-4 sm:px-6 md:px-10 flex flex-col items-center">
