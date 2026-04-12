@@ -4,6 +4,7 @@ import Lenis from 'lenis'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import logo from '../assets/logo.png'
 import HeroCanvas from '../components/HeroCanvas'
+import BounceCards from '../components/BounceCards'
 import imageforcard1 from '../assets/imageforcard1.png';
 import imageforcard2 from '../assets/imageforcard2.png';
 import imageforcard3 from '../assets/imageforcard3.png';
@@ -50,82 +51,6 @@ const FEATURE_CARDS = [
   }
 ]
 
-function FeatureCard({ card, myIdx, hoveredIdx, setHoveredIdx }) {
-  const cardRef  = useRef(null)
-  const [cellSize, setCellSize] = useState(200)
-  const hovered  = hoveredIdx === myIdx
-  const anyHov   = hoveredIdx !== -1
-
-  useEffect(() => {
-    const measure = () => {
-      if (cardRef.current) setCellSize(cardRef.current.getBoundingClientRect().width)
-    }
-    const id = setTimeout(measure, 50)
-    window.addEventListener('resize', measure)
-    return () => { clearTimeout(id); window.removeEventListener('resize', measure) }
-  }, [])
-
-  const expandedW    = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.85, 600) : 600
-  const expandedH    = expandedW / 2
-  const collapsedDim = cellSize * 0.72
-  const colW         = expandedW / 2
-  const titleSzC     = Math.max(10, Math.min(collapsedDim * 0.09, 16))
-  const titleSzE     = Math.max(14, Math.min(colW * 0.06, 20))
-  const metricSz     = Math.max(16, Math.min(colW * 0.096, 28))
-  const descSz       = Math.max(10, Math.min(colW * 0.038, 13))
-  const tagSz        = Math.max(8,  Math.min(colW * 0.030, 10))
-  const colPad       = Math.max(14, Math.min(colW * 0.08, 26))
-  const springT      = { type: 'spring', stiffness: 280, damping: 28 }
-
-  return (
-    <div ref={cardRef} className="aspect-square relative">
-      <motion.div
-        onHoverStart={() => setHoveredIdx(myIdx)}
-        onHoverEnd={() => setHoveredIdx(-1)}
-        animate={{
-          width:   hovered ? expandedW    : collapsedDim,
-          height:  hovered ? expandedH    : collapsedDim,
-          opacity: anyHov && !hovered ? 0.4 : 1,
-        }}
-        transition={springT}
-        style={{ position: 'absolute', top: 0, left: '50%', x: '-50%', zIndex: hovered ? 30 : 2 }}
-        className="bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer"
-      >
-        <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0, padding: hovered ? `${colPad}px` : `${Math.max(8, collapsedDim * 0.08)}px` }}>
-            <motion.div animate={{ flex: hovered ? 0 : 1 }} transition={springT} style={{ minHeight: 0 }} />
-            <motion.div
-              animate={{ fontSize: hovered ? titleSzE : titleSzC }}
-              transition={springT}
-              className="font-headline font-black text-[#111111] tracking-tight text-center leading-snug"
-              style={{ wordBreak: 'break-word' }}
-            >
-              {card.title}
-            </motion.div>
-            <motion.div
-              animate={{ opacity: hovered ? 1 : 0, maxHeight: hovered ? 300 : 0 }}
-              transition={{ duration: 0.22 }}
-              style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 8 }}
-            >
-              <div className="font-headline font-black text-[#111111] text-center" style={{ fontSize: metricSz }}>{card.metric}</div>
-              <p className="text-[#111111]/55 font-body text-center leading-relaxed" style={{ fontSize: descSz }}>{card.desc}</p>
-              <span className="font-headline font-bold uppercase tracking-widest text-white rounded-full px-3 py-1" style={{ fontSize: tagSz, background: 'linear-gradient(180deg,#3a3a3a 0%,#0f0f0f 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }}>{card.tag}</span>
-            </motion.div>
-            <motion.div animate={{ flex: hovered ? 0 : 1 }} transition={springT} style={{ minHeight: 0 }} />
-          </div>
-          <motion.div
-            animate={{ width: hovered ? expandedW / 2 : 0 }}
-            transition={springT}
-            style={{ flexShrink: 0, position: 'relative', overflow: 'hidden' }}
-          >
-            <img src={card.img} alt={card.title} className="absolute inset-0 w-full h-full object-cover" />
-          </motion.div>
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
 export default function Landing() {
   const containerRef = useRef(null)
   const lenisRef     = useRef(null)
@@ -142,6 +67,8 @@ export default function Landing() {
   const [burstOrigin, setBurstOrigin] = useState(null)
   const cursorRef      = useRef(null)
   const burstCanvasRef = useRef(null)
+  const heroWrapRef    = useRef(null)
+  const heroTextRef    = useRef(null)
 
   const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
 
@@ -152,7 +79,22 @@ export default function Landing() {
     [0, typeof window !== 'undefined' ? window.innerHeight : 800],
     ['#ffffff', '#000000'],
   )
-  const [hoveredIdx, setHoveredIdx] = useState(-1)
+  const [tickColors] = useState(() => {
+    const c = ['#EA4335', '#34A853', '#4285F4', '#FBBC04']
+    for (let i = c.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [c[i], c[j]] = [c[j], c[i]]
+    }
+    return c.slice(0, 3)
+  })
+  const [cardScale, setCardScale] = useState(
+    typeof window !== 'undefined' ? Math.min(1, (window.innerWidth - 32) / 720) : 1
+  )
+  useEffect(() => {
+    const update = () => setCardScale(Math.min(1, (window.innerWidth - 32) / 720))
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   // ── typewriter ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -245,6 +187,24 @@ export default function Landing() {
     return () => { cancelAnimationFrame(rafRef.current); lenis.destroy() }
   }, [])
 
+  // ── hero text auto-fit — max size, shrink only if touching edges ─────────
+  useEffect(() => {
+    const fit = () => {
+      const wrap = heroWrapRef.current
+      const text = heroTextRef.current
+      if (!wrap || !text) return
+      text.style.fontSize = '20vw'
+      const wrapW = wrap.getBoundingClientRect().width
+      const textW = text.scrollWidth
+      if (textW > wrapW) {
+        text.style.fontSize = `${(wrapW / textW) * 20 * 0.97}vw`
+      }
+    }
+    const id = setTimeout(fit, 0)
+    window.addEventListener('resize', fit)
+    return () => { clearTimeout(id); window.removeEventListener('resize', fit) }
+  }, [])
+
   const scrollToFeatures = (e) => {
     e.preventDefault()
     lenisRef.current?.scrollTo('#features', { offset: -80, duration: 1.4 })
@@ -255,11 +215,6 @@ export default function Landing() {
   const line1Typed  = hasNewline ? LINE1 : displayed
   const line2Typed  = hasNewline ? displayed.slice(LINE1.length + 1) : ''
   const showCursor  = cursorPhase === 'typing' || (cursorPhase === 'blinking' && blinkOn)
-  const textStyle   = {
-    fontFamily: '"Funnel Sans", sans-serif',
-    fontSize: 'clamp(2rem, 6vw, 5.5rem)',
-    fontWeight: 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111',
-  }
   const cursor = showCursor ? (
     <span ref={cursorRef} style={{
       display: 'inline-block', width: '6px', height: '0.88em',
@@ -315,59 +270,86 @@ export default function Landing() {
       <main className="relative pb-20 z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-20 pointer-events-none -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-container via-transparent to-transparent" />
 
-        {/* ── hero ── strictly first viewport ── */}
-        <section className="h-screen flex flex-col items-center justify-center text-center px-6">
+        {/* ── hero ── */}
+        <section className="relative h-screen">
 
-          {/* fixed-height logo slot */}
-          <div className="h-14 mb-8 flex items-center justify-center">
-            <AnimatePresence>
-              {typingDone && (
-                <motion.div
-                  key="logo"
-                  initial={{ opacity: 0, y: 24, scale: 0.92 }}
-                  animate={{ opacity: 1, y: 0,  scale: 1    }}
-                  transition={{ duration: 1.4, ease: [0.07, 1, 0.3, 1] }}
-                  className="flex items-center gap-4"
-                >
-                  <img src={logo} alt="Placify AI" className="h-14 w-auto" />
-                  <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* text block — pinned so line 1 sits on the vertical center axis */}
+          <div ref={heroWrapRef} style={{
+            position: 'absolute',
+            top: '50%',
+            left: '5%',
+            right: '5%',
+            transform: 'translateY(-50%)',
+            textAlign: 'center',
+          }}>
 
-          {/* typewriter */}
-          <div style={{ ...textStyle, textAlign: 'center' }}>
-            <div>
-              <div style={{ display: 'inline-block', position: 'relative' }}>
-                <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
-                <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
-                  {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
-                </span>
+            {/* logo — floats above line 1, never displaces the text */}
+            <div style={{ position: 'absolute', bottom: '100%', left: 0, right: 0, paddingBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+              <AnimatePresence>
+                {typingDone && (
+                  <motion.div
+                    key="logo"
+                    initial={{ opacity: 0, y: -16, scale: 0.88 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 1.2, ease: [0.07, 1, 0.3, 1] }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+                  >
+                    <img src={logo} alt="Placify AI" style={{ height: '36px', width: 'auto' }} />
+                    <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#111111', letterSpacing: '-0.03em' }}>Placify AI</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* line 1 and line 2 */}
+            <div ref={heroTextRef} style={{ fontFamily: '"Funnel Sans", sans-serif', fontWeight: 200, lineHeight: 1.2, letterSpacing: '-0.035em', color: '#111111', fontSize: '10vw' }}>
+              <div>
+                {line1Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && !hasNewline && cursor}
+              </div>
+              <div>
+                {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
               </div>
             </div>
-            <div>
-              <div style={{ display: 'inline-block', position: 'relative' }}>
-                <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE2}</span>
-                <span style={{ position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap' }}>
-                  {line2Typed}{cursorPhase !== 'burst' && cursorPhase !== 'done' && hasNewline && cursor}
-                </span>
-              </div>
-            </div>
+
           </div>
         </section>
 
-        <section className="py-20 px-4 sm:px-6 md:px-10">
-          <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-5xl mx-auto">
-            {FEATURE_CARDS.map((card, i) => (
-              <FeatureCard
-                key={card.title}
-                card={card}
-                myIdx={i}
-                hoveredIdx={hoveredIdx}
-                setHoveredIdx={setHoveredIdx}
-              />
-            ))}
+        <section className="py-20 px-4 sm:px-6 md:px-10 flex flex-col items-center">
+          <div style={{ height: 280 * cardScale, overflow: 'visible' }}>
+            <div style={{ transform: `scale(${cardScale})`, transformOrigin: 'top center' }}>
+              <BounceCards
+              cardCount={FEATURE_CARDS.length}
+              containerWidth={700}
+              containerHeight={280}
+              animationDelay={0.3}
+              animationStagger={0.09}
+              easeType="elastic.out(1, 0.5)"
+              transformStyles={[
+                'rotate(8deg) translate(-170px)',
+                'rotate(3deg) translate(-58px)',
+                'rotate(-3deg) translate(58px)',
+                'rotate(-8deg) translate(170px)',
+              ]}
+              enableHover
+              hoverPush={220}
+              renderCard={idx => {
+                const card = FEATURE_CARDS[idx]
+                return (
+                  <div style={{ width: 360, height: 200, display: 'flex', background: '#fff' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '22px 20px', gap: 8, minWidth: 0 }}>
+                      <div style={{ fontSize: 10, fontFamily: 'inherit', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(17,17,17,0.38)' }}>{card.metric}</div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#111111', letterSpacing: '-0.03em', lineHeight: 1.2 }}>{card.title}</div>
+                      <p style={{ fontSize: 11, color: 'rgba(17,17,17,0.55)', lineHeight: 1.55, margin: 0 }}>{card.desc}</p>
+                      <span style={{ alignSelf: 'flex-start', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#fff', background: 'linear-gradient(180deg,#3a3a3a 0%,#0f0f0f 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)', borderRadius: 999, padding: '4px 10px', marginTop: 2 }}>{card.tag}</span>
+                    </div>
+                    <div style={{ width: 160, flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+                      <img src={card.img} alt={card.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  </div>
+                )
+              }}
+            />
+            </div>
           </div>
         </section>
 
@@ -390,15 +372,24 @@ export default function Landing() {
               <p className="text-white/70 text-lg leading-relaxed font-body">Understand your position among other students — not in isolation.</p>
               <ul className="space-y-4">
                 {[
-                  { text: 'Percentile ranking across profiles',                          color: '#EA4335' },
-                  { text: 'Confidence score for prediction reliability',                  color: '#34A853' },
-                  { text: 'Tier probability distribution (Startup, Product, Service, etc.)', color: '#4285F4' },
-                ].map(({ text, color }) => (
-                  <li key={text} className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-white">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0" style={{ border: `1.5px solid ${color}`, color }}>✓</span>
-                    {text}
-                  </li>
-                ))}
+                  'Percentile ranking across profiles',
+                  'Confidence score for prediction reliability',
+                  'Tier probability distribution (Startup, Product, Service, etc.)',
+                ].map((text, i) => {
+                  const c = tickColors[i]
+                  return (
+                    <li key={text} className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-white">
+                      <span
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 text-white"
+                        style={{
+                          background: `linear-gradient(145deg, rgba(255,255,255,0.28) 0%, ${c} 45%, ${c}bb 100%)`,
+                          boxShadow: `0 2px 8px ${c}88, inset 0 1px 0 rgba(255,255,255,0.4)`,
+                        }}
+                      >✓</span>
+                      {text}
+                    </li>
+                  )
+                })}
               </ul>
               <p className="text-white/60 text-sm font-body italic">Know if you're ahead, average, or behind — with data.</p>
             </motion.div>
