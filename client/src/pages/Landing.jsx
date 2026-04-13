@@ -478,7 +478,7 @@ export default function Landing() {
         </section>
 
         {/* ── features ── */}
-        <section id="features" className="container mx-auto px-6 space-y-32">
+        <section id="features" className="container mx-auto px-6 space-y-32 pt-24">
 
           {/* feature 1 */}
           <div className="flex flex-col md:flex-row items-center gap-20">
