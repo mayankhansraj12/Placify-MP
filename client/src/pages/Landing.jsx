@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Lenis from 'lenis'
-import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import logo from '../assets/logo.png'
 import groupcardA from '../assets/groupcardA.png'
 import groupcardB from '../assets/groupcardB.jpg'
@@ -61,14 +61,7 @@ export default function Landing() {
 
   const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
 
-  // ── scroll-driven bg via framer-motion ────────────────────────────────────
-  const { scrollY } = useScroll()
-  const bgColor = useTransform(
-    scrollY,
-    [0, typeof window !== 'undefined' ? window.innerHeight : 800],
-    ['#ffffff', '#000000'],
-  )
-  const [tickColors] = useState(() => {
+const [tickColors] = useState(() => {
     const c = ['#EA4335', '#34A853', '#4285F4', '#FBBC04']
     for (let i = c.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -200,7 +193,7 @@ export default function Landing() {
     <div ref={containerRef} className="relative min-h-screen font-body text-[#111111] overflow-x-clip selection:bg-primary-container selection:text-on-primary-container">
 
       {/* ── scroll-driven background (framer-motion) ── */}
-      <motion.div style={{ backgroundColor: bgColor, position: 'fixed', inset: 0, zIndex: -2 }} />
+      <div style={{ backgroundColor: '#ffffff', position: 'fixed', inset: 0, zIndex: -2 }} />
 
       <HeroCanvas />
 
@@ -310,8 +303,8 @@ export default function Landing() {
                     <motion.div
                       key={group.id}
                       layout
-                      onClick={() => setActiveCard(isActive ? null : group.id)}
-                      className="relative overflow-hidden rounded-3xl cursor-pointer"
+                      onClick={() => !isMobile && setActiveCard(isActive ? null : group.id)}
+                      className={`relative overflow-hidden rounded-3xl ${isMobile ? '' : 'cursor-pointer'}`}
                       style={isMobile
                         ? { width: '100%', height: mobileHeight }
                         : {
@@ -323,7 +316,7 @@ export default function Landing() {
                           }
                       }
                       animate="idle"
-                      whileHover={!isActive ? 'hovered' : 'idle'}
+                      whileHover={!isActive && !isMobile ? 'hovered' : 'idle'}
                       transition={{
                         layout: { type: 'spring', stiffness: 200, damping: 34, mass: 1.2 },
                       }}
@@ -350,8 +343,8 @@ export default function Landing() {
                         </motion.div>
                         <motion.button
                           layout
-                          onClick={e => { e.stopPropagation(); setActiveCard(isActive ? null : group.id) }}
-                          className="w-9 h-9 rounded-full bg-black/25 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-black/40 text-sm font-bold"
+                          onClick={e => { e.stopPropagation(); !isMobile && setActiveCard(isActive ? null : group.id) }}
+                          className={`w-9 h-9 rounded-full bg-black/25 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-black/40 text-sm font-bold ${isMobile ? 'hidden' : ''}`}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           transition={{ type: 'spring', stiffness: 340, damping: 22 }}
