@@ -9,6 +9,8 @@ import imageforcard1 from '../assets/imageforcard1.png'
 import imageforcard2 from '../assets/imageforcard2.png'
 import imageforcard3 from '../assets/imageforcard3.png'
 import imageforcard4 from '../assets/imageforcard4.png'
+import featureimage1 from '../assets/featureimage1.png'
+import featureimage2 from '../assets/featureimage2.png'
 import HeroCanvas from '../components/HeroCanvas'
 
 // ─── shared animation variants ───────────────────────────────────────────────
@@ -61,14 +63,6 @@ export default function Landing() {
 
   const GCOLORS = ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
 
-const [tickColors] = useState(() => {
-    const c = ['#EA4335', '#34A853', '#4285F4', '#FBBC04']
-    for (let i = c.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [c[i], c[j]] = [c[j], c[i]]
-    }
-    return c.slice(0, 3)
-  })
   const [activeCard, setActiveCard] = useState(null)
   const [isMobile,   setIsMobile]   = useState(false)
 
@@ -170,10 +164,6 @@ const [tickColors] = useState(() => {
     return () => { cancelAnimationFrame(rafRef.current); lenis.destroy() }
   }, [])
 
-  const scrollToFeatures = (e) => {
-    e.preventDefault()
-    lenisRef.current?.scrollTo('#features', { offset: -80, duration: 1.4 })
-  }
 
   // ── typewriter cursor ─────────────────────────────────────────────────────
   const hasNewline  = displayed.includes('\n')
@@ -182,7 +172,7 @@ const [tickColors] = useState(() => {
   const showCursor  = cursorPhase === 'typing' || (cursorPhase === 'blinking' && blinkOn)
   const cursor = showCursor ? (
     <span ref={cursorRef} style={{
-      display: 'inline-block', width: '6px', height: '0.88em',
+      display: 'inline-block', width: isMobile ? '3px' : '6px', height: '0.88em',
       background: 'linear-gradient(180deg, #888 0%, #222 20%, #000 50%, #1a1a1a 80%, #555 100%)',
       boxShadow: '0 0 3px rgba(255,255,255,0.18)',
       marginLeft: '4px', verticalAlign: 'middle', borderRadius: '1px',
@@ -193,6 +183,58 @@ const [tickColors] = useState(() => {
     <div ref={containerRef} className="relative min-h-screen font-body text-[#111111] overflow-x-clip selection:bg-primary-container selection:text-on-primary-container">
 
       {/* ── scroll-driven background (framer-motion) ── */}
+      <style>{`
+        .btn-cta-liquid {
+          position: relative;
+          overflow: hidden;
+          border-radius: 9999px;
+          background: #000000;
+          animation: none;
+          box-shadow:
+            0 0 18px rgba(255,255,255,0.22),
+            0 0 55px rgba(255,255,255,0.10),
+            0 0 100px rgba(255,255,255,0.05),
+            0 6px 30px rgba(0,0,0,0.7),
+            inset 0 1.5px 0 rgba(255,255,255,0.55),
+            inset 0 -1px 0 rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.35);
+        }
+        .btn-cta-liquid::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -80%;
+          width: 55%;
+          height: 200%;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255,255,255,0)    15%,
+            rgba(255,255,255,0.55) 50%,
+            rgba(255,255,255,0)    85%,
+            transparent 100%
+          );
+          transform: skewX(-12deg);
+          animation: cta-sheen 6s ease-in-out 0.5s infinite;
+          pointer-events: none;
+        }
+        @keyframes cta-sheen {
+          0%        { left: -80%;  }
+          52%, 100% { left:  140%; }
+        }
+        .btn-get-started {
+          transition: box-shadow 0.4s ease, transform 0.15s ease;
+        }
+        .btn-get-started:hover {
+          box-shadow:
+            0 0 18px rgba(255,255,255,0.25),
+            0 0 40px rgba(255,255,255,0.12),
+            0 4px 20px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.28),
+            inset 0 -1px 0 rgba(0,0,0,0.4);
+        }
+      `}</style>
+
       <div style={{ backgroundColor: '#ffffff', position: 'fixed', inset: 0, zIndex: -2 }} />
 
       <HeroCanvas />
@@ -216,18 +258,21 @@ const [tickColors] = useState(() => {
             <img src={logo} alt="Placify AI" className="h-6 w-auto" />
             <span className="text-sm font-bold text-[#111111] tracking-tight">Placify AI</span>
           </Link>
-          <div className="hidden md:flex items-center gap-7 flex-1 justify-center">
-            <a href="#features" onClick={scrollToFeatures} className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 cursor-pointer no-underline">Features</a>
-            <a href="#" className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Pricing</a>
-            <Link to="/dashboard" className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Dashboard</Link>
-            <Link to="/analyze"   className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Analyze</Link>
-            <a href="#" className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Blog</a>
-          </div>
           <div className="flex items-center gap-5 flex-shrink-0">
             <Link to="/login"    className="text-[13px] text-[#111111]/60 hover:text-[#111111] transition-colors duration-150 no-underline">Sign In</Link>
-            <Link to="/register" className="flex items-center gap-1.5 bg-[#111111] text-white text-[13px] font-semibold px-5 py-2 rounded-full hover:bg-[#222222] transition-colors duration-150 no-underline">
-              Get Started <span className="text-base leading-none">↗</span>
-            </Link>
+            <div className="btn-get-started relative overflow-hidden rounded-full" style={{
+                background: 'linear-gradient(145deg, #0d0d0d 0%, #2c2c2c 25%, #1a1a1a 50%, #383838 75%, #0f0f0f 100%)',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.4)',
+                border: '1px solid rgba(255,255,255,0.14)',
+              }}>
+              {/* top specular band */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.03) 45%, transparent 65%)', pointerEvents: 'none' }} />
+              {/* side edge glints */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(255,255,255,0.07) 0%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 100%)', pointerEvents: 'none' }} />
+              <Link to="/register" className="relative flex items-center gap-1.5 text-white text-[13px] font-semibold px-5 py-2 no-underline" style={{ zIndex: 1 }}>
+                Get Started <span className="text-base leading-none">↗</span>
+              </Link>
+            </div>
           </div>
         </div>
       </motion.nav>
@@ -252,7 +297,7 @@ const [tickColors] = useState(() => {
           </div>
 
           {/* typewriter — only element in flex flow, sits exactly at 50vh center */}
-          <div style={{ fontFamily: '"Funnel Sans", sans-serif', fontSize: 'clamp(1rem, 6vw, 5.5rem)', fontWeight: 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111', textAlign: 'center' }}>
+          <div style={{ fontFamily: '"Funnel Sans", sans-serif', fontSize: 'clamp(1rem, 6vw, 5.5rem)', fontWeight: isMobile ? 500 : 200, lineHeight: 1.1, letterSpacing: '-0.035em', color: '#111111', textAlign: 'center' }}>
             <div>
               <div style={{ display: 'inline-block', position: 'relative' }}>
                 <span style={{ visibility: 'hidden', whiteSpace: 'nowrap' }}>{LINE1}</span>
@@ -442,35 +487,25 @@ const [tickColors] = useState(() => {
               transition={{ duration: 0.7, ease: 'easeOut' }}
               className="flex-1 space-y-8"
             >
-              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
+              <div className="w-16 h-16 rounded-2xl bg-[#111111]/8 border border-[#111111]/15 flex items-center justify-center text-[#111111]">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
                 </svg>
               </div>
-              <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-white leading-tight">Peer Benchmarking</h2>
-              <p className="text-white/70 text-lg leading-relaxed font-body">Understand your position among other students — not in isolation.</p>
-              <ul className="space-y-4">
+              <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-[#111111] leading-tight">Peer Benchmarking</h2>
+              <p className="text-[#111111]/70 text-lg leading-relaxed font-body">Understand your position among other students — not in isolation.</p>
+              <ul className="space-y-3 list-disc list-inside">
                 {[
                   'Percentile ranking across profiles',
                   'Confidence score for prediction reliability',
                   'Tier probability distribution (Startup, Product, Service, etc.)',
-                ].map((text, i) => {
-                  const c = tickColors[i]
-                  return (
-                    <li key={text} className="flex items-center gap-3 text-sm font-headline font-bold uppercase tracking-wider text-white">
-                      <span
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 text-white"
-                        style={{
-                          background: `linear-gradient(145deg, rgba(255,255,255,0.28) 0%, ${c} 45%, ${c}bb 100%)`,
-                          boxShadow: `0 2px 8px ${c}88, inset 0 1px 0 rgba(255,255,255,0.4)`,
-                        }}
-                      >✓</span>
-                      {text}
-                    </li>
-                  )
-                })}
+                ].map((text) => (
+                  <li key={text} className="text-sm font-headline font-bold uppercase tracking-wider text-[#111111] marker:text-xl">
+                    {text}
+                  </li>
+                ))}
               </ul>
-              <p className="text-white/60 text-sm font-body italic">Know if you're ahead, average, or behind — with data.</p>
+              <p className="text-[#111111]/50 text-sm font-body italic">Know if you're ahead, average, or behind — with data.</p>
             </motion.div>
             <motion.div
               variants={fadeRight} initial="hidden" whileInView="visible" viewport={VP}
@@ -480,7 +515,7 @@ const [tickColors] = useState(() => {
               <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 aspect-square rounded-[4rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.08)] group">
                 <div className="w-64 h-64 bg-gradient-to-br from-primary-container to-secondary-container rounded-full blur-[80px] opacity-30 absolute animate-pulse z-10 pointer-events-none" />
                 <img
-                  src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80&fit=crop"
+                  src={featureimage1}
                   alt="Behavioral analysis"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -496,10 +531,10 @@ const [tickColors] = useState(() => {
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.15 }}
               className="flex-1 relative"
             >
-              <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 aspect-[4/3] rounded-[4rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.08)] group">
+              <div className="bg-white/40 backdrop-blur-2xl border border-outline-variant/15 aspect-square rounded-[4rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.08)] group">
                 <div className="w-80 h-80 bg-gradient-to-tr from-secondary/20 to-primary/20 rounded-full blur-[100px] opacity-40 absolute z-10 pointer-events-none" />
                 <img
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fit=crop"
+                  src={featureimage2}
                   alt="Salary analytics dashboard"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -542,9 +577,9 @@ const [tickColors] = useState(() => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-primary">
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">▶</div>
-                    <span className="font-headline font-bold uppercase tracking-widest text-xs">Predictive Interviews</span>
+                    <span className="font-headline font-bold uppercase tracking-widest text-xs">ATS Resume Scoring</span>
                   </div>
-                  <p className="text-[#111111]/70 font-body">Simulate high-pressure boardroom scenarios with AI interviewers trained on actual corporate archives.</p>
+                  <p className="text-[#111111]/70 font-body">Get a real ATS compatibility score on your resume — with specific feedback on what's hurting your chances and a strength rating recruiters actually care about.</p>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-secondary">
@@ -559,9 +594,11 @@ const [tickColors] = useState(() => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.96 }}
                   transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-                  className="inline-block"
+                  className="btn-cta-liquid inline-block"
                 >
-                  <Link to="/analyze" className="inline-block px-12 py-6 bg-primary text-white font-headline font-bold text-sm uppercase tracking-[0.2em] rounded-full hover:shadow-blue transition-shadow pointer-events-auto">
+                  {/* glass specular */}
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(165deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.10) 30%, transparent 55%, rgba(255,255,255,0.04) 100%)', pointerEvents: 'none', borderRadius: 9999 }} />
+                  <Link to="/analyze" className="relative inline-block px-12 py-6 text-white font-headline font-bold text-sm uppercase tracking-[0.2em] no-underline pointer-events-auto" style={{ zIndex: 1, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
                     Start Your Placement Analysis
                   </Link>
                 </motion.div>
@@ -573,7 +610,7 @@ const [tickColors] = useState(() => {
 
       {/* ── footer ── */}
       <footer className="bg-[#111111] text-on-surface-variant font-body tracking-tight text-sm z-20 relative">
-        <div className="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
+        <div className="w-full py-16 px-12 flex flex-col md:flex-row justify-between items-start gap-12 max-w-7xl mx-auto">
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               <img src={logo} alt="Placify AI" className="h-8 w-auto brightness-0 invert" />
@@ -581,22 +618,7 @@ const [tickColors] = useState(() => {
             </div>
             <p className="text-on-surface-variant max-w-xs leading-relaxed">Redefining career readiness through ethereal intelligence and editorial-grade data mapping.</p>
           </div>
-          <div className="space-y-4">
-            <h4 className="text-white font-medium uppercase text-xs tracking-widest">Platform</h4>
-            <ul className="space-y-2">
-              <li><Link className="hover:text-primary-container transition-colors duration-200" to="/features">Features</Link></li>
-              <li><Link className="hover:text-primary-container transition-colors duration-200" to="/api">API</Link></li>
-              <li><Link className="hover:text-primary-container transition-colors duration-200" to="/support">Support</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-white font-medium uppercase text-xs tracking-widest">Legal</h4>
-            <ul className="space-y-2">
-              <li><Link className="hover:text-primary-container transition-colors duration-200" to="/privacy">Privacy</Link></li>
-              <li><Link className="hover:text-primary-container transition-colors duration-200" to="/terms">Terms</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-6">
+          <div className="space-y-6 md:w-72">
             <h4 className="text-white font-medium uppercase text-xs tracking-widest">Subscribe</h4>
             <div className="relative">
               <input className="w-full bg-white/5 border-none rounded-full px-6 py-3 text-white/80 focus:ring-2 focus:ring-primary-container/50 outline-none placeholder:text-white/30" placeholder="Email address" type="email" />
@@ -605,7 +627,7 @@ const [tickColors] = useState(() => {
           </div>
         </div>
         <div className="w-full py-8 px-12 border-t border-white/10 text-center">
-          <p>© 2026 Placify AI. All rights reserved. Prices in ₹.</p>
+          <p>© 2026 Placify AI. All rights reserved.</p>
         </div>
       </footer>
     </div>
