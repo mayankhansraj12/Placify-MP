@@ -1,14 +1,15 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Lenis from 'lenis'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from 'framer-motion'
 import logo from '../assets/logo.png'
+import groupcardA from '../assets/groupcardA.png'
+import groupcardB from '../assets/groupcardB.jpg'
+import imageforcard1 from '../assets/imageforcard1.png'
+import imageforcard2 from '../assets/imageforcard2.png'
+import imageforcard3 from '../assets/imageforcard3.png'
+import imageforcard4 from '../assets/imageforcard4.png'
 import HeroCanvas from '../components/HeroCanvas'
-import BounceCards from '../components/BounceCards'
-import imageforcard1 from '../assets/imageforcard1.png';
-import imageforcard2 from '../assets/imageforcard2.png';
-import imageforcard3 from '../assets/imageforcard3.png';
-import imageforcard4 from '../assets/imageforcard4.png';
 
 // ─── shared animation variants ───────────────────────────────────────────────
 const fadeUp   = { hidden: { opacity: 0, y: 48 }, visible: { opacity: 1, y: 0 } }
@@ -16,39 +17,29 @@ const fadeLeft = { hidden: { opacity: 0, x: -60 }, visible: { opacity: 1, x: 0 }
 const fadeRight= { hidden: { opacity: 0, x:  60 }, visible: { opacity: 1, x: 0 } }
 const VP       = { once: true, margin: '-80px' }
 
-const FEATURE_CARDS = [
+const CARD_GROUPS = [
   {
-    metric: 'CV → Features',
-    title: 'Resume Intelligence',
-    desc: 'Extracts skills, projects, and ATS signals using NLP — converted into structured features for prediction.',
-    tag: 'Parsed in seconds',
-    img: imageforcard1
-    //img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80&fit=crop'
+    id: 'A',
+    tag: 'Parse & Predict',
+    image: groupcardA,
+    title: 'From Resume to Prediction',
+    desc: 'Drop your PDF and get ML-powered placement outcomes in seconds.',
+    steps: [
+      { label: 'NLP Pipeline', img: imageforcard1, title: 'Resume Intelligence', desc: 'Skills, projects, and ATS signals extracted directly from your PDF.' },
+      { label: '3 ML Models', img: imageforcard2, title: 'Role, Tier & Salary', desc: 'Random Forest models predict your outcome in one pass.' },
+    ],
   },
   {
-    metric: '3 ML Models',
-    title: 'Role, Tier & Salary',
-    desc: 'Random Forest models predict your role, company tier, and salary using real feature inputs.',
-    tag: 'Prediction engine',
-    img: imageforcard2
-    //img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80&fit=crop'
+    id: 'B',
+    tag: 'Gap Analysis',
+    image: groupcardB,
+    title: 'Know and Fix Your Gaps',
+    desc: 'Benchmark your profile against industry standards and get a targeted action plan.',
+    steps: [
+      { label: 'Skill Gap Score', img: imageforcard3, title: 'Know What\'s Missing', desc: 'Domain-level gap score across DSA, Web, ML, System Design.' },
+      { label: 'Roadmap', img: imageforcard4, title: 'Fix It Fast', desc: 'Specific targets, projects, and drills based on your exact gaps.' },
+    ],
   },
-  {
-    metric: 'Skill Gap Score',
-    title: 'Know What’s Missing',
-    desc: 'Compares your profile against industry benchmarks across DSA, Web, ML, and more.',
-    tag: 'Prioritized gaps',
-    img: imageforcard3
-    //img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=700&q=80&fit=crop'
-  },
-  {
-    metric: 'Execution Plan',
-    title: 'Fix It Fast',
-    desc: 'Clear next steps — coding targets, projects, and interview prep tailored to your gaps.',
-    tag: 'Actionable roadmap',
-    img: imageforcard4
-    //img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=700&q=80&fit=crop'
-  }
 ]
 
 export default function Landing() {
@@ -85,13 +76,14 @@ export default function Landing() {
     }
     return c.slice(0, 3)
   })
-  const [cardScale, setCardScale] = useState(
-    typeof window !== 'undefined' ? Math.min(1, (window.innerWidth - 32) / 720) : 1
-  )
+  const [activeCard, setActiveCard] = useState(null)
+  const [isMobile,   setIsMobile]   = useState(false)
+
   useEffect(() => {
-    const update = () => setCardScale(Math.min(1, (window.innerWidth - 32) / 720))
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   // ── typewriter ────────────────────────────────────────────────────────────
@@ -288,42 +280,162 @@ export default function Landing() {
 
         </section>
 
-        <section className="py-20 px-4 sm:px-6 md:px-10 flex flex-col items-center">
-          <div style={{ height: 280 * cardScale, overflow: 'visible' }}>
-            <div style={{ transform: `scale(${cardScale})`, transformOrigin: 'top center' }}>
-              <BounceCards
-              cardCount={FEATURE_CARDS.length}
-              containerWidth={700}
-              containerHeight={280}
-              animationDelay={0.3}
-              animationStagger={0.09}
-              easeType="elastic.out(1, 0.5)"
-              transformStyles={[
-                'rotate(8deg) translate(-170px)',
-                'rotate(3deg) translate(-58px)',
-                'rotate(-3deg) translate(58px)',
-                'rotate(-8deg) translate(170px)',
-              ]}
-              enableHover
-              hoverPush={220}
-              renderCard={idx => {
-                const card = FEATURE_CARDS[idx]
-                return (
-                  <div style={{ width: 360, height: 200, display: 'flex', background: '#fff' }}>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '22px 20px', gap: 8, minWidth: 0 }}>
-                      <div style={{ fontSize: 10, fontFamily: 'inherit', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(17,17,17,0.38)' }}>{card.metric}</div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#111111', letterSpacing: '-0.03em', lineHeight: 1.2 }}>{card.title}</div>
-                      <p style={{ fontSize: 11, color: 'rgba(17,17,17,0.55)', lineHeight: 1.55, margin: 0 }}>{card.desc}</p>
-                      <span style={{ alignSelf: 'flex-start', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#fff', background: 'linear-gradient(180deg,#3a3a3a 0%,#0f0f0f 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)', borderRadius: 999, padding: '4px 10px', marginTop: 2 }}>{card.tag}</span>
-                    </div>
-                    <div style={{ width: 160, flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
-                      <img src={card.img} alt={card.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  </div>
-                )
-              }}
-            />
-            </div>
+        <section className="py-20 px-6 md:px-12">
+          <div className="max-w-6xl mx-auto">
+
+            <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={VP}
+              transition={{ duration: 0.5 }} className="text-center mb-10">
+              <p className="text-xs font-bold uppercase tracking-widest text-black/30 mb-2">Our Process</p>
+              <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-[#111]">How it works</h2>
+            </motion.div>
+
+            <LayoutGroup>
+              <motion.div
+                variants={fadeUp} initial="hidden" whileInView="visible" viewport={VP}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="flex flex-col md:flex-row gap-3"
+              >
+                {CARD_GROUPS.map(group => {
+                  const isActive    = activeCard === group.id
+                  const otherActive = activeCard !== null && !isActive
+
+                  // sizes — mobile: height-based stack, desktop: flex 80:20
+                  const mobileHeight = isActive ? 480 : otherActive ? 120 : 290
+
+                  // internal card dimensions – square (1:1)
+                  const cardW = isMobile ? 128 : 178
+                  const cardH = cardW
+
+                  return (
+                    <motion.div
+                      key={group.id}
+                      layout
+                      onClick={() => setActiveCard(isActive ? null : group.id)}
+                      className="relative overflow-hidden rounded-3xl cursor-pointer"
+                      style={isMobile
+                        ? { width: '100%', height: mobileHeight }
+                        : {
+                            flexGrow: isActive ? 4 : 1,
+                            flexShrink: 1,
+                            flexBasis: 0,
+                            minWidth: 0,
+                            height: 480,
+                          }
+                      }
+                      animate="idle"
+                      whileHover={!isActive ? 'hovered' : 'idle'}
+                      transition={{
+                        layout: { type: 'spring', stiffness: 200, damping: 34, mass: 1.2 },
+                      }}
+                    >
+                      {/* bg image — full image shown (no crop), zooms on hover */}
+                      <motion.img
+                        src={group.image}
+                        alt={group.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        variants={{ idle: { scale: 1 }, hovered: { scale: 1.06 } }}
+                        transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      />
+
+                      {/* overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+
+                      {/* tag + arrow */}
+                      <div className="absolute top-5 left-5 right-5 flex items-center justify-between z-10">
+                        <motion.div
+                          className="flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/15 rounded-full px-4 py-2"
+                          layout
+                        >
+                          <span className="text-[12px] font-bold text-white whitespace-nowrap">{group.tag}</span>
+                        </motion.div>
+                        <motion.button
+                          layout
+                          onClick={e => { e.stopPropagation(); setActiveCard(isActive ? null : group.id) }}
+                          className="w-9 h-9 rounded-full bg-black/25 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-black/40 text-sm font-bold"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ type: 'spring', stiffness: 340, damping: 22 }}
+                        >
+                          <motion.span
+                            key={isActive ? 'close' : 'open'}
+                            initial={{ rotate: -60, opacity: 0 }}
+                            animate={{ rotate: 0,   opacity: 1 }}
+                            exit={{ rotate: 60,    opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                          >
+                            {isActive ? '←' : '→'}
+                          </motion.span>
+                        </motion.button>
+                      </div>
+
+                      {/* internal image cards — bottom-right when expanded */}
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            className="absolute z-10 flex gap-3"
+                            style={{ bottom: isMobile ? 72 : 88, right: isMobile ? 12 : 20 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                          >
+                            {group.steps.map((step, i) => (
+                              <motion.div
+                                key={step.label}
+                                className="relative overflow-hidden rounded-2xl flex-shrink-0"
+                                style={{ width: cardW, height: cardH, background: '#96a09d' }}
+                                initial={{ opacity: 0, y: 32, scale: 0.9 }}
+                                animate={{ opacity: 1, y: 0,  scale: 1 }}
+                                exit={{ opacity: 0, y: 24, scale: 0.92 }}
+                                transition={{
+                                  type: 'spring', stiffness: 300, damping: 28,
+                                  delay: i * 0.1 + 0.22,
+                                }}
+                              >
+                                <img src={step.img} alt={step.title}
+                                  className="absolute inset-0 w-full h-full object-cover" />
+                                <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/15 rounded-full px-2.5 py-0.5 flex items-center">
+                                  <span className="text-[8px] font-black uppercase tracking-widest text-white leading-none">{step.label}</span>
+                                </div>
+                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/75 to-transparent p-2 pt-8">
+                                  <div className="text-[9px] font-bold text-white leading-tight mb-0.5">{step.title}</div>
+                                  <p className="text-[7px] text-white/60 leading-snug">{step.desc}</p>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* bottom text */}
+                      <div className="absolute bottom-5 left-5 right-5 z-10">
+                        <motion.h3
+                          className="font-headline font-extrabold text-white leading-tight tracking-tight mb-1"
+                          animate={{ fontSize: isActive ? (isMobile ? '1.25rem' : '1.5rem') : '1.2rem' }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 30, delay: 0.05 }}
+                        >
+                          {group.title}
+                        </motion.h3>
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.p
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 6 }}
+                              transition={{ duration: 0.3, delay: 0.18 }}
+                              className="text-[13px] text-white/70 leading-relaxed"
+                            >
+                              {group.desc}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
+            </LayoutGroup>
+
           </div>
         </section>
 
