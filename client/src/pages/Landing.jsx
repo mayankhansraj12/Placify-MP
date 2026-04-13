@@ -568,7 +568,7 @@ export default function Landing() {
           transition={{ duration: 0.7, ease: 'easeOut' }}
           className="container mx-auto px-6 mt-40"
         >
-          <div className="bg-white/40 backdrop-blur-3xl border border-outline-variant/15 p-12 md:p-24 rounded-[4rem] relative overflow-hidden text-center shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
+          <div className="bg-white/40 backdrop-blur-3xl border border-outline-variant/15 px-3 py-12 md:p-24 rounded-[4rem] relative overflow-hidden text-center shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
             <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-48 -mt-48" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -ml-48 -mb-48" />
             <div className="relative z-10 max-w-3xl mx-auto space-y-12">
@@ -589,16 +589,16 @@ export default function Landing() {
                   <p className="text-[#111111]/70 font-body">Your scores are cryptographically signed and verified, giving hiring managers immediate trust in your data.</p>
                 </div>
               </div>
-              <div className="pt-8 relative z-20">
+              <div className="pt-8 relative z-20 flex justify-center">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.96 }}
                   transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-                  className="btn-cta-liquid inline-block"
+                  className="btn-cta-liquid"
                 >
                   {/* glass specular */}
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(165deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.10) 30%, transparent 55%, rgba(255,255,255,0.04) 100%)', pointerEvents: 'none', borderRadius: 9999 }} />
-                  <Link to="/analyze" className="relative inline-block px-12 py-6 text-white font-headline font-bold text-sm uppercase tracking-[0.2em] no-underline pointer-events-auto" style={{ zIndex: 1, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
+                  <Link to="/analyze" className="relative inline-block text-center px-5 md:px-12 py-5 md:py-6 text-xs md:text-sm uppercase tracking-[0.18em] md:tracking-[0.2em] text-white font-headline font-bold no-underline pointer-events-auto whitespace-nowrap" style={{ zIndex: 1, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
                     Start Your Placement Analysis
                   </Link>
                 </motion.div>
