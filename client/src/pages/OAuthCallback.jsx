@@ -29,7 +29,7 @@ export default function OAuthCallback() {
     return () => {
       active = false
     }
-  }, [])
+  }, [completeOAuth, navigate])
 
   return <div className="min-h-screen bg-surface" />
 }

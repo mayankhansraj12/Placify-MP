@@ -12,7 +12,7 @@ import Results from './pages/Results'
 import { useAuth } from './context/useAuth'
 
 export default function App() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   return (
     <>
@@ -31,7 +31,7 @@ export default function App() {
         <Route path="/results/:id" element={
           <ProtectedRoute><Navbar /><Results /></ProtectedRoute>
         } />
-        <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
+        <Route path="*" element={<Navigate to={!loading && user ? '/dashboard' : '/'} replace />} />
       </Routes>
     </>
   )

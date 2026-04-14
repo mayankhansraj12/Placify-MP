@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import AuthContext from './auth-context'
 import api, { clearAccessToken, configureAuthHandlers, setAccessToken } from '../utils/api'
 
@@ -12,24 +12,24 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(getStoredToken())
   const [loading, setLoading] = useState(true)
 
-  const applySession = (session) => {
+  const applySession = useCallback((session) => {
     setAccessToken(session.access_token)
     setToken(session.access_token)
     setUser(session.user)
     return session.access_token
-  }
+  }, [])
 
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
     clearAccessToken()
     setToken(null)
     setUser(null)
     setLoading(false)
-  }
+  }, [])
 
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     const res = await api.post('/auth/refresh')
     return applySession(res.data)
-  }
+  }, [applySession])
 
   useEffect(() => {
     configureAuthHandlers({
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
         clearSession()
       },
     })
-  })
+  }, [refreshSession, clearSession])
 
   useEffect(() => {
     let cancelled = false
@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [refreshSession])
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password })
