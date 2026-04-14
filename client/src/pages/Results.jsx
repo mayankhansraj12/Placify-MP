@@ -7,7 +7,6 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
-import ScrollScene from '../components/ScrollScene'
 import logo from '../assets/logo.png'
 import LandingFooter from '../components/LandingFooter'
 
@@ -64,28 +63,29 @@ export default function Results() {
     : []
 
   return (
-    <div className="bg-surface font-body text-on-surface overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative">
-      <div className="fixed inset-0 w-full h-full pointer-events-none -z-40 opacity-40 mix-blend-multiply">
-        <ScrollScene scrollProgress={0.8} />
-      </div>
-
-      <main className="pt-24 pb-24 px-6 md:px-12 max-w-7xl mx-auto space-y-16 relative z-10">
+    <div className="bg-surface font-body text-on-surface overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative" style={{ minHeight: '100vh' }}>
+      <main className="pt-16 pb-16 md:pt-24 md:pb-24 px-6 md:px-12 max-w-7xl mx-auto space-y-8 md:space-y-16 relative z-10">
         
         {/* Hero Section: High-Impact Analysis */}
         <section className="relative">
-          <div className="bg-on-surface-variant rounded-[2.5rem] p-8 md:p-16 overflow-hidden relative shadow-blue flex flex-col md:flex-row items-center gap-12 border border-white/10">
+          <div className="rounded-[2.5rem] p-5 md:p-16 overflow-hidden relative flex flex-col md:flex-row items-center gap-6 md:gap-12 border border-violet-300/30"
+            style={{
+              background: '#2e1065',
+            }}>
+            {/* Shiny gloss overlay */}
+            <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] overflow-hidden">
+              <div style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.06) 40%, transparent 60%)' }} className="absolute inset-0" />
+            </div>
             {/* Decorative Light Bleed */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/20 blur-[120px] rounded-full mix-blend-screen pointer-events-none"></div>
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none"></div>
             
             <div className="flex-1 space-y-6 relative z-10 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-primary-fixed text-xs font-bold tracking-widest uppercase">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-violet-200 text-xs font-bold tracking-widest uppercase border border-violet-400/30">
                 Analysis Complete
               </div>
-              <h1 className="font-headline text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight">
+              <h1 className="font-headline text-2xl md:text-7xl font-black text-white tracking-tighter leading-tight">
                 {results.predicted_role}
               </h1>
-              <div className="flex flex-wrap gap-8 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-4 md:gap-8 justify-center md:justify-start">
                 <div className="space-y-1">
                   <p className="text-white/50 text-xs font-bold tracking-widest uppercase">Predicted Tier</p>
                   <p className="text-2xl font-headline font-bold text-white tracking-tight">{results.predicted_tier}</p>
@@ -101,25 +101,26 @@ export default function Results() {
                   )}
                 </div>
               </div>
-              <button onClick={handleDownload} className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/15 border border-white/20 text-white text-xs font-bold tracking-widest uppercase hover:bg-white/25 backdrop-blur-md transition-all">
+              <button onClick={handleDownload} className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-violet-300/30 text-violet-100 text-xs font-bold tracking-widest uppercase hover:bg-white/20 backdrop-blur-md transition-all">
                 <span className="material-symbols-outlined text-sm">download</span> Download PDF Report
               </button>
             </div>
 
             {/* Confidence Dial */}
-            <div className="relative w-64 h-64 flex items-center justify-center z-10 shrink-0">
-              <svg className="w-full h-full transform -rotate-90">
+            <div className="relative w-44 h-44 md:w-64 md:h-64 flex items-center justify-center z-10 shrink-0">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 256 256">
                 <circle cx="128" cy="128" fill="transparent" r="110" stroke="rgba(255,255,255,0.05)" strokeWidth="12"></circle>
-                <circle className="drop-shadow-[0_0_15px_rgba(0,0,0,0.15)]" cx="128" cy="128" fill="transparent" r="110" stroke="url(#gradient)" strokeDasharray="691" strokeDashoffset={691 - (691 * (results.overall_confidence || 0)) / 100} strokeLinecap="round" strokeWidth="16" style={{ transition: 'stroke-dashoffset 1s ease-out' }}></circle>
+                <circle className="drop-shadow-[0_0_20px_rgba(139,92,246,0.4)]" cx="128" cy="128" fill="transparent" r="110" stroke="url(#dialGradient)" strokeDasharray="691" strokeDashoffset={691 - (691 * (results.overall_confidence || 0)) / 100} strokeLinecap="round" strokeWidth="16" style={{ transition: 'stroke-dashoffset 1s ease-out' }}></circle>
                 <defs>
-                  <linearGradient id="gradient" x1="0%" x2="100%" y1="0%" y2="100%">
-                    <stop offset="0%" stopColor="#888888"></stop>
-                    <stop offset="100%" stopColor="#555555"></stop>
+                  <linearGradient id="dialGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+                    <stop offset="0%" stopColor="#7C3AED"></stop>
+                    <stop offset="50%" stopColor="#A78BFA"></stop>
+                    <stop offset="100%" stopColor="#C084FC"></stop>
                   </linearGradient>
                 </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-5xl font-black text-white tracking-tighter">{results.overall_confidence}%</span>
+                <span className="text-3xl md:text-5xl font-black text-white tracking-tighter">{results.overall_confidence}%</span>
                 <span className="text-[10px] text-white/60 font-bold uppercase tracking-[0.2em] mt-1">Confidence</span>
               </div>
             </div>
@@ -127,32 +128,34 @@ export default function Results() {
         </section>
 
         {/* Profile Scorecard */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: 'Resume Strength',   value: results.resume_strength,   suffix: '%',  icon: 'description', color: 'text-primary',   bg: 'bg-primary-container/20' },
-            { label: 'Industry Readiness',value: results.industry_readiness, suffix: '%',  icon: 'factory',     color: 'text-secondary',  bg: 'bg-secondary-container/20' },
-            { label: 'Peer Percentile',   value: results.peer_percentile,   suffix: 'th', icon: 'leaderboard', color: 'text-primary',   bg: 'bg-primary-fixed/50' },
-            { label: 'FAANG Probability', value: results.faang_probability, suffix: '%',  icon: 'stars',       color: 'text-secondary',  bg: 'bg-secondary-fixed/60' },
-          ].map(({ label, value, suffix, icon, color, bg }) => value != null && (
-            <div key={label} style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className={`${bg} backdrop-blur-md rounded-[1.5rem] p-6 flex flex-col gap-3 hover:scale-[1.03] hover:shadow-blue-sm`}>
-              <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center ${color}`}>
-                <span className="material-symbols-outlined text-xl">{icon}</span>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">{label}</p>
-                <p className={`text-3xl font-black font-headline tracking-tighter ${color}`}>
-                  {value}<span className="text-lg font-bold">{suffix}</span>
-                </p>
+            { label: 'Resume Strength',   value: results.resume_strength,   suffix: '%',  icon: 'description', accent: '#4285F4' },
+            { label: 'Industry Readiness',value: results.industry_readiness, suffix: '%',  icon: 'factory',     accent: '#EA4335' },
+            { label: 'Peer Percentile',   value: results.peer_percentile,   suffix: 'th', icon: 'leaderboard', accent: '#FBBC05' },
+            { label: 'FAANG Probability', value: results.faang_probability, suffix: '%',  icon: 'stars',       accent: '#34A853' },
+          ].map(({ label, value, suffix, icon, accent }) => value != null && (
+            <div key={label} style={{ background: `linear-gradient(135deg, ${accent} 0%, rgba(255,255,255,0.7) 50%, ${accent} 100%)`, padding: '1.5px', borderRadius: '1.5rem', transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="hover:scale-[1.03]">
+              <div style={{ background: '#0d0f14', borderRadius: 'calc(1.5rem - 1.5px)' }} className="p-4 md:p-6 flex flex-col gap-3 h-full">
+                <div style={{ background: `${accent}18` }} className="w-10 h-10 rounded-xl flex items-center justify-center">
+                  <span className="material-symbols-outlined text-xl" style={{ color: accent }}>{icon}</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: `${accent}99` }}>{label}</p>
+                  <p className="text-2xl md:text-3xl font-black font-headline tracking-tighter" style={{ color: accent }}>
+                    {value}<span className="text-lg font-bold">{suffix}</span>
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </section>
 
         {/* Insights Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           
           {/* Radar Chart Glass Card */}
-          <div style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card rounded-[2rem] p-8 min-h-[400px] flex flex-col justify-between hover:shadow-blue bg-white/60">
+          <div style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card rounded-[2rem] p-5 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between hover:shadow-blue bg-white/60">
             <div>
               <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-2">Skill Competency</h3>
               <p className="font-headline text-2xl font-bold tracking-tight text-on-surface">Capability Spectrum</p>
@@ -174,7 +177,7 @@ export default function Results() {
           </div>
 
           {/* Bar Chart Glass Card */}
-          <div style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card rounded-[2rem] p-8 min-h-[400px] flex flex-col justify-between hover:shadow-blue bg-white/60">
+          <div style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card rounded-[2rem] p-5 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between hover:shadow-blue bg-white/60">
             <div>
               <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-secondary mb-2">Benchmarking</h3>
               <p className="font-headline text-2xl font-bold tracking-tight text-on-surface">Tier Probability</p>
@@ -207,9 +210,9 @@ export default function Results() {
 
         {/* ATS Report */}
         {results.ats_score != null && (
-          <section style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card bg-white/60 rounded-[2rem] p-8 md:p-12 flex flex-col md:flex-row gap-10 items-start hover:shadow-blue">
+          <section style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card bg-white/60 rounded-[2rem] p-5 md:p-12 flex flex-col md:flex-row gap-5 md:gap-10 items-start hover:shadow-blue">
             <div className="shrink-0 flex flex-col items-center gap-3">
-              <div className="relative w-36 h-36">
+              <div className="relative w-28 h-28 md:w-36 md:h-36">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 144 144">
                   <circle cx="72" cy="72" r="60" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="12" />
                   <circle
@@ -222,7 +225,7 @@ export default function Results() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-3xl font-black text-[#111111] font-headline leading-none">{results.ats_score}</span>
+                  <span className="text-2xl md:text-3xl font-black text-[#111111] font-headline leading-none">{results.ats_score}</span>
                   <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/60 mt-0.5">ATS Score</span>
                 </div>
               </div>
@@ -253,7 +256,7 @@ export default function Results() {
 
         {/* CTC Breakdown */}
         {results.ctc_breakdown && (
-          <section className="bg-[#111111] rounded-[2rem] p-8 md:p-12 overflow-hidden relative shadow-2xl">
+          <section className="bg-[#111111] rounded-[2rem] p-5 md:p-12 overflow-hidden relative shadow-2xl">
             <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
             <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-secondary/10 blur-[120px] rounded-full pointer-events-none"></div>
             <div className="relative z-10 space-y-8">
@@ -264,7 +267,7 @@ export default function Results() {
               {/* Monthly in-hand highlight */}
               {results.ctc_breakdown.monthly_in_hand != null && (
                 <div className="flex items-end gap-2 border-b border-white/10 pb-6">
-                  <span className="text-6xl font-black text-primary-fixed font-headline tracking-tighter leading-none">
+                  <span className="text-3xl md:text-6xl font-black text-primary-fixed font-headline tracking-tighter leading-none">
                     ₹{Math.round(results.ctc_breakdown.monthly_in_hand * 100)}K
                   </span>
                   <span className="text-white/50 font-bold text-sm mb-2">/ month in-hand</span>
@@ -297,10 +300,10 @@ export default function Results() {
         )}
 
         {/* Matching Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
 
           {/* Target Companies + Role Alternatives */}
-          <div className="lg:col-span-1 space-y-12">
+          <div className="lg:col-span-1 space-y-6 md:space-y-12">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="font-headline text-2xl font-black tracking-tighter">Target Enterprises</h2>
@@ -340,11 +343,11 @@ export default function Results() {
           </div>
 
           {/* Skill Gaps + Quick Actions + Interview Tips */}
-          <div className="lg:col-span-2 space-y-12">
+          <div className="lg:col-span-2 space-y-6 md:space-y-12">
 
             {/* Skills Analysis — all skills */}
             {results.skill_gaps?.length > 0 && (
-              <div className="p-8 bg-white/60 backdrop-blur-md rounded-[2rem] border border-white/10 space-y-6 shadow-card">
+              <div className="p-5 md:p-8 bg-white/60 backdrop-blur-md rounded-[2rem] border border-white/10 space-y-6 shadow-card">
                 <div className="flex items-start justify-between flex-wrap gap-4">
                   <div>
                     <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-2">Competency Deep Dive</h3>

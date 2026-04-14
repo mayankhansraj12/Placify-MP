@@ -70,14 +70,14 @@ export default function Analyze() {
       </div>
 
       {/* Main Content Canvas */}
-      <main className="flex-grow flex flex-col items-center justify-center pt-24 pb-24 px-6 max-w-7xl mx-auto w-full relative z-10">
+      <main className="flex-grow flex flex-col items-center justify-center pt-16 pb-16 md:pt-24 md:pb-24 px-6 max-w-7xl mx-auto w-full relative z-10">
         
         {/* Header Section */}
-        <header className="text-center mb-16 space-y-4">
-          <h1 className="text-5xl md:text-7xl font-black font-headline tracking-tighter text-on-surface leading-none">
+        <header className="text-center mb-8 md:mb-16 space-y-4">
+          <h1 className="text-3xl md:text-7xl font-black font-headline tracking-tighter text-on-surface leading-none">
             Analyze <span className="text-primary">Intelligence.</span>
           </h1>
-          <p className="text-lg text-on-surface-variant max-w-xl mx-auto font-light">
+          <p className="text-sm md:text-lg text-on-surface-variant max-w-xl mx-auto font-light">
             Upload your portfolio and calibrate your core competencies for high-precision career placement matching.
           </p>
         </header>
@@ -90,14 +90,14 @@ export default function Analyze() {
 
         {/* Dynamic Grid Layout */}
         <form onSubmit={handleSubmit} className="w-full pointer-events-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 w-full items-stretch">
             
             {/* Left: Upload Dropzone */}
             <section className="lg:col-span-7 group">
               <div 
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
-                className={`h-full border-2 border-dashed ${dragOver ? 'border-primary bg-primary-container/20' : 'border-primary-container'} rounded-[2rem] bg-surface-container-lowest/30 backdrop-blur-md p-12 flex flex-col items-center justify-center hover:border-primary hover:bg-surface-container-lowest/60 group-hover:shadow-[0_40px_80px_rgba(9,98,160,0.08)] relative overflow-hidden cursor-pointer`}
+                className={`h-full min-h-[200px] md:min-h-[320px] border-2 border-dashed ${dragOver ? 'border-primary bg-primary-container/20' : 'border-primary-container'} rounded-[2rem] bg-surface-container-lowest/30 backdrop-blur-md p-6 md:p-12 flex flex-col items-center justify-center hover:border-primary hover:bg-surface-container-lowest/60 group-hover:shadow-[0_40px_80px_rgba(9,98,160,0.08)] relative overflow-hidden cursor-pointer`}
                 style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }}
               >
                 {/* Atmospheric Glow Background */}
@@ -109,8 +109,8 @@ export default function Analyze() {
                 <div className="relative z-10 flex flex-col items-center text-center space-y-6">
                   {file ? (
                     <>
-                      <div className="w-24 h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-110">
-                        <span className="material-symbols-outlined text-5xl text-primary">check_circle</span>
+                      <div className="w-16 h-16 md:w-24 md:h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-110">
+                        <span className="material-symbols-outlined text-3xl md:text-5xl text-primary">check_circle</span>
                       </div>
                       <div className="space-y-2">
                         <h3 className="text-3xl font-headline font-bold tracking-tight text-primary">{file.name}</h3>
@@ -119,17 +119,17 @@ export default function Analyze() {
                     </>
                   ) : (
                     <>
-                      <div className="w-24 h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-110">
-                        <span className="material-symbols-outlined text-5xl text-primary">cloud_upload</span>
+                      <div className="w-16 h-16 md:w-24 md:h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-110">
+                        <span className="material-symbols-outlined text-3xl md:text-5xl text-primary">cloud_upload</span>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-3xl font-headline font-bold tracking-tight text-on-surface">Upload Portfolio</h3>
+                        <h3 className="text-xl md:text-3xl font-headline font-bold tracking-tight text-on-surface">Upload Portfolio</h3>
                         <p className="text-on-surface-variant font-medium">Drag and drop your PDF file here</p>
                       </div>
                     </>
                   )}
                   
-                  <button type="button" className="mt-4 px-8 py-3 bg-surface-container-highest/50 rounded-full font-headline font-bold text-sm tracking-tighter uppercase border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
+                  <button type="button" className="mt-4 px-5 py-2 md:px-8 md:py-3 bg-surface-container-highest/50 rounded-full font-headline font-bold text-sm tracking-tighter uppercase border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
                     Browse Files
                   </button>
                 </div>
@@ -138,8 +138,8 @@ export default function Analyze() {
 
             {/* Right: Configuration Controls */}
             <section className="lg:col-span-5">
-              <div className="glass-card h-full rounded-[2rem] p-10 space-y-10 shadow-card flex flex-col bg-white/50">
-                <h4 className="text-xl font-headline font-bold tracking-tight border-b border-outline-variant/10 pb-6 text-[#111111]">Calibration Profiles</h4>
+              <div className="glass-card h-full rounded-[2rem] p-6 md:p-10 space-y-6 md:space-y-10 shadow-card flex flex-col bg-white/50">
+                <h4 className="text-base md:text-xl font-headline font-bold tracking-tight border-b border-outline-variant/10 pb-6 text-[#111111]">Calibration Profiles</h4>
                 
                 {/* Aptitude Slider */}
                 <div className="space-y-4">
@@ -178,12 +178,12 @@ export default function Analyze() {
           </div>
 
           {/* Call to Action */}
-          <div className="mt-20 w-full max-w-2xl mx-auto flex flex-col items-center">
-            <button disabled={loading} type="submit" className="group w-full relative overflow-hidden py-8 px-12 bg-primary text-white rounded-[2rem] font-headline font-black text-2xl md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(9,98,160,0.4)] active:scale-95 disabled:opacity-50">
+          <div className="mt-8 md:mt-20 w-full max-w-xl mx-auto flex flex-col items-center">
+            <button disabled={loading} type="submit" className="group w-full relative overflow-hidden py-4 md:py-8 px-6 md:px-12 bg-primary text-white rounded-[2rem] font-headline font-black text-lg md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(9,98,160,0.4)] active:scale-95 disabled:opacity-50">
               <div className="absolute inset-0 bg-white/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative z-10 flex items-center justify-center gap-6">
                 <span>{loading ? 'Processing Neural Data...' : 'Launch AI Engine'}</span>
-                <span className={`material-symbols-outlined text-4xl ${loading ? 'animate-spin' : 'animate-pulse'}`}>{loading ? 'sync' : 'bolt'}</span>
+                <span className={`material-symbols-outlined text-2xl md:text-4xl ${loading ? 'animate-spin' : 'animate-pulse'}`}>{loading ? 'sync' : 'bolt'}</span>
               </div>
               <div className="absolute -right-12 -top-12 w-40 h-40 bg-secondary-container/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             </button>

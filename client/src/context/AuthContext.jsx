@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import AuthContext from './auth-context'
 import api, { clearAccessToken, configureAuthHandlers, setAccessToken } from '../utils/api'
 
@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(getStoredToken())
   const [loading, setLoading] = useState(true)
+  const pendingRefreshRef = useRef(null)
 
   const applySession = useCallback((session) => {
     setAccessToken(session.access_token)
@@ -61,13 +62,18 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const refreshedToken = await refreshSession()
+        if (!pendingRefreshRef.current) {
+          pendingRefreshRef.current = refreshSession()
+        }
+        const refreshedToken = await pendingRefreshRef.current
         if (cancelled) return
         setToken(refreshedToken)
       } catch {
         if (cancelled) return
         clearSession()
         return
+      } finally {
+        pendingRefreshRef.current = null
       }
 
       if (!cancelled) {
@@ -110,12 +116,6 @@ export function AuthProvider({ children }) {
     window.location.assign(res.data.url)
   }
 
-  const completeOAuth = async () => {
-    const accessToken = await refreshSession()
-    setLoading(false)
-    return accessToken
-  }
-
   return (
     <AuthContext.Provider
       value={{
@@ -126,7 +126,6 @@ export function AuthProvider({ children }) {
         register,
         logout,
         startOAuth,
-        completeOAuth,
       }}
     >
       {children}
