@@ -14,7 +14,10 @@ export default function Navbar() {
   if (!user) return null
 
   const isActive = (path) => location.pathname === path
-  const handleLogout = () => { logout(); navigate('/') }
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
   const initial = user.name?.charAt(0).toUpperCase()
 
   return (

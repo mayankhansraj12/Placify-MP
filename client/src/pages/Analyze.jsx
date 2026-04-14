@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import ScrollScene from '../components/ScrollScene'
 import logo from '../assets/logo.png'
+import LandingFooter from '../components/LandingFooter'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -193,8 +194,9 @@ export default function Analyze() {
           </div>
         </form>
       </main>
+      <LandingFooter />
 
-      {/* Footer */}
+      {false && (
       <footer className="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 text-on-surface-variant relative z-10 bg-white/40 border-t border-outline-variant/10 overflow-hidden">
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
@@ -230,6 +232,7 @@ export default function Analyze() {
           </div>
         </div>
       </footer>
+      )}
     </div>
   )
 }

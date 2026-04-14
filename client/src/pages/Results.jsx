@@ -9,6 +9,7 @@ import {
 } from 'recharts'
 import ScrollScene from '../components/ScrollScene'
 import logo from '../assets/logo.png'
+import LandingFooter from '../components/LandingFooter'
 
 const BAR_COLORS = ['#888888', '#AAAAAA', '#111111', '#555555', '#333333']
 
@@ -442,8 +443,9 @@ export default function Results() {
           </div>
         </section>
       </main>
+      <LandingFooter />
 
-      {/* Footer */}
+      {false && (
       <footer className="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 bg-[#111111] font-body tracking-tight text-sm text-slate-400 relative z-20 overflow-hidden">
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full translate-x-1/2 translate-y-1/2"></div>
@@ -483,6 +485,7 @@ export default function Results() {
           </p>
         </div>
       </footer>
+      )}
     </div>
   )
 }

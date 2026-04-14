@@ -4,6 +4,7 @@ import { useAuth } from '../context/useAuth'
 import api from '../utils/api'
 import ScrollScene from '../components/ScrollScene'
 import logo from '../assets/logo.png'
+import LandingFooter from '../components/LandingFooter'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -167,8 +168,9 @@ export default function Dashboard() {
           )}
         </section>
       </main>
+      <LandingFooter />
 
-      {/* Footer */}
+      {false && (
       <footer className="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 text-on-surface-variant relative z-10 bg-white/40 border-t border-outline-variant/10">
         <div className="md:col-span-1">
           <div className="flex items-center gap-2.5 mb-4">
@@ -202,6 +204,7 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+      )}
     </div>
   )
 }

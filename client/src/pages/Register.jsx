@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import logo from '../assets/logo.png'
+import { getAuthErrorMessage } from '../utils/authErrors'
 
 export default function Register() {
   const [name, setName] = useState('')
@@ -14,6 +15,7 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -27,7 +29,7 @@ export default function Register() {
       await register(name, email, password)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed. Try again.')
+      setError(getAuthErrorMessage(err, 'Registration failed. Try again.'))
     }
   }
 
