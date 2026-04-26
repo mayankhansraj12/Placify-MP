@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import { useTheme } from '../context/ThemeContext'
@@ -12,6 +12,18 @@ export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
 
   if (!user) return null
 
@@ -60,7 +72,7 @@ export default function Navbar() {
           </nav>
 
           {/* User dropdown */}
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <button onClick={() => setMenuOpen(!menuOpen)}
               className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-[rgba(0,0,0,0.05)] dark:hover:bg-white/10 transition-all cursor-pointer">
 
@@ -94,9 +106,7 @@ export default function Navbar() {
             </button>
 
             {menuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-12 z-50 rounded-2xl overflow-hidden"
+              <div className="absolute right-0 top-12 z-50 rounded-2xl overflow-hidden"
                   style={{
                     minWidth: '260px',
                     background: isDark ? 'rgba(20,17,13,0.97)' : 'rgba(255,255,255,0.96)',
@@ -210,7 +220,6 @@ export default function Navbar() {
                     </button>
                   </div>
                 </div>
-              </>
             )}
           </div>
         </div>

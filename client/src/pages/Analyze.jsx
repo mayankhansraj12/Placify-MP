@@ -74,16 +74,16 @@ export default function Analyze() {
 
         {/* Header Section */}
         <header className="text-center mb-8 md:mb-16 space-y-4">
-          <h1 className="text-3xl md:text-7xl font-black font-headline tracking-tighter text-on-surface leading-none">
-            Analyze <span className="text-primary">Intelligence.</span>
+          <h1 className="text-3xl md:text-7xl font-black font-headline tracking-tighter text-on-surface dark:text-stone-100 leading-none">
+            Analyze <span className="text-primary dark:text-amber-400">Intelligence.</span>
           </h1>
-          <p className="text-sm md:text-lg text-on-surface-variant max-w-xl mx-auto font-light">
+          <p className="text-sm md:text-lg text-on-surface-variant dark:text-stone-400 max-w-xl mx-auto font-light">
             Upload your portfolio and calibrate your core competencies for high-precision career placement matching.
           </p>
         </header>
 
         {error && (
-          <div className="w-full max-w-2xl mb-8 p-4 bg-primary/5 border border-primary/10 rounded-xl text-center text-primary font-bold">
+          <div className="w-full max-w-2xl mb-8 p-4 bg-primary/5 dark:bg-amber-900/15 border border-primary/10 dark:border-amber-500/20 rounded-xl text-center text-primary dark:text-amber-300 font-bold">
             {error}
           </div>
         )}
@@ -97,7 +97,7 @@ export default function Analyze() {
               <div
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
-                className={`h-full min-h-[200px] md:min-h-[320px] border-2 border-dashed ${dragOver ? 'border-primary bg-primary-container/20' : 'border-primary-container'} rounded-[2rem] bg-surface-container-lowest/30 backdrop-blur-md p-6 md:p-12 flex flex-col items-center justify-center hover:border-primary hover:bg-surface-container-lowest/60 group-hover:shadow-[0_40px_80px_rgba(9,98,160,0.08)] relative overflow-hidden cursor-pointer`}
+                className={`h-full min-h-[200px] md:min-h-[320px] border-2 border-dashed ${dragOver ? 'border-primary dark:border-amber-400 bg-primary-container/20 dark:bg-amber-900/15' : 'border-primary-container dark:border-stone-600'} rounded-[2rem] bg-surface-container-lowest/30 backdrop-blur-md p-6 md:p-12 flex flex-col items-center justify-center hover:border-primary dark:hover:border-amber-500 hover:bg-surface-container-lowest/60 dark:hover:bg-stone-800/40 group-hover:shadow-[0_40px_80px_rgba(9,98,160,0.08)] relative overflow-hidden cursor-pointer`}
                 style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }}
               >
                 <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary-container/20 blur-[100px] rounded-full" />
@@ -109,25 +109,25 @@ export default function Analyze() {
                   {file ? (
                     <>
                       <div className="w-16 h-16 md:w-24 md:h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-110">
-                        <span className="material-symbols-outlined text-3xl md:text-5xl text-primary">check_circle</span>
+                        <span className="material-symbols-outlined text-3xl md:text-5xl text-primary dark:text-amber-400">check_circle</span>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-3xl font-headline font-bold tracking-tight text-primary">{file.name}</h3>
-                        <p className="text-primary/60 font-medium">{(file.size / 1024).toFixed(0)} KB · Click to replace</p>
+                        <h3 className="text-3xl font-headline font-bold tracking-tight text-primary dark:text-amber-400">{file.name}</h3>
+                        <p className="text-primary/60 dark:text-amber-400/60 font-medium">{(file.size / 1024).toFixed(0)} KB · Click to replace</p>
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="w-16 h-16 md:w-24 md:h-24 bg-primary-container/20 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-110">
-                        <span className="material-symbols-outlined text-3xl md:text-5xl text-primary">cloud_upload</span>
+                        <span className="material-symbols-outlined text-3xl md:text-5xl text-primary dark:text-amber-400">cloud_upload</span>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl md:text-3xl font-headline font-bold tracking-tight text-on-surface">Upload Portfolio</h3>
-                        <p className="text-on-surface-variant font-medium">Drag and drop your PDF file here</p>
+                        <h3 className="text-xl md:text-3xl font-headline font-bold tracking-tight text-on-surface dark:text-stone-100">Upload Portfolio</h3>
+                        <p className="text-on-surface-variant dark:text-stone-400 font-medium">Drag and drop your PDF file here</p>
                       </div>
                     </>
                   )}
-                  <button type="button" className="mt-4 px-5 py-2 md:px-8 md:py-3 bg-surface-container-highest/50 rounded-full font-headline font-bold text-sm tracking-tighter uppercase border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
+                  <button type="button" className="mt-4 px-5 py-2 md:px-8 md:py-3 bg-surface-container-highest/50 dark:bg-stone-700/60 rounded-full font-headline font-bold text-sm tracking-tighter uppercase border border-outline-variant/20 dark:border-stone-600/30 hover:bg-surface-container-highest dark:hover:bg-stone-700 dark:text-stone-200 transition-colors">
                     Browse Files
                   </button>
                 </div>
@@ -142,15 +142,15 @@ export default function Analyze() {
                 {/* Aptitude Slider */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-end">
-                    <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Aptitude Score</label>
-                    <span className="text-primary font-bold font-headline text-2xl">{aptitude}<span className="text-xs text-on-surface-variant/60 ml-1">%</span></span>
+                    <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant dark:text-stone-400">Aptitude Score</label>
+                    <span className="text-primary dark:text-amber-400 font-bold font-headline text-2xl">{aptitude}<span className="text-xs text-on-surface-variant/60 dark:text-stone-500 ml-1">%</span></span>
                   </div>
                   <input className="w-full" max="100" min="0" type="range" value={aptitude} onChange={(e) => setAptitude(Number(e.target.value))} />
                 </div>
 
                 {/* Communication — segmented pill buttons */}
                 <div className="space-y-3">
-                  <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Communication Style</label>
+                  <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant dark:text-stone-400">Communication Style</label>
                   <div className="flex gap-2">
                     {COMM_LEVELS.map(l => (
                       <button
@@ -167,20 +167,20 @@ export default function Analyze() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-on-surface-variant/60 font-medium">{COMM_LEVELS.find(l => l.value === communication)?.label}</p>
+                  <p className="text-xs text-on-surface-variant/60 dark:text-stone-500 font-medium">{COMM_LEVELS.find(l => l.value === communication)?.label}</p>
                 </div>
 
                 {/* Solved Problems Numeric */}
                 <div className="space-y-4">
-                  <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Complex Problems Solved</label>
+                  <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant dark:text-stone-400">Complex Problems Solved</label>
                   <div className="flex items-center bg-white/60 dark:bg-stone-800/60 border border-outline-variant/20 dark:border-stone-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary">
-                    <span className="material-symbols-outlined px-4 text-on-surface-variant">terminal</span>
+                    <span className="material-symbols-outlined px-4 text-on-surface-variant dark:text-stone-400">terminal</span>
                     <input className="w-full border-none bg-transparent py-4 text-on-surface font-bold focus:ring-0 outline-none" placeholder="000" type="number" min="0" value={codingProblems} onChange={(e) => setCodingProblems(Number(e.target.value))} />
                   </div>
                 </div>
 
                 <div className="mt-auto pt-6 text-center">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-bold">Calibration Active</p>
+                  <p className="text-[10px] text-on-surface-variant dark:text-stone-500 uppercase tracking-[0.2em] font-bold">Calibration Active</p>
                 </div>
               </div>
             </section>
@@ -188,7 +188,7 @@ export default function Analyze() {
 
           {/* Call to Action */}
           <div className="mt-8 md:mt-20 w-full max-w-xl mx-auto flex flex-col items-center">
-            <button disabled={loading} type="submit" className="group w-full relative overflow-hidden py-4 md:py-8 px-6 md:px-12 bg-primary text-white rounded-[2rem] font-headline font-black text-lg md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(202,138,4,0.4)] active:scale-95 disabled:opacity-50">
+            <button disabled={loading} type="submit" className="group w-full relative overflow-hidden py-4 md:py-8 px-6 md:px-12 bg-primary dark:bg-amber-600 text-white rounded-[2rem] font-headline font-black text-lg md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(202,138,4,0.4)] active:scale-95 disabled:opacity-50">
               <div className="absolute inset-0 bg-white/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 flex items-center justify-center gap-6">
                 <span>{loading ? 'Processing Neural Data...' : 'Launch AI Engine'}</span>
@@ -196,7 +196,7 @@ export default function Analyze() {
               </div>
               <div className="absolute -right-12 -top-12 w-40 h-40 bg-secondary-container/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
             </button>
-            <p className="text-center mt-6 text-on-surface-variant/60 font-medium text-sm flex items-center justify-center gap-2">
+            <p className="text-center mt-6 text-on-surface-variant/60 dark:text-stone-500 font-medium text-sm flex items-center justify-center gap-2">
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>
               Data is encrypted and processed in isolated VPC environments.
             </p>

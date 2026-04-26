@@ -2,14 +2,14 @@ import logo from '../assets/logo.png'
 
 export default function LandingFooter() {
   return (
-    <footer className="bg-[#111111] text-on-surface-variant font-body tracking-tight text-sm z-20 relative">
+    <footer className="bg-[#111111] dark:bg-stone-900 text-on-surface-variant font-body tracking-tight text-sm z-20 relative">
       <div className="w-full py-16 px-6 md:px-12 flex flex-col md:flex-row justify-between items-start gap-12 max-w-7xl mx-auto">
         <div className="space-y-6">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Placify AI" className="h-8 w-auto brightness-0 invert" />
             <span className="text-lg font-bold text-white tracking-tighter">Placify AI</span>
           </div>
-          <p className="text-on-surface-variant max-w-xs leading-relaxed">
+          <p className="text-stone-400 max-w-xs leading-relaxed">
             Redefining career readiness through ethereal intelligence and editorial-grade data mapping.
           </p>
         </div>
@@ -29,7 +29,7 @@ export default function LandingFooter() {
         </div>
       </div>
 
-      <div className="w-full py-8 px-6 md:px-12 border-t border-white/10 text-center">
+      <div className="w-full py-8 px-6 md:px-12 border-t border-white/10 text-center text-stone-500">
         <p>© 2026 Placify AI. All rights reserved.</p>
       </div>
     </footer>
