@@ -107,7 +107,6 @@ export default function Login() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                   <label className="block text-xs font-bold text-white/50 uppercase tracking-widest" htmlFor="password">Password</label>
-                  <Link className="text-[10px] font-bold text-primary-container hover:text-white transition-colors uppercase tracking-widest" to="#">Forgot?</Link>
                 </div>
                 <div className="relative">
                   <input required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-3.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary-container/50 transition-all" id="password" placeholder="••••••••" type="password" />

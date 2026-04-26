@@ -548,6 +548,7 @@ class UserResponse(BaseModel):
     email: str
     avatar_url: str | None = None
     auth_methods: list[str] = []
+    current_auth_method: str | None = None
 
 
 class TokenResponse(BaseModel):
@@ -586,14 +587,18 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         raise HTTPException(status_code=401, detail="Session is no longer valid")
 
     user = get_user_by_id(user_id)
-    return serialize_user(user)
+    serialized = serialize_user(user)
+    serialized["current_auth_method"] = session.get("auth_source")
+    return serialized
 
 
-def build_auth_response(user: dict, session_id: str) -> TokenResponse:
+def build_auth_response(user: dict, session_id: str, auth_source: str = None) -> TokenResponse:
     access_token = create_access_token(user["_id"], session_id)
+    user_data = serialize_user(user)
+    user_data["current_auth_method"] = auth_source
     return TokenResponse(
         access_token=access_token,
-        user=UserResponse(**serialize_user(user)),
+        user=UserResponse(**user_data),
     )
 
 
@@ -602,7 +607,7 @@ def register(req: RegisterRequest, request: Request, response: Response):
     user = upsert_password_user(req.name, req.email, req.password)
     session_id, refresh_token = create_session(user["_id"], request, "password")
     set_refresh_cookie(response, refresh_token)
-    return build_auth_response(user, session_id)
+    return build_auth_response(user, session_id, "password")
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -617,7 +622,7 @@ def login(req: LoginRequest, request: Request, response: Response):
     user = get_user_by_id(user["_id"])
     session_id, refresh_token = create_session(user["_id"], request, "password")
     set_refresh_cookie(response, refresh_token)
-    return build_auth_response(user, session_id)
+    return build_auth_response(user, session_id, "password")
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -633,7 +638,7 @@ def refresh_session(
     user = get_user_by_id(session["user_id"])
     rotated_token = rotate_session(session, request)
     set_refresh_cookie(response, rotated_token)
-    return build_auth_response(user, session["_id"])
+    return build_auth_response(user, session["_id"], session.get("auth_source"))
 
 
 @router.post("/logout", response_model=AuthStatusResponse)
