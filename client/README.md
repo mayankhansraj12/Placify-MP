@@ -1,16 +1,58 @@
-# React + Vite
+# Placify AI — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the Placify AI placement prediction platform.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 18** with React Router v6
+- **Vite** (dev server + build)
+- **Tailwind CSS** with dark/light mode (`darkMode: 'class'`)
+- **Recharts** for radar and bar charts
+- **Axios** with JWT interceptor and silent token refresh
+- **Lucide React** for icons
+- **jsPDF** for PDF report generation
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+Create a `.env` file:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+```bash
+npm run dev       # dev server on http://localhost:5173
+npm run build     # production build → dist/
+npm run preview   # preview production build locally
+```
+
+## Key Directories
+
+```
+src/
+├── assets/           # logo.png
+├── components/       # Navbar, LandingNavbar, ProtectedRoute, PublicOnlyRoute, ui/
+├── context/          # AuthContext.jsx, ThemeContext.jsx
+├── pages/            # Landing, Login, Register, Dashboard, Analyze, Results, OAuthCallback
+└── utils/            # api.js, pdfReport.js, authErrors.js
+```
+
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Backend API base URL (e.g. `https://your-backend.up.railway.app/api`) |
+
+## Theme
+
+Theme preference persists in `localStorage` under key `placify-theme`. The `.dark` class is toggled on `<html>` — all dark mode styles use Tailwind's `dark:` prefix.
+
+## Auth Flow
+
+- Email/password login → JWT access token stored in `localStorage` + httpOnly refresh token cookie
+- Google / GitHub OAuth → backend redirect → `/auth/callback` → silent `/auth/refresh`
+- Axios interceptor auto-refreshes expired access tokens transparently
