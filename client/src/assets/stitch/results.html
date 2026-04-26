@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Placify AI | Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline-variant": "#c1c7d2",
+              "on-secondary-container": "#443a87",
+              "surface-tint": "#0962a0",
+              "on-surface-variant": "#414750",
+              "surface-container": "#eceef3",
+              "background": "#f8f9ff",
+              "secondary-fixed-dim": "#c7bfff",
+              "surface": "#f8f9ff",
+              "on-background": "#191c20",
+              "secondary-container": "#b3a9ff",
+              "surface-container-high": "#e7e8ee",
+              "inverse-on-surface": "#eff0f6",
+              "on-primary-fixed": "#001d35",
+              "surface-bright": "#f8f9ff",
+              "on-primary-container": "#004a7c",
+              "on-surface": "#191c20",
+              "surface-dim": "#d8dae0",
+              "on-tertiary-fixed": "#101a35",
+              "surface-container-low": "#f2f3f9",
+              "on-secondary": "#ffffff",
+              "secondary-fixed": "#e5deff",
+              "error-container": "#ffdad6",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed-dim": "#bcc5e9",
+              "on-tertiary-container": "#3d4664",
+              "secondary": "#5d54a3",
+              "on-primary-fixed-variant": "#00497b",
+              "primary-fixed": "#d1e4ff",
+              "on-secondary-fixed": "#18075d",
+              "on-tertiary": "#ffffff",
+              "inverse-primary": "#9dcaff",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#453b89",
+              "surface-container-highest": "#e1e2e8",
+              "on-tertiary-fixed-variant": "#3c4663",
+              "inverse-surface": "#2e3135",
+              "primary-fixed-dim": "#9dcaff",
+              "tertiary": "#545d7c",
+              "tertiary-container": "#acb5d8",
+              "on-error": "#ffffff",
+              "outline": "#717781",
+              "primary-container": "#7bbbff",
+              "tertiary-fixed": "#dbe1ff",
+              "primary": "#0962a0",
+              "surface-variant": "#e1e2e8",
+              "on-error-container": "#93000a"
+            },
+            fontFamily: {
+              "headline": ["Epilogue"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(193, 199, 210, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            shadow-[0_20px_40px_rgba(9,98,160,0.04)];
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-8">
+<div class="rounded-full mt-4 mx-auto max-w-fit px-6 py-2 border border-white/15 bg-white/40 backdrop-blur-xl shadow-[0_20px_40px_rgba(9,98,160,0.04)] flex items-center gap-8">
+<span class="text-xl font-black tracking-tighter text-slate-900">Placify AI</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">Features</a>
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">Dashboard</a>
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">Analyze</a>
+<a class="font-['Epilogue'] tracking-tighter font-bold uppercase text-xs text-blue-600 border-b-2 border-blue-600 pb-1" href="#">Results</a>
+</div>
+<div class="flex items-center gap-3 ml-4">
+<button class="px-4 py-1.5 rounded-full text-xs font-bold font-['Epilogue'] tracking-tighter uppercase text-slate-600 hover:scale-105 transition-all">Sign In</button>
+<button class="px-5 py-1.5 rounded-full text-xs font-bold font-['Epilogue'] tracking-tighter uppercase bg-primary text-white shadow-lg hover:scale-105 transition-all">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto space-y-16">
+<!-- Hero Section: High-Impact Analysis -->
+<section class="relative">
+<div class="bg-on-surface-variant rounded-[2.5rem] p-8 md:p-16 overflow-hidden relative shadow-2xl flex flex-col md:flex-row items-center gap-12">
+<!-- Decorative Light Bleed -->
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/20 blur-[120px] rounded-full"></div>
+<div class="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"></div>
+<div class="flex-1 space-y-6 relative z-10 text-center md:text-left">
+<div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 text-primary-fixed text-xs font-bold tracking-widest uppercase">
+                        Analysis Complete
+                    </div>
+<h1 class="font-headline text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight">
+                        Senior AI <br/>Engineer
+                    </h1>
+<div class="flex flex-wrap gap-8 justify-center md:justify-start">
+<div class="space-y-1">
+<p class="text-white/50 text-xs font-bold tracking-widest uppercase">Predicted Tier</p>
+<p class="text-2xl font-headline font-bold text-white tracking-tight">Global Elite</p>
+</div>
+<div class="space-y-1">
+<p class="text-white/50 text-xs font-bold tracking-widest uppercase">Expected CTC</p>
+<p class="text-2xl font-headline font-bold text-primary-fixed tracking-tight">₹18L - ₹25L</p>
+</div>
+</div>
+</div>
+<!-- Confidence Dial -->
+<div class="relative w-64 h-64 flex items-center justify-center z-10 shrink-0">
+<svg class="w-full h-full transform -rotate-90">
+<circle cx="128" cy="128" fill="transparent" r="110" stroke="rgba(255,255,255,0.05)" stroke-width="12"></circle>
+<circle class="drop-shadow-[0_0_15px_rgba(123,187,255,0.6)]" cx="128" cy="128" fill="transparent" r="110" stroke="url(#gradient)" stroke-dasharray="691" stroke-dashoffset="103" stroke-linecap="round" stroke-width="16"></circle>
+<defs>
+<lineargradient id="gradient" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#7BBBFF"></stop>
+<stop offset="100%" stop-color="#5D54A3"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-5xl font-black text-white tracking-tighter">85%</span>
+<span class="text-[10px] text-white/60 font-bold uppercase tracking-[0.2em] mt-1">Confidence</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Insights Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Radar Chart Glass Card -->
+<div class="glass-card rounded-[2rem] p-8 min-h-[400px] flex flex-col justify-between">
+<div>
+<h3 class="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-2">Skill Competency</h3>
+<p class="font-headline text-2xl font-bold tracking-tight text-on-surface">Capability Spectrum</p>
+</div>
+<div class="flex items-center justify-center py-8">
+<div class="w-64 h-64 relative bg-surface-container-high rounded-full overflow-hidden p-6 flex items-center justify-center shadow-inner">
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, #0962a0 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="w-full h-full bg-primary/20 rounded-full border-2 border-primary/40 clip-path-radar flex items-center justify-center relative">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="hub">hub</span>
+</div>
+</div>
+</div>
+<div class="flex justify-between text-[10px] font-bold uppercase text-on-surface-variant tracking-widest pt-4">
+<span>Architecture</span>
+<span>MLOps</span>
+<span>NLP</span>
+<span>Systems</span>
+</div>
+</div>
+<!-- Bar Chart Glass Card -->
+<div class="glass-card rounded-[2rem] p-8 min-h-[400px] flex flex-col justify-between">
+<div>
+<h3 class="text-xs font-bold tracking-[0.2em] uppercase text-secondary mb-2">Benchmarking</h3>
+<p class="font-headline text-2xl font-bold tracking-tight text-on-surface">Market Percentile</p>
+</div>
+<div class="flex-1 flex items-end gap-3 pt-12">
+<div class="flex-1 bg-surface-container-highest rounded-t-xl h-2/3 relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-bold text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">72%</div>
+</div>
+<div class="flex-1 bg-surface-container-highest rounded-t-xl h-1/2 relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-bold text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">45%</div>
+</div>
+<div class="flex-1 bg-primary rounded-t-xl h-5/6 relative group shadow-lg shadow-primary/20">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-bold text-primary">94%</div>
+<div class="absolute inset-0 bg-white/10 rounded-t-xl"></div>
+</div>
+<div class="flex-1 bg-surface-container-highest rounded-t-xl h-3/4 relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-bold text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">81%</div>
+</div>
+</div>
+<div class="grid grid-cols-4 gap-2 text-[10px] font-bold uppercase text-on-surface-variant tracking-widest pt-6 text-center">
+<span>FinTech</span>
+<span>EdTech</span>
+<span>Generative AI</span>
+<span>SaaS</span>
+</div>
+</div>
+</section>
+<!-- Matching Section -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+<!-- Top Matches -->
+<div class="lg:col-span-1 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-2xl font-black tracking-tighter">Top Matches</h2>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div class="space-y-4">
+<div class="p-6 bg-white rounded-3xl shadow-sm border border-outline-variant/10 flex items-center justify-between hover:scale-[1.02] transition-transform duration-300">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center">
+<span class="text-white font-black text-xl italic">N</span>
+</div>
+<div>
+<p class="font-bold text-lg leading-tight">NVIDIA</p>
+<p class="text-xs text-on-surface-variant font-medium">Santa Clara, CA</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold">98%</p>
+<p class="text-[10px] uppercase font-bold tracking-tighter text-on-surface-variant">Match</p>
+</div>
+</div>
+<div class="p-6 bg-white rounded-3xl shadow-sm border border-outline-variant/10 flex items-center justify-between hover:scale-[1.02] transition-transform duration-300">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="bolt">bolt</span>
+</div>
+<div>
+<p class="font-bold text-lg leading-tight">OpenAI</p>
+<p class="text-xs text-on-surface-variant font-medium">San Francisco, CA</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold">94%</p>
+<p class="text-[10px] uppercase font-bold tracking-tighter text-on-surface-variant">Match</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Curated Courses & Skill Gaps -->
+<div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Skill Gaps Card -->
+<div class="p-8 bg-amber-50/50 backdrop-blur-md rounded-[2rem] border border-amber-200/50 space-y-6">
+<div>
+<h3 class="text-xs font-bold tracking-[0.2em] uppercase text-amber-800 mb-2">Priority Growth</h3>
+<p class="font-headline text-2xl font-bold tracking-tight text-amber-900">Skill Gaps</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-1.5 bg-amber-200/40 text-amber-900 rounded-full text-xs font-bold border border-amber-300/30 tracking-tight">Large Language Models (RLHF)</span>
+<span class="px-4 py-1.5 bg-amber-200/40 text-amber-900 rounded-full text-xs font-bold border border-amber-300/30 tracking-tight">Kubernetes MLOps</span>
+<span class="px-4 py-1.5 bg-amber-200/40 text-amber-900 rounded-full text-xs font-bold border border-amber-300/30 tracking-tight">PyTorch Distributed Training</span>
+<span class="px-4 py-1.5 bg-amber-200/40 text-amber-900 rounded-full text-xs font-bold border border-amber-300/30 tracking-tight">CUDA Optimization</span>
+</div>
+<div class="pt-4 border-t border-amber-200/50">
+<p class="text-sm text-amber-800/80 leading-relaxed italic">"Mastering Distributed Training could increase your CTC potential by up to 15%."</p>
+</div>
+</div>
+<!-- Curated Courses -->
+<div class="space-y-6">
+<h2 class="font-headline text-2xl font-black tracking-tighter">Recommended</h2>
+<div class="space-y-3">
+<div class="group relative overflow-hidden rounded-2xl bg-surface-container-low p-4 hover:bg-white transition-all duration-300 cursor-pointer">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-xl bg-slate-200 shrink-0 overflow-hidden">
+<img alt="Code course" class="w-full h-full object-cover" data-alt="Close up of high-tech computer screen displaying complex code in a dark room with blue and purple ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLQ74Uve3C9FYMBTVkykHNQ3Pd2uUjQww7NzIkxXRuaX0QpvYaUxci86pojYFv1mQ36HkJxKgXEmDhxOYs6qP4am54SOl9v6EQiW6YjvuEXkQ2VyhY5SScIhAMElIYPcEnMj01gNLUBru0I3z086XRIN_c-cz8nrEQtBkoate-1xxsH-vXo7LTN8cWrVa_GS6Y1rSfLu6uE6oqQ7OWYrV45tpfP1gn48nMJyiAErEqCbkG2SogBG3Gl4apIn8q03RldghxToFeaHo"/>
+</div>
+<div>
+<h4 class="font-bold text-sm leading-tight group-hover:text-primary transition-colors">Advanced RLHF for NLP Engineers</h4>
+<p class="text-xs text-on-surface-variant mt-1">Stanford AI Lab • 12 Weeks</p>
+<p class="text-xs font-bold text-primary mt-2">₹12,499</p>
+</div>
+</div>
+</div>
+<div class="group relative overflow-hidden rounded-2xl bg-surface-container-low p-4 hover:bg-white transition-all duration-300 cursor-pointer">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-xl bg-slate-200 shrink-0 overflow-hidden">
+<img alt="Cloud tech" class="w-full h-full object-cover" data-alt="Satellite view of digital data networks across the globe at night with glowing connection lines and points of light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASd8w7Wi9F2BKuaCtC4aDDXBnCJYjenEAQ4YWSQ8wzh5iQzGK7XtDJXb2YdIEpaqUHZHdHb1pgfkSxGkCU_lpDkcqQRqNUM4C7PzATlabZH4hqvtzk6XV6QLWoDkEOPXtCuK8RhCZXgfIfXayYYK8Be30UGANVfPZame-6oePQuy6kInhhCpkH4Q1uEXN-pU4ZOYqAld309PadiRL6y07Vo86mfxhaEcM_1W1Y9hP2omN4nQEOc5PgTBw70ehIRELxWEGBkDi-hNs"/>
+</div>
+<div>
+<h4 class="font-bold text-sm leading-tight group-hover:text-primary transition-colors">Distributed Systems on AWS</h4>
+<p class="text-xs text-on-surface-variant mt-1">AWS Academy • 8 Weeks</p>
+<p class="text-xs font-bold text-primary mt-2">₹8,999</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 bg-slate-950 font-['Inter'] tracking-tight text-sm">
+<div class="col-span-1 md:col-span-1">
+<span class="text-lg font-bold text-white block mb-4">Placify AI</span>
+<p class="text-slate-500 max-w-xs leading-relaxed">
+                Empowering the next generation of tech leaders through algorithmic precision and career intelligence.
+            </p>
+</div>
+<div>
+<h4 class="text-white font-medium mb-4 uppercase tracking-widest text-[10px]">Product</h4>
+<ul class="space-y-2">
+<li><a class="text-slate-500 hover:text-blue-400 transition-colors duration-200" href="#">Analysis</a></li>
+<li><a class="text-slate-500 hover:text-blue-400 transition-colors duration-200" href="#">Benchmarking</a></li>
+<li><a class="text-slate-500 hover:text-blue-400 transition-colors duration-200" href="#">API</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-medium mb-4 uppercase tracking-widest text-[10px]">Company</h4>
+<ul class="space-y-2">
+<li><a class="text-slate-500 hover:text-blue-400 transition-colors duration-200" href="#">Support</a></li>
+<li><a class="text-slate-500 hover:text-blue-400 transition-colors duration-200" href="#">Privacy</a></li>
+<li><a class="text-slate-500 hover:text-blue-400 transition-colors duration-200" href="#">Terms</a></li>
+</ul>
+</div>
+<div class="flex flex-col items-start md:items-end justify-between h-full">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-500 hover:text-white cursor-pointer" data-icon="language">language</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-white cursor-pointer" data-icon="share">share</span>
+</div>
+<p class="text-slate-500 mt-8 md:mt-0 text-[10px] uppercase font-bold tracking-widest">
+                © 2024 Placify AI. All rights reserved. Prices in ₹.
+            </p>
+</div>
+</footer>
+</body></html>

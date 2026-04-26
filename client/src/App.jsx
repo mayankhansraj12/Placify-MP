@@ -1,31 +1,39 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicOnlyRoute from './components/PublicOnlyRoute'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import OAuthCallback from './pages/OAuthCallback'
 import Dashboard from './pages/Dashboard'
 import Analyze from './pages/Analyze'
 import Results from './pages/Results'
+import { useAuth } from './context/useAuth'
+import { ThemeProvider } from './context/ThemeContext'
 
 export default function App() {
+  const { user, loading } = useAuth()
+
   return (
-    <>
-      <Navbar />
+    <ThemeProvider>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+        <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+        <Route path="/auth/callback" element={<OAuthCallback />} />
         <Route path="/dashboard" element={
-          <ProtectedRoute><Dashboard /></ProtectedRoute>
+          <ProtectedRoute><Navbar /><Dashboard /></ProtectedRoute>
         } />
         <Route path="/analyze" element={
-          <ProtectedRoute><Analyze /></ProtectedRoute>
+          <ProtectedRoute><Navbar /><Analyze /></ProtectedRoute>
         } />
         <Route path="/results/:id" element={
-          <ProtectedRoute><Results /></ProtectedRoute>
+          <ProtectedRoute><Navbar /><Results /></ProtectedRoute>
         } />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to={!loading && user ? '/dashboard' : '/'} replace />} />
       </Routes>
-    </>
+    </ThemeProvider>
   )
 }
+

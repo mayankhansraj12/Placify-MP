@@ -1,52 +1,58 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useTheme } from '../context/ThemeContext'
 import api from '../utils/api'
 import { generateReport } from '../utils/pdfReport'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
-import {
-  FiArrowLeft, FiAward, FiBookOpen, FiBriefcase, FiDownload, FiTarget,
-  FiTrendingUp, FiUsers, FiZap,
-} from 'react-icons/fi'
+import logo from '../assets/logo.png'
+import LandingFooter from '../components/LandingFooter'
 
-const TIER_BADGE = {
-  Startup: 'badge-startup',
-  'Service-Based': 'badge-service',
-  'Product-Based': 'badge-product',
-  Fintech: 'badge-fintech',
-  'Top-Tier': 'badge-toptier',
-}
-
-const BAR_COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c084fc', '#e879f9']
+const BAR_COLORS = ['#C9A84C', '#D4B896', '#A67C52', '#7B5E42', '#B89860']
 
 export default function Results() {
   const { id } = useParams()
   const location = useLocation()
   const { user } = useAuth()
+  const { theme } = useTheme()
 
   const [data, setData] = useState(location.state?.analysis || null)
   const [loading, setLoading] = useState(!data)
 
+  // Build theme-aware color map (must be before any early returns)
+  const D = theme === 'dark'
+  const tc = D ? '240,235,228' : '28,25,23'
+  const ra = (a) => `rgba(${tc},${a})`
+  const c = {
+    bg: D ? '#141210' : '#FAFAF7',
+    card: D ? '#1d1a15' : '#ffffff',
+    text: D ? '#f0ebe4' : '#1C1917',
+    t65: ra(0.65), t58: ra(0.58), t55: ra(0.55),
+    t50: ra(0.50), t45: ra(0.45), t42: ra(0.42),
+    t40: ra(0.40), t38: ra(0.38), t36: ra(0.36),
+    t35: ra(0.35), t32: ra(0.32), t30: ra(0.30),
+    t28: ra(0.28), t25: ra(0.25), t20: ra(0.20),
+    t18: ra(0.18), t12: ra(0.12), t10: ra(0.10),
+    t09: ra(0.09), t08: ra(0.08), t07: ra(0.07),
+    t06: ra(0.06), t05: ra(0.05), t04: ra(0.04),
+  }
+
   useEffect(() => {
     if (data) return
-
     api.get(`/analysis/${id}`)
-      .then((res) => {
-        setData(res.data)
-        setLoading(false)
-      })
+      .then(res => { setData(res.data); setLoading(false) })
       .catch(() => setLoading(false))
   }, [data, id])
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading-overlay">
-          <div className="spinner"></div>
-          <p>Loading results...</p>
+      <div className="font-body min-h-screen flex items-center justify-center" style={{ background: c.bg }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-full border-4 animate-spin" style={{ borderColor: 'rgba(201,168,76,0.25)', borderTopColor: '#C9A84C' }} />
+          <p className="font-bold font-headline animate-pulse" style={{ color: c.text }}>Synchronizing Neural Analysis...</p>
         </div>
       </div>
     )
@@ -54,294 +60,415 @@ export default function Results() {
 
   if (!data) {
     return (
-      <div className="page-container">
-        <div className="glass-card empty-state">
-          <h3>Analysis not found</h3>
-          <Link to="/dashboard" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            Back to Dashboard
-          </Link>
+      <div className="font-body min-h-screen flex items-center justify-center p-6" style={{ background: c.bg }}>
+        <div className="max-w-sm w-full p-10 text-center rounded-[2rem]" style={{ background: c.card, border: `1px solid ${c.t10}`, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <span className="material-symbols-outlined text-6xl mb-4 block" style={{ color: c.t20 }}>error</span>
+          <h3 className="font-headline text-2xl font-extrabold mb-2" style={{ color: c.text }}>Analysis not found</h3>
+          <p className="text-sm mb-8" style={{ color: c.t55 }}>We couldn't find the requested analysis report.</p>
+          <Link to="/dashboard" className="inline-block px-8 py-3 rounded-full font-headline font-bold hover:opacity-80 transition-all" style={{ background: c.text, color: c.bg }}>Back to Dashboard</Link>
         </div>
       </div>
     )
   }
 
   const results = data.results
+  const handleDownload = () => generateReport(results, user?.name)
 
   const radarData = results.domain_scores
-    ? Object.entries(results.domain_scores).map(([name, value]) => ({
-        subject: name,
-        score: value,
-        fullMark: 100,
-      }))
+    ? Object.entries(results.domain_scores).map(([name, value]) => ({ subject: name, score: value, fullMark: 100 }))
     : []
 
   const tierData = results.tier_distribution
-    ? Object.entries(results.tier_distribution).map(([name, value]) => ({
-        name,
-        probability: value,
-      }))
+    ? Object.entries(results.tier_distribution).map(([name, value]) => ({ name, probability: value }))
     : []
 
-  const handleDownload = () => {
-    generateReport(results, user?.name)
-  }
+  const atsScore = results.ats_score || 0
+  const atsColor = atsScore >= 75 ? '#22c55e' : atsScore >= 50 ? '#C9A84C' : '#ef4444'
+  const atsLabel = atsScore >= 75 ? 'ATS Optimized' : atsScore >= 50 ? 'Needs Improvement' : 'Needs Significant Work'
 
   return (
-    <div className="page-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }} className="fade-in">
-        <Link to="/dashboard" className="btn btn-secondary btn-sm">
-          <FiArrowLeft /> Back to Dashboard
-        </Link>
-        <button id="download-report" className="btn btn-primary" onClick={handleDownload}>
-          <FiDownload /> Download Report
-        </button>
-      </div>
+    <div className="font-body overflow-x-hidden" style={{ minHeight: '100vh', background: c.bg }}>
+      {/* Fixed background */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: -1, background: D
+        ? `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(201,168,76,0.10) 0%, transparent 65%), radial-gradient(ellipse 40% 35% at 0% 100%, rgba(166,124,82,0.04) 0%, transparent 60%), #141210`
+        : `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(201,168,76,0.14) 0%, transparent 65%), radial-gradient(ellipse 40% 35% at 0% 100%, rgba(166,124,82,0.06) 0%, transparent 60%), #FAFAF7`
+      }} />
 
-      {results.overall_confidence < 45 && (
-        <div className="fade-in" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 'var(--radius-md)', color: 'var(--text)' }}>
-          <div style={{ fontWeight: 600, color: 'var(--error)' }}>Low confidence warning</div>
-          <div style={{ fontSize: '0.9rem', marginTop: '0.3rem' }}>
-            Your skill profile looks too generalized or sparse. For a stronger prediction, tailor your resume toward one clear target role.
-          </div>
-        </div>
-      )}
+      <style>{`
+        .sc-card { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease; }
+        .sc-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px ${c.t09}, 0 4px 12px ${c.t05}; }
+        .float-card { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease; }
+        .float-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px ${c.t08}, 0 4px 12px rgba(201,168,76,0.08); }
+      `}</style>
 
-      <div className="result-hero fade-in fade-in-delay-1">
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
-          Predicted Role
-        </div>
-        <div className="result-role">{results.predicted_role}</div>
-        <div className="result-tier" style={{ marginTop: '0.75rem' }}>
-          <span className={`badge ${TIER_BADGE[results.predicted_tier] || ''}`} style={{ fontSize: '0.85rem', padding: '0.4rem 1rem' }}>
-            {results.predicted_tier}
-          </span>
-        </div>
-        <div className="confidence-gauge" style={{ marginTop: '1.25rem' }}>
-          <div className="confidence-circle">{results.overall_confidence}%</div>
-          <div style={{ textAlign: 'left' }}>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>Confidence Score</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Based on ML model prediction</div>
-          </div>
-        </div>
-      </div>
+      <main className="pt-24 pb-16 md:pt-32 md:pb-24 px-6 md:px-12 max-w-7xl mx-auto space-y-8 md:space-y-16 relative z-10">
 
-      {results.ats_score !== undefined && (
-        <div className="glass-card fade-in fade-in-delay-1" style={{ marginTop: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <div style={{ textAlign: 'center', minWidth: '120px' }}>
-              <div style={{ fontSize: '3rem', fontWeight: 800, color: results.ats_score >= 70 ? 'var(--success)' : results.ats_score >= 40 ? 'var(--warning)' : 'var(--error)' }}>
-                {results.ats_score}
+        {/* ── Hero ── */}
+        <section>
+          <div className="rounded-[2.5rem] p-6 md:p-16 overflow-hidden relative flex flex-col md:flex-row items-center gap-8 md:gap-12"
+            style={{ background: c.card, border: '1px solid rgba(201,168,76,0.18)', boxShadow: '0 4px 32px rgba(201,168,76,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
+            <div style={{ position: 'absolute', top: -40, right: -40, width: 260, height: 260, borderRadius: '50%', background: 'rgba(201,168,76,0.09)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+
+            <div className="flex-1 space-y-6 relative z-10 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase" style={{ background: c.t05, border: `1px solid ${c.t10}`, color: c.t50 }}>
+                Analysis Complete
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>ATS Match</div>
-            </div>
-            <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1.5rem', flex: 1, minWidth: '250px' }}>
-              <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text)' }}>Resume Structural Feedback</div>
-              <ul style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingLeft: 0, listStyle: 'none', margin: 0 }}>
-                {results.ats_feedback?.map((feedback) => (
-                  <li key={feedback}>{feedback}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid-4 fade-in fade-in-delay-2">
-        <div className="glass-card stat-card">
-          <div className="stat-value">INR {results.salary_range?.expected}L</div>
-          <div className="stat-label">Expected CTC</div>
-        </div>
-        <div className="glass-card stat-card">
-          <div className="stat-value">{results.faang_probability}%</div>
-          <div className="stat-label">FAANG Probability</div>
-        </div>
-        <div className="glass-card stat-card">
-          <div className="stat-value">{results.resume_strength}</div>
-          <div className="stat-label">Resume Strength</div>
-        </div>
-        <div className="glass-card stat-card">
-          <div className="stat-value">Top {100 - results.peer_percentile}%</div>
-          <div className="stat-label">Peer Ranking</div>
-        </div>
-      </div>
-
-      <div style={{ marginTop: '1.5rem', maxWidth: '800px', marginInline: 'auto' }}>
-        <div className="glass-card fade-in fade-in-delay-3">
-          <div className="section-header">
-            <FiTarget className="icon" /> Domain Skill Scores
-          </div>
-          {radarData.length > 0 && (
-            <ResponsiveContainer width="100%" height={320}>
-              <RadarChart data={radarData} outerRadius="75%">
-                <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
-                <Radar name="Score" dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.25} strokeWidth={2} />
-              </RadarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      <div className="grid-2" style={{ marginTop: '1.5rem' }}>
-        <div className="glass-card fade-in fade-in-delay-3">
-          <div className="section-header">
-            <FiBriefcase className="icon" /> Top Predicted Roles
-          </div>
-          {results.top_roles?.map((role, index) => (
-            <div key={role.role} style={{ marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>
-                  #{index + 1} {role.role}
-                </span>
-                <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>{role.probability}%</span>
+              <h1 className="font-headline text-3xl md:text-7xl font-black tracking-tighter leading-tight" style={{ color: c.text }}>
+                {results.predicted_role}
+              </h1>
+              <div className="flex flex-wrap gap-8 md:gap-12 justify-center md:justify-start">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: c.t40 }}>Predicted Tier</p>
+                  <p className="text-2xl font-headline font-bold tracking-tight" style={{ color: c.text }}>{results.predicted_tier}</p>
+                  {results.tier_confidence != null && (
+                    <p className="text-xs font-semibold" style={{ color: c.t40 }}>{results.tier_confidence}% tier confidence</p>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: c.t40 }}>Expected Package</p>
+                  <p className="text-2xl font-headline font-bold tracking-tight" style={{ color: c.text }}>₹{results.salary_range?.expected} LPA</p>
+                  {results.salary_range?.low != null && results.salary_range?.high != null && (
+                    <p className="text-xs font-semibold" style={{ color: c.t40 }}>Range: ₹{results.salary_range.low}L – ₹{results.salary_range.high}L</p>
+                  )}
+                </div>
               </div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${role.probability}%` }}></div>
+              <button onClick={handleDownload} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:opacity-75 transition-all" style={{ background: c.text, color: c.bg }}>
+                <span className="material-symbols-outlined text-sm">download</span> Download PDF Report
+              </button>
+            </div>
+
+            {/* Confidence Dial */}
+            <div className="relative w-44 h-44 md:w-64 md:h-64 flex items-center justify-center z-10 shrink-0">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 256 256">
+                <circle cx="128" cy="128" fill="transparent" r="110" stroke={c.t07} strokeWidth="12" />
+                <circle cx="128" cy="128" fill="transparent" r="110" stroke="url(#dialGradient)" strokeDasharray="691" strokeDashoffset={691 - (691 * (results.overall_confidence || 0)) / 100} strokeLinecap="round" strokeWidth="16" style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
+                <defs>
+                  <linearGradient id="dialGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+                    <stop offset="0%" stopColor="#D4B896" />
+                    <stop offset="50%" stopColor="#C9A84C" />
+                    <stop offset="100%" stopColor="#A67C52" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-3xl md:text-5xl font-black tracking-tighter" style={{ color: c.text }}>{results.overall_confidence}%</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] mt-1" style={{ color: c.t40 }}>Confidence</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Scorecard ── */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { label: 'Resume Strength',    value: results.resume_strength,    suffix: '%',  icon: 'description', accent: '#C9A84C' },
+            { label: 'Industry Readiness', value: results.industry_readiness, suffix: '%',  icon: 'factory',     accent: '#8C6A3F' },
+            { label: 'Peer Percentile',    value: results.peer_percentile,    suffix: 'th', icon: 'leaderboard', accent: '#5E4730' },
+            { label: 'FAANG Probability',  value: results.faang_probability,  suffix: '%',  icon: 'stars',       accent: '#3D2E20' },
+          ].map(({ label, value, suffix, icon, accent }, i) => value != null && (
+            <div key={label} className="sc-card rounded-[1.5rem] overflow-hidden" style={{
+              background: c.card,
+              border: `1px solid ${c.t09}`,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+            }}>
+              <div style={{ height: '3px', background: `linear-gradient(90deg, ${accent} 0%, ${accent}40 100%)` }} />
+              <div className="p-4 md:p-6 flex flex-col gap-4">
+                <div style={{ background: `${accent}12`, width: 40, height: 40 }} className="rounded-xl flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-xl" style={{ color: accent }}>{icon}</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: c.t42 }}>{label}</p>
+                  <p className="text-2xl md:text-3xl font-black font-headline tracking-tighter" style={{ color: c.text }}>
+                    {value}<span className="text-base font-semibold ml-0.5" style={{ color: c.t40 }}>{suffix}</span>
+                  </p>
+                </div>
               </div>
             </div>
           ))}
-        </div>
+        </section>
 
-        <div className="glass-card fade-in fade-in-delay-3">
-          <div className="section-header">
-            <FiTrendingUp className="icon" /> Company Tier Probability
-          </div>
-          {tierData.length > 0 && (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={tierData} layout="vertical" margin={{ left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} />
-                <YAxis type="category" dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} width={100} />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                  labelStyle={{ color: '#f1f5f9' }}
-                />
-                <Bar dataKey="probability" radius={[0, 6, 6, 0]}>
-                  {tierData.map((entry, index) => (
-                    <Cell key={entry.name} fill={BAR_COLORS[index % BAR_COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      <div className="grid-2" style={{ marginTop: '1.5rem' }}>
-        <div className="glass-card fade-in fade-in-delay-3">
-          <div className="section-header">
-            <FiAward className="icon" /> Industry Readiness
-          </div>
-          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-            <div style={{ fontSize: '3.5rem', fontWeight: 900, background: 'var(--accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {results.industry_readiness}%
+        {/* ── Charts ── */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+          <div className="float-card rounded-[2rem] p-6 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: c.t40 }}>Skill Competency</h3>
+              <p className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>Capability Spectrum</p>
             </div>
-            <div style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              {results.industry_readiness >= 80 ? "Excellent - you're ready!" : results.industry_readiness >= 60 ? 'Good - keep improving!' : 'Needs work - follow the recommendations'}
-            </div>
-            <div className="progress-bar" style={{ marginTop: '1rem' }}>
-              <div className="progress-fill" style={{ width: `${results.industry_readiness}%` }}></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="glass-card fade-in fade-in-delay-3">
-          <div className="section-header">
-            <FiUsers className="icon" /> Peer Comparison
-          </div>
-          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-            <div style={{ fontSize: '3.5rem', fontWeight: 900, background: 'linear-gradient(135deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {results.peer_percentile}th
-            </div>
-            <div style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              Percentile - better than {results.peer_percentile}% of comparable candidates
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card fade-in fade-in-delay-4" style={{ marginTop: '1.5rem' }}>
-        <div className="section-header">
-          <FiTarget className="icon" /> Skill Gap Analysis
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="skill-table">
-            <thead>
-              <tr>
-                <th>Skill</th>
-                <th>Score</th>
-                <th>Target</th>
-                <th>Gap</th>
-                <th>Status</th>
-                <th>Recommendation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.skill_gaps?.map((gap) => (
-                <tr key={gap.skill}>
-                  <td style={{ fontWeight: 600 }}>{gap.skill}</td>
-                  <td>{gap.current_score}</td>
-                  <td>{gap.target_score}</td>
-                  <td>{gap.gap > 0 ? gap.gap : '-'}</td>
-                  <td>
-                    <span className={`status-${gap.status}`}>
-                      {gap.status === 'strong' ? 'Strong' : gap.status === 'moderate' ? 'Moderate' : 'Weak'}
-                    </span>
-                  </td>
-                  <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: 300 }}>{gap.recommendation}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="grid-2" style={{ marginTop: '1.5rem' }}>
-        <div className="fade-in fade-in-delay-4">
-          <div className="section-header">
-            <FiZap className="icon" /> Quick Improvement Actions
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {results.quick_actions?.map((action) => (
-              <div key={action} className="action-card">{action}</div>
-            ))}
-          </div>
-        </div>
-
-        <div className="fade-in fade-in-delay-4">
-          <div className="section-header">
-            <FiBriefcase className="icon" /> Target Companies
-          </div>
-          <div className="glass-card">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {results.target_companies?.map((company) => (
-                <span key={company} className={`badge ${TIER_BADGE[results.predicted_tier] || 'badge-service'}`} style={{ fontSize: '0.85rem', padding: '0.4rem 0.85rem' }}>
-                  {company}
-                </span>
-              ))}
+            <div className="flex items-center justify-center py-4 h-[300px]">
+              {radarData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData} outerRadius="75%">
+                    <PolarGrid stroke={c.t08} />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: c.text, fontSize: 13, fontWeight: 700 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar name="Score" dataKey="score" stroke="#C9A84C" fill="#C9A84C" fillOpacity={0.14} strokeWidth={2.5} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-sm font-bold" style={{ color: c.t35 }}>Not enough data</p>
+              )}
             </div>
           </div>
 
-          <div className="section-header" style={{ marginTop: '1.5rem' }}>
-            <FiBookOpen className="icon" /> Interview Prep Tips
+          <div className="float-card rounded-[2rem] p-6 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: c.t40 }}>Benchmarking</h3>
+              <p className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>Tier Probability</p>
+            </div>
+            <div className="flex items-center justify-center py-4 h-[300px]">
+              {tierData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={tierData} layout="vertical" margin={{ left: 20 }}>
+                    <CartesianGrid strokeDasharray="4 4" stroke={c.t06} horizontal={false} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fill: c.t45, fontSize: 11, fontWeight: 600 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: c.text, fontSize: 12, fontWeight: 700 }} width={100} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{ background: c.card, border: `1px solid ${c.t10}`, borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}
+                      labelStyle={{ color: c.text, fontWeight: 700, marginBottom: 4 }}
+                      itemStyle={{ color: c.t65, fontWeight: 600 }}
+                    />
+                    <Bar dataKey="probability" radius={[0, 12, 12, 0]} barSize={24}>
+                      {tierData.map((_, index) => (
+                        <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-sm font-bold" style={{ color: c.t35 }}>Not enough data</p>
+              )}
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {results.interview_tips?.map((tip, index) => (
-              <div key={tip} className="tip-card">
-                <span className="tip-number">{index + 1}</span>
-                {tip}
+        </section>
+
+        {/* ── ATS Report ── */}
+        {results.ats_score != null && (
+          <section className="float-card rounded-[2rem] p-6 md:p-10" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+
+              {/* Score column */}
+              <div className="shrink-0 flex flex-col items-center md:items-start gap-3">
+                <div>
+                  <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: c.t38 }}>Resume Quality</p>
+                  <h3 className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>ATS Compatibility</h3>
+                </div>
+                <div className="relative w-28 h-28 mt-2">
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 112 112">
+                    <circle cx="56" cy="56" r="46" fill="none" stroke={c.t08} strokeWidth="9" />
+                    <circle cx="56" cy="56" r="46" fill="none" stroke={c.text} strokeWidth="9" strokeLinecap="round"
+                      strokeDasharray="289" strokeDashoffset={289 - (289 * atsScore) / 100}
+                      style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-3xl font-black font-headline leading-none" style={{ color: c.text }}>{results.ats_score}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{ color: c.t32 }}>/ 100</span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold" style={{ color: c.t50 }}>{atsLabel}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      <div className="fade-in fade-in-delay-4" style={{ textAlign: 'center', marginTop: '2.5rem', marginBottom: '2rem' }}>
-        <button className="btn btn-primary btn-lg" onClick={handleDownload}>
-          <FiDownload /> Download Full Report (PDF)
-        </button>
-      </div>
+              {/* Vertical divider */}
+              <div className="hidden md:block w-px self-stretch" style={{ background: c.t07 }} />
+              {/* Horizontal divider (mobile) */}
+              <div className="md:hidden h-px w-full" style={{ background: c.t07 }} />
+
+              {/* Feedback list */}
+              {results.ats_feedback?.length > 0 && (
+                <div className="flex-1 space-y-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: c.t36 }}>Detailed Feedback</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                    {results.ats_feedback.map((item, i) => {
+                      const isNeg = item.toLowerCase().startsWith('missing') || item.toLowerCase().startsWith('no ') || item.toLowerCase().startsWith('low')
+                      const clean = item.replace(/^\[ok\]\s*/i, '').replace(/^\[warn(ing)?\]\s*/i, '').replace(/^\[error\]\s*/i, '').replace(/^\[info\]\s*/i, '')
+                      return (
+                        <div key={i} className="flex items-start gap-2.5">
+                          <span className="material-symbols-outlined shrink-0 mt-0.5" style={{ fontSize: 16, color: isNeg ? '#ef4444' : c.t28 }}>
+                            {isNeg ? 'cancel' : 'check_circle'}
+                          </span>
+                          <span className="text-sm font-medium leading-relaxed" style={{ color: isNeg ? c.text : c.t65 }}>{clean}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ── CTC Breakdown ── */}
+        {results.ctc_breakdown && (
+          <section className="float-card rounded-[2rem] p-6 md:p-12 overflow-hidden relative" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div style={{ position: 'absolute', top: -40, right: -40, width: 240, height: 240, borderRadius: '50%', background: 'rgba(201,168,76,0.08)', filter: 'blur(70px)', pointerEvents: 'none' }} />
+            <div className="relative z-10 space-y-8">
+              <div>
+                <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: c.t40 }}>Compensation Intelligence</h3>
+                <p className="font-headline text-3xl font-black tracking-tighter" style={{ color: c.text }}>CTC Breakdown</p>
+              </div>
+              {results.ctc_breakdown.monthly_in_hand != null && (
+                <div className="flex items-end gap-3 pb-6" style={{ borderBottom: `1px solid ${c.t08}` }}>
+                  <span className="text-3xl md:text-6xl font-black font-headline tracking-tighter leading-none" style={{ color: c.text }}>
+                    ₹{Math.round(results.ctc_breakdown.monthly_in_hand * 100)}K
+                  </span>
+                  <span className="font-semibold text-sm mb-2" style={{ color: c.t45 }}>/ month in-hand</span>
+                </div>
+              )}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'Base Salary',        key: 'base_salary',        icon: 'account_balance_wallet' },
+                  { label: 'HRA',                key: 'hra',                icon: 'home' },
+                  { label: 'Performance Bonus',  key: 'performance_bonus',  icon: 'emoji_events' },
+                  { label: 'Stocks / ESOPs',     key: 'stocks_esops',       icon: 'trending_up' },
+                  { label: 'Special Allowances', key: 'special_allowances', icon: 'savings' },
+                  { label: 'Insurance & Benefits', key: 'insurance_benefits', icon: 'health_and_safety' },
+                ].map(({ label, key, icon }) => results.ctc_breakdown[key] != null && (
+                  <div key={key} className="rounded-2xl p-5 space-y-2" style={{ background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.12)' }}>
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-base" style={{ color: c.t38 }}>{icon}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: c.t45 }}>{label}</span>
+                    </div>
+                    <p className="text-xl font-black font-headline" style={{ color: c.text }}>₹{results.ctc_breakdown[key]} LPA</p>
+                  </div>
+                ))}
+              </div>
+              {results.ctc_breakdown.total_ctc != null && (
+                <p className="text-sm font-medium" style={{ color: c.t40 }}>Total CTC: ₹{results.ctc_breakdown.total_ctc} LPA</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ── Matching Section ── */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
+
+          <div className="lg:col-span-1 space-y-10">
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Target Enterprises</h2>
+                <span className="material-symbols-outlined" style={{ color: c.t30 }}>corporate_fare</span>
+              </div>
+              <div className="space-y-3">
+                {(results.target_companies || []).map((company, i) => (
+                  <div key={i} className="float-card p-5 rounded-3xl flex items-center gap-4" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: i % 2 === 0 ? c.t07 : 'rgba(201,168,76,0.12)' }}>
+                      <span className="font-black text-lg italic" style={{ color: c.text }}>{company.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-base leading-tight" style={{ color: c.text }}>{company}</p>
+                      <p className="text-xs font-medium" style={{ color: c.t45 }}>Top Match</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {results.top_roles?.length > 1 && (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Role Alternatives</h2>
+                  <span className="material-symbols-outlined" style={{ color: c.t30 }}>work</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {results.top_roles.slice(1).map((role, i) => (
+                    <div key={i} className="float-card flex items-center justify-between p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.t08}` }}>
+                      <span className="text-sm font-semibold" style={{ color: c.text }}>{role.role}</span>
+                      <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ color: c.text, background: 'rgba(201,168,76,0.12)' }}>{role.probability}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="lg:col-span-2 space-y-10">
+
+            {/* Skills */}
+            {results.skill_gaps?.length > 0 && (
+              <div className="float-card p-5 md:p-8 rounded-[2rem] space-y-6" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <div className="flex items-start justify-between flex-wrap gap-4">
+                  <div>
+                    <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: c.t40 }}>Competency Deep Dive</h3>
+                    <p className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>Skill Analysis</p>
+                  </div>
+                  <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: c.t45 }}>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: '#C9A84C' }} />Strong</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: '#A67C52' }} />Moderate</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: c.t25 }} />Weak</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {results.skill_gaps.map((gap, i) => (
+                    <div key={i} className="space-y-2 p-4 rounded-2xl" style={{
+                      background: gap.status === 'strong' ? 'rgba(201,168,76,0.07)' : gap.status === 'weak' ? c.t04 : 'rgba(166,124,82,0.05)',
+                      border: `1px solid ${c.t07}`,
+                    }}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-sm" style={{ color: c.text }}>{gap.skill}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize" style={{
+                            background: gap.status === 'strong' ? 'rgba(201,168,76,0.15)' : gap.status === 'weak' ? c.t08 : 'rgba(166,124,82,0.12)',
+                            color: c.text,
+                          }}>{gap.status}</span>
+                          <span className="text-xs font-semibold" style={{ color: c.t45 }}>{gap.current_score} / {gap.target_score}</span>
+                        </div>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ background: c.t08 }}>
+                        <div className="h-full rounded-full transition-all duration-700" style={{
+                          width: `${Math.min(100, (gap.current_score / gap.target_score) * 100)}%`,
+                          background: gap.status === 'strong' ? '#C9A84C' : gap.status === 'weak' ? c.t28 : '#A67C52',
+                        }} />
+                      </div>
+                      {gap.recommendation && gap.status !== 'strong' && (
+                        <p className="text-xs font-medium leading-relaxed" style={{ color: c.t58 }}>{gap.recommendation}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {results.skill_gaps.some(g => g.status !== 'strong') && (
+                  <p className="text-sm leading-relaxed italic pl-3" style={{ color: c.t50, borderLeft: '2px solid rgba(201,168,76,0.30)' }}>
+                    Addressing these gaps is proven to elevate interview success for the {results.predicted_tier} tier.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            {results.quick_actions?.length > 0 && (
+              <div className="space-y-5">
+                <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Quick Win Actions</h2>
+                <div className="flex flex-col gap-3">
+                  {results.quick_actions.map((action, i) => (
+                    <div key={i} className="float-card flex gap-4 items-start p-5 rounded-[1.5rem]" style={{ background: c.card, border: `1px solid ${c.t08}` }}>
+                      <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-sm mt-0.5" style={{ background: c.t07, color: c.text }}>{i + 1}</div>
+                      <p className="text-sm font-medium leading-relaxed" style={{ color: c.t65 }}>{action}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Interview Tips */}
+            {results.interview_tips?.length > 0 && (
+              <div className="space-y-5">
+                <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Interview Preparation</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {results.interview_tips.map((tip, i) => (
+                    <div key={i} className="float-card flex gap-4 items-start p-5 rounded-[1.5rem]" style={{ background: c.card, border: `1px solid ${c.t08}` }}>
+                      <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center" style={{ background: c.t06, color: c.text }}>
+                        <span className="material-symbols-outlined text-xl">lightbulb</span>
+                      </div>
+                      <p className="text-sm font-medium leading-relaxed" style={{ color: c.t65 }}>{tip}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+      <LandingFooter />
     </div>
   )
 }

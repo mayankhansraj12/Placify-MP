@@ -6,8 +6,14 @@ FastAPI application with CORS, route mounting, and startup initialization.
 import os
 import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-# Add server directory to path for script-style imports
+# Load .env before any local imports so os.getenv() picks up the values
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
+# Add server directory to path for script-style (python main.py) imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI
@@ -18,11 +24,13 @@ try:
     from .database import init_db
     from .ml.predictor import load_models
     from .routes.analysis import router as analysis_router
+    from .utils.resume_parser import ensure_nltk_resources
 except ImportError:
     from auth import router as auth_router
     from database import init_db
     from ml.predictor import load_models
     from routes.analysis import router as analysis_router
+    from utils.resume_parser import ensure_nltk_resources
 
 
 def configure_console_output() -> None:
@@ -47,6 +55,8 @@ async def lifespan(_: FastAPI):
     print("Placify AI Server starting...")
     init_db()
     load_models()
+    print("Downloading / verifying NLTK models...")
+    ensure_nltk_resources()
     print("Server ready!")
     yield
 
@@ -58,9 +68,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+frontend_url = os.getenv("FRONTEND_URL")
+allowed_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+if frontend_url and frontend_url not in allowed_origins:
+    allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins,
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],

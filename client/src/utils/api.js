@@ -5,29 +5,98 @@ const defaultProtocol = typeof window !== 'undefined' && window.location.protoco
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || `${defaultProtocol}://${defaultHost}:5000/api`,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Add token from localStorage on init
-const token = localStorage.getItem('placify_token')
-if (token) {
-  api.defaults.headers.common.Authorization = `Bearer ${token}`
+let accessToken = typeof window !== 'undefined' ? localStorage.getItem('placify_token') : null
+let refreshHandler = null
+let authFailureHandler = null
+let refreshPromise = null
+
+const isAuthEndpoint = (url = '') => (
+  url.includes('/auth/login') ||
+  url.includes('/auth/register') ||
+  url.includes('/auth/refresh') ||
+  url.includes('/auth/logout') ||
+  url.includes('/auth/oauth/')
+)
+
+export function setAccessToken(token) {
+  accessToken = token
+  if (typeof window !== 'undefined') {
+    if (token) localStorage.setItem('placify_token', token)
+    else localStorage.removeItem('placify_token')
+  }
+
+  if (token) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`
+  } else {
+    delete api.defaults.headers.common.Authorization
+  }
 }
 
-// Response interceptor for auth errors
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('placify_token')
-      delete api.defaults.headers.common.Authorization
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-        window.location.href = '/login'
-      }
+export function clearAccessToken() {
+  setAccessToken(null)
+}
+
+export function configureAuthHandlers({ onRefresh, onAuthFailure }) {
+  refreshHandler = onRefresh
+  authFailureHandler = onAuthFailure
+}
+
+if (accessToken) {
+  api.defaults.headers.common.Authorization = `Bearer ${accessToken}`
+}
+
+api.interceptors.request.use((config) => {
+  if (accessToken) {
+    config.headers = config.headers ?? {}
+    if (!config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${accessToken}`
     }
-    return Promise.reject(error)
+  }
+  return config
+})
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config ?? {}
+
+    if (!error.response || error.response.status !== 401) {
+      return Promise.reject(error)
+    }
+
+    if (isAuthEndpoint(originalRequest.url) || originalRequest._retry || !refreshHandler) {
+      return Promise.reject(error)
+    }
+
+    originalRequest._retry = true
+
+    try {
+      if (!refreshPromise) {
+        refreshPromise = Promise.resolve(refreshHandler()).finally(() => {
+          refreshPromise = null
+        })
+      }
+
+      const newAccessToken = await refreshPromise
+      if (!newAccessToken) {
+        throw error
+      }
+
+      originalRequest.headers = originalRequest.headers ?? {}
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+      return api(originalRequest)
+    } catch (refreshError) {
+      if (authFailureHandler) {
+        await authFailureHandler()
+      }
+      return Promise.reject(refreshError)
+    }
   }
 )
 
