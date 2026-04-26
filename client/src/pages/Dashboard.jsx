@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import api from '../utils/api'
-import ScrollScene from '../components/ScrollScene'
 import logo from '../assets/logo.png'
 import LandingFooter from '../components/LandingFooter'
+import { FloatingPathsBackground } from '../components/ui/background-paths'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -31,12 +31,14 @@ export default function Dashboard() {
   const textColors = ['text-primary', 'text-secondary', 'text-primary', 'text-secondary']
 
   return (
-    <div className="bg-background text-on-surface font-body min-h-screen selection:bg-primary-container selection:text-on-primary-container relative">
-      <div className="fixed inset-0 w-full h-full pointer-events-none -z-40 opacity-50 mix-blend-multiply">
-        <ScrollScene scrollProgress={0.2} />
-      </div>
+    <div
+      className="bg-background dark:bg-[#141210] text-on-surface dark:text-stone-100 font-body min-h-screen selection:bg-primary-container selection:text-on-primary-container relative"
+      style={{ isolation: 'isolate' }}
+    >
+      {/* Fixed background paths — z:0 paints after bg-background but under z-10 content */}
+      <FloatingPathsBackground style={{ color: '#C48502' }} className="opacity-100" />
 
-      <main className="pt-16 pb-16 md:pt-24 md:pb-24 px-6 md:px-12 max-w-7xl mx-auto relative z-10">
+      <main className="pt-24 pb-16 md:pt-32 md:pb-24 px-6 md:px-12 max-w-7xl mx-auto relative z-10">
         {/* Welcome Header */}
         <header className="mb-8 md:mb-16">
           <h1 className="font-headline text-3xl md:text-7xl font-extrabold tracking-tighter text-on-surface mb-2">
@@ -50,9 +52,9 @@ export default function Dashboard() {
         {/* Stats Bento Grid */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8 md:mb-16">
           {/* Growth Card */}
-          <div className="p-5 md:p-8 rounded-[2rem] bg-[#111111] text-white flex flex-col justify-between min-h-[140px] shadow-blue">
+          <div className="p-5 md:p-8 rounded-[2rem] bg-white/80 dark:bg-stone-900/80 text-[#111111] dark:text-stone-100 flex flex-col justify-between min-h-[140px] shadow-blue">
             <div>
-              <span className="material-symbols-outlined mb-4 text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
+              <span className="material-symbols-outlined mb-4 text-[#111111]" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
               <h3 className="font-label text-sm uppercase tracking-widest opacity-70">Total Scans</h3>
             </div>
             <div className="mt-auto">
@@ -61,7 +63,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Score Card */}
-          <div className="p-5 md:p-8 rounded-[2rem] bg-primary-container text-on-primary-container flex flex-col justify-between min-h-[140px] shadow-blue">
+          <div className="p-5 md:p-8 rounded-[2rem] bg-primary-container/70 dark:bg-amber-900/25 text-on-primary-container dark:text-stone-100 flex flex-col justify-between min-h-[140px] shadow-blue">
             <div>
               <span className="material-symbols-outlined mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
               <h3 className="font-label text-sm uppercase tracking-widest opacity-80">Skill Score</h3>
@@ -72,7 +74,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Market Card */}
-          <div className="p-5 md:p-8 rounded-[2rem] bg-secondary-container text-on-secondary-container flex flex-col justify-between min-h-[140px] shadow-card-md">
+          <div className="p-5 md:p-8 rounded-[2rem] bg-secondary-container/70 dark:bg-stone-800/70 text-on-secondary-container dark:text-stone-100 flex flex-col justify-between min-h-[140px] shadow-card-md">
             <div>
               <span className="material-symbols-outlined mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>hub</span>
               <h3 className="font-label text-sm uppercase tracking-widest opacity-80">Confidence</h3>
@@ -83,7 +85,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Expected CTC */}
-          <div className="p-5 md:p-8 rounded-[2rem] glass-card flex flex-col justify-between min-h-[140px] shadow-card-md">
+          <div className="p-5 md:p-8 rounded-[2rem] bg-white/70 dark:bg-stone-900/70 flex flex-col justify-between min-h-[140px] shadow-card-md">
             <div>
               <span className="material-symbols-outlined mb-4 text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
               <h3 className="font-label text-sm uppercase tracking-widest text-on-surface-variant">Expected CTC</h3>
@@ -100,13 +102,11 @@ export default function Dashboard() {
 
         {/* CTA Banner */}
         <section className="mb-10 md:mb-20">
-          <div className="bg-[#111111] rounded-[2.5rem] overflow-hidden relative p-6 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 group shadow-[0_30px_60px_rgba(0,0,0,0.20)]">
-            <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
-              <img alt="abstract tech pattern" className="w-full h-full object-cover grayscale brightness-50 mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmLgIwyL2re05fU85i8g1Xyu6BJuAztdf-Wc7sfSSB7dGHjUrUFVBCqguOMWBjb1Gzpg1MgjATjctdyWU-irP_pVdlmzZaDvrhDwUiOp_zJnCjd7YB20acKpbzzGFwVMnFbP8RvWA3txHK9cuvZBvRIAqsRaH2rkLMeSfnj8kMtZHTYYSqgffMCfSVyOZaw-vb36vQewCkDaBAMdLvb8nsdVw-c6I5eRRPBzqIhcaqRTLGZeLKR9N-eQqrdNI87CNr3PvlzMcbZTQ" />
-            </div>
+          <div className="bg-[#111111]/90 rounded-[2.5rem] overflow-hidden relative p-6 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_30px_60px_rgba(0,0,0,0.20)]">
+            <div style={{ position: 'absolute', top: -40, right: -40, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', filter: 'blur(60px)', pointerEvents: 'none' }} />
             <div className="relative z-10 text-center md:text-left">
               <h2 className="font-headline text-3xl md:text-5xl font-bold text-white tracking-tighter mb-4">Ready for a new career sprint?</h2>
-              <p className="text-primary-fixed-dim text-lg opacity-80">Run our latest neural analysis to find your next jump.</p>
+              <p className="text-white/50 text-lg">Run our latest neural analysis to find your next jump.</p>
             </div>
             <div className="relative z-10 shrink-0">
               <Link to="/analyze" style={{ transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }} className="inline-block bg-primary-container text-on-primary-container px-5 py-3 md:px-8 md:py-5 rounded-full font-headline font-bold text-lg hover:scale-105 active:scale-95 shadow-blue-sm">
@@ -130,7 +130,7 @@ export default function Dashboard() {
               Syncing Neural History...
             </div>
           ) : analyses.length === 0 ? (
-            <div className="text-center py-10 md:py-20 bg-white/40 glass-card rounded-[2rem]">
+            <div className="text-center py-10 md:py-20 bg-white/40 dark:bg-stone-900/40 glass-card rounded-[2rem]">
               <h3 className="font-headline text-2xl font-bold mb-4">No analysis history yet</h3>
               <p className="text-on-surface-variant mb-8">Begin your journey by uploading your resume.</p>
               <Link to="/analyze" className="bg-[#111111] text-white px-8 py-4 rounded-full font-headline font-bold hover:scale-105 transition-all">Start Now</Link>
@@ -138,7 +138,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
               {analyses.map((analysis, i) => (
-                <div key={analysis.id} onClick={() => navigate(`/results/${analysis.id}`)} style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card p-5 md:p-10 rounded-[2rem] hover:shadow-blue group cursor-pointer bg-white/50">
+                <div key={analysis.id} onClick={() => navigate(`/results/${analysis.id}`)} style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="p-5 md:p-10 rounded-[2rem] hover:shadow-blue group cursor-pointer bg-white/90 dark:bg-stone-900/90">
                   <div className="flex justify-between items-start mb-4 md:mb-10">
                     <div className={`${bgColors[i % 4]} p-4 rounded-2xl`}>
                       <span className={`material-symbols-outlined ${textColors[i % 4]} scale-125`}>{icons[i % 4]}</span>

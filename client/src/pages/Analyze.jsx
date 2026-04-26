@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../utils/api'
-import ScrollScene from '../components/ScrollScene'
 import logo from '../assets/logo.png'
 import LandingFooter from '../components/LandingFooter'
+import ShaderBackground from '../components/ui/shader-background'
+import { GLSLHills } from '../components/ui/glsl-hills'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -64,14 +65,13 @@ export default function Analyze() {
   }
 
   return (
-    <div className="bg-background ethereal-bg font-body text-on-surface min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container relative">
-      <div className="fixed inset-0 w-full h-full pointer-events-none -z-40 opacity-50 mix-blend-multiply">
-        <ScrollScene scrollProgress={0.4} />
+    <div className="font-body text-on-surface dark:text-stone-100 min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container relative">
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+        <GLSLHills width="100%" height="100%" />
       </div>
-
       {/* Main Content Canvas */}
-      <main className="flex-grow flex flex-col items-center justify-center pt-16 pb-16 md:pt-24 md:pb-24 px-6 max-w-7xl mx-auto w-full relative z-10">
-        
+      <main className="flex-grow flex flex-col items-center justify-center pt-24 pb-16 md:pt-32 md:pb-24 px-6 max-w-7xl mx-auto w-full relative z-10">
+
         {/* Header Section */}
         <header className="text-center mb-8 md:mb-16 space-y-4">
           <h1 className="text-3xl md:text-7xl font-black font-headline tracking-tighter text-on-surface leading-none">
@@ -91,19 +91,18 @@ export default function Analyze() {
         {/* Dynamic Grid Layout */}
         <form onSubmit={handleSubmit} className="w-full pointer-events-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 w-full items-stretch">
-            
+
             {/* Left: Upload Dropzone */}
             <section className="lg:col-span-7 group">
-              <div 
+              <div
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
                 className={`h-full min-h-[200px] md:min-h-[320px] border-2 border-dashed ${dragOver ? 'border-primary bg-primary-container/20' : 'border-primary-container'} rounded-[2rem] bg-surface-container-lowest/30 backdrop-blur-md p-6 md:p-12 flex flex-col items-center justify-center hover:border-primary hover:bg-surface-container-lowest/60 group-hover:shadow-[0_40px_80px_rgba(9,98,160,0.08)] relative overflow-hidden cursor-pointer`}
                 style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }}
               >
-                {/* Atmospheric Glow Background */}
-                <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary-container/20 blur-[100px] rounded-full"></div>
-                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary-container/20 blur-[100px] rounded-full"></div>
-                
+                <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary-container/20 blur-[100px] rounded-full" />
+                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary-container/20 blur-[100px] rounded-full" />
+
                 <input id="resume-upload" ref={fileInputRef} type="file" accept=".pdf" onChange={handleFileSelect} className="hidden" />
 
                 <div className="relative z-10 flex flex-col items-center text-center space-y-6">
@@ -128,7 +127,6 @@ export default function Analyze() {
                       </div>
                     </>
                   )}
-                  
                   <button type="button" className="mt-4 px-5 py-2 md:px-8 md:py-3 bg-surface-container-highest/50 rounded-full font-headline font-bold text-sm tracking-tighter uppercase border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
                     Browse Files
                   </button>
@@ -138,9 +136,9 @@ export default function Analyze() {
 
             {/* Right: Configuration Controls */}
             <section className="lg:col-span-5">
-              <div className="glass-card h-full rounded-[2rem] p-6 md:p-10 space-y-6 md:space-y-10 shadow-card flex flex-col bg-white/50">
-                <h4 className="text-base md:text-xl font-headline font-bold tracking-tight border-b border-outline-variant/10 pb-6 text-[#111111]">Calibration Profiles</h4>
-                
+              <div className="glass-card h-full rounded-[2rem] p-6 md:p-10 space-y-6 md:space-y-8 shadow-card flex flex-col bg-white/50 dark:bg-stone-900/60">
+                <h4 className="text-base md:text-xl font-headline font-bold tracking-tight border-b border-outline-variant/10 dark:border-white/10 pb-6 text-[#111111] dark:text-stone-100">Calibration Profiles</h4>
+
                 {/* Aptitude Slider */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-end">
@@ -150,21 +148,32 @@ export default function Analyze() {
                   <input className="w-full" max="100" min="0" type="range" value={aptitude} onChange={(e) => setAptitude(Number(e.target.value))} />
                 </div>
 
-                {/* Communication Dropdown */}
-                <div className="space-y-4">
+                {/* Communication — segmented pill buttons */}
+                <div className="space-y-3">
                   <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Communication Style</label>
-                  <div className="relative">
-                    <select value={communication} onChange={(e) => setCommunication(Number(e.target.value))} className="w-full bg-white/60 border border-outline-variant/20 rounded-xl px-4 py-4 appearance-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface font-medium cursor-pointer">
-                      {COMM_LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-                    </select>
-                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                  <div className="flex gap-2">
+                    {COMM_LEVELS.map(l => (
+                      <button
+                        key={l.value}
+                        type="button"
+                        onClick={() => setCommunication(l.value)}
+                        className={`flex-1 py-2.5 rounded-xl text-xs font-bold font-headline transition-all ${
+                          communication === l.value
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-white/60 dark:bg-stone-800/60 text-on-surface-variant dark:text-stone-400 border border-outline-variant/20 dark:border-stone-700 hover:bg-white dark:hover:bg-stone-700'
+                        }`}
+                      >
+                        {l.value}
+                      </button>
+                    ))}
                   </div>
+                  <p className="text-xs text-on-surface-variant/60 font-medium">{COMM_LEVELS.find(l => l.value === communication)?.label}</p>
                 </div>
 
                 {/* Solved Problems Numeric */}
                 <div className="space-y-4">
                   <label className="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Complex Problems Solved</label>
-                  <div className="flex items-center bg-white/60 border border-outline-variant/20 rounded-xl overflow-hidden group focus-within:ring-2 focus-within:ring-primary">
+                  <div className="flex items-center bg-white/60 dark:bg-stone-800/60 border border-outline-variant/20 dark:border-stone-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary">
                     <span className="material-symbols-outlined px-4 text-on-surface-variant">terminal</span>
                     <input className="w-full border-none bg-transparent py-4 text-on-surface font-bold focus:ring-0 outline-none" placeholder="000" type="number" min="0" value={codingProblems} onChange={(e) => setCodingProblems(Number(e.target.value))} />
                   </div>
@@ -179,13 +188,13 @@ export default function Analyze() {
 
           {/* Call to Action */}
           <div className="mt-8 md:mt-20 w-full max-w-xl mx-auto flex flex-col items-center">
-            <button disabled={loading} type="submit" className="group w-full relative overflow-hidden py-4 md:py-8 px-6 md:px-12 bg-primary text-white rounded-[2rem] font-headline font-black text-lg md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(9,98,160,0.4)] active:scale-95 disabled:opacity-50">
-              <div className="absolute inset-0 bg-white/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <button disabled={loading} type="submit" className="group w-full relative overflow-hidden py-4 md:py-8 px-6 md:px-12 bg-primary text-white rounded-[2rem] font-headline font-black text-lg md:text-3xl tracking-tighter uppercase transition-all duration-500 hover:shadow-[0_20px_60px_rgba(202,138,4,0.4)] active:scale-95 disabled:opacity-50">
+              <div className="absolute inset-0 bg-white/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 flex items-center justify-center gap-6">
                 <span>{loading ? 'Processing Neural Data...' : 'Launch AI Engine'}</span>
                 <span className={`material-symbols-outlined text-2xl md:text-4xl ${loading ? 'animate-spin' : 'animate-pulse'}`}>{loading ? 'sync' : 'bolt'}</span>
               </div>
-              <div className="absolute -right-12 -top-12 w-40 h-40 bg-secondary-container/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="absolute -right-12 -top-12 w-40 h-40 bg-secondary-container/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
             </button>
             <p className="text-center mt-6 text-on-surface-variant/60 font-medium text-sm flex items-center justify-center gap-2">
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>

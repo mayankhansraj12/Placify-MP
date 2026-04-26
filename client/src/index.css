@@ -317,3 +317,56 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
 select { color: var(--dark); background: rgba(255,255,255,0.8); }
 select option { background: #fff; color: var(--dark); }
+
+/* ── Dark Mode ────────────────────────────────────────────── */
+.dark {
+  --dark: #f0ebe4;
+  --bg: #141210;
+}
+.dark body {
+  background: #141210;
+  color: #f0ebe4;
+}
+.dark body::before {
+  background: radial-gradient(ellipse, rgba(255,255,255,0.015) 0%, transparent 70%);
+}
+.dark body::after {
+  background: radial-gradient(ellipse, rgba(255,255,255,0.01) 0%, transparent 70%);
+}
+
+.dark .glass-card {
+  background: rgba(30,25,18,0.60);
+  border-color: rgba(240,235,228,0.10);
+}
+.dark .card-glass {
+  background: rgba(30,25,18,0.70);
+  border: 1px solid rgba(240,235,228,0.08);
+}
+.dark .card-solid {
+  background: rgba(25,22,15,0.92);
+  border: 1px solid rgba(240,235,228,0.08);
+}
+.dark .input-field {
+  background: rgba(30,25,18,0.80);
+  border-color: rgba(240,235,228,0.15);
+  color: #f0ebe4;
+}
+.dark .input-field::placeholder { color: rgba(240,235,228,0.30); }
+.dark .input-field:focus {
+  border-color: rgba(240,235,228,0.35);
+  box-shadow: 0 0 0 4px rgba(240,235,228,0.06);
+  background: rgba(30,25,18,0.95);
+}
+.dark select { color: #f0ebe4; background: rgba(30,25,18,0.80); }
+.dark select option { background: #1d1a15; color: #f0ebe4; }
+
+.dark ::-webkit-scrollbar-thumb { background: #3d352a; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #5a4e3e; }
+
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: rgba(240,235,228,0.06) !important;
+}
+
+.dark input[type="range"] { background: rgba(255,255,255,0.15); }
+.dark input[type="range"]::-webkit-slider-thumb { background: #f0ebe4; }

@@ -286,6 +286,7 @@ def serialize_user(user: dict) -> dict:
         "name": user["name"],
         "email": user["email"],
         "avatar_url": user.get("avatar_url"),
+        "auth_methods": user.get("auth_methods", ["password"]),
     }
 
 
@@ -546,6 +547,7 @@ class UserResponse(BaseModel):
     name: str
     email: str
     avatar_url: str | None = None
+    auth_methods: list[str] = []
 
 
 class TokenResponse(BaseModel):

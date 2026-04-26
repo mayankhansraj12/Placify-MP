@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useTheme } from '../context/ThemeContext'
 import api from '../utils/api'
 import { generateReport } from '../utils/pdfReport'
 import {
@@ -10,15 +11,34 @@ import {
 import logo from '../assets/logo.png'
 import LandingFooter from '../components/LandingFooter'
 
-const BAR_COLORS = ['#888888', '#AAAAAA', '#111111', '#555555', '#333333']
+const BAR_COLORS = ['#C9A84C', '#D4B896', '#A67C52', '#7B5E42', '#B89860']
 
 export default function Results() {
   const { id } = useParams()
   const location = useLocation()
   const { user } = useAuth()
+  const { theme } = useTheme()
 
   const [data, setData] = useState(location.state?.analysis || null)
   const [loading, setLoading] = useState(!data)
+
+  // Build theme-aware color map (must be before any early returns)
+  const D = theme === 'dark'
+  const tc = D ? '240,235,228' : '28,25,23'
+  const ra = (a) => `rgba(${tc},${a})`
+  const c = {
+    bg: D ? '#141210' : '#FAFAF7',
+    card: D ? '#1d1a15' : '#ffffff',
+    text: D ? '#f0ebe4' : '#1C1917',
+    t65: ra(0.65), t58: ra(0.58), t55: ra(0.55),
+    t50: ra(0.50), t45: ra(0.45), t42: ra(0.42),
+    t40: ra(0.40), t38: ra(0.38), t36: ra(0.36),
+    t35: ra(0.35), t32: ra(0.32), t30: ra(0.30),
+    t28: ra(0.28), t25: ra(0.25), t20: ra(0.20),
+    t18: ra(0.18), t12: ra(0.12), t10: ra(0.10),
+    t09: ra(0.09), t08: ra(0.08), t07: ra(0.07),
+    t06: ra(0.06), t05: ra(0.05), t04: ra(0.04),
+  }
 
   useEffect(() => {
     if (data) return
@@ -29,10 +49,10 @@ export default function Results() {
 
   if (loading) {
     return (
-      <div className="bg-surface font-body min-h-screen flex items-center justify-center">
+      <div className="font-body min-h-screen flex items-center justify-center" style={{ background: c.bg }}>
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="text-[rgba(0,0,0,0.40)] font-bold font-headline animate-pulse">Synchronizing Neural Analysis...</p>
+          <div className="w-16 h-16 rounded-full border-4 animate-spin" style={{ borderColor: 'rgba(201,168,76,0.25)', borderTopColor: '#C9A84C' }} />
+          <p className="font-bold font-headline animate-pulse" style={{ color: c.text }}>Synchronizing Neural Analysis...</p>
         </div>
       </div>
     )
@@ -40,12 +60,12 @@ export default function Results() {
 
   if (!data) {
     return (
-      <div className="bg-surface font-body min-h-screen flex items-center justify-center p-6">
-        <div className="glass-card max-w-sm w-full p-10 text-center rounded-[2rem]">
-          <span className="material-symbols-outlined text-6xl text-on-surface-variant mb-4">error</span>
-          <h3 className="font-headline text-2xl font-extrabold text-[#111111] mb-2">Analysis not found</h3>
-          <p className="text-[rgba(0,0,0,0.40)] text-sm mb-8">We couldn't find the requested analysis report.</p>
-          <Link to="/dashboard" className="inline-block bg-[#111111] text-white px-8 py-3 rounded-full font-headline font-bold hover:scale-105 transition-transform">Back to Dashboard</Link>
+      <div className="font-body min-h-screen flex items-center justify-center p-6" style={{ background: c.bg }}>
+        <div className="max-w-sm w-full p-10 text-center rounded-[2rem]" style={{ background: c.card, border: `1px solid ${c.t10}`, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <span className="material-symbols-outlined text-6xl mb-4 block" style={{ color: c.t20 }}>error</span>
+          <h3 className="font-headline text-2xl font-extrabold mb-2" style={{ color: c.text }}>Analysis not found</h3>
+          <p className="text-sm mb-8" style={{ color: c.t55 }}>We couldn't find the requested analysis report.</p>
+          <Link to="/dashboard" className="inline-block px-8 py-3 rounded-full font-headline font-bold hover:opacity-80 transition-all" style={{ background: c.text, color: c.bg }}>Back to Dashboard</Link>
         </div>
       </div>
     )
@@ -62,46 +82,57 @@ export default function Results() {
     ? Object.entries(results.tier_distribution).map(([name, value]) => ({ name, probability: value }))
     : []
 
+  const atsScore = results.ats_score || 0
+  const atsColor = atsScore >= 75 ? '#22c55e' : atsScore >= 50 ? '#C9A84C' : '#ef4444'
+  const atsLabel = atsScore >= 75 ? 'ATS Optimized' : atsScore >= 50 ? 'Needs Improvement' : 'Needs Significant Work'
+
   return (
-    <div className="bg-surface font-body text-on-surface overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative" style={{ minHeight: '100vh' }}>
-      <main className="pt-16 pb-16 md:pt-24 md:pb-24 px-6 md:px-12 max-w-7xl mx-auto space-y-8 md:space-y-16 relative z-10">
-        
-        {/* Hero Section: High-Impact Analysis */}
-        <section className="relative">
-          <div className="rounded-[2.5rem] p-5 md:p-16 overflow-hidden relative flex flex-col md:flex-row items-center gap-6 md:gap-12 border border-violet-300/30"
-            style={{
-              background: '#2e1065',
-            }}>
-            {/* Shiny gloss overlay */}
-            <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] overflow-hidden">
-              <div style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.06) 40%, transparent 60%)' }} className="absolute inset-0" />
-            </div>
-            {/* Decorative Light Bleed */}
-            
+    <div className="font-body overflow-x-hidden" style={{ minHeight: '100vh', background: c.bg }}>
+      {/* Fixed background */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: -1, background: D
+        ? `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(201,168,76,0.10) 0%, transparent 65%), radial-gradient(ellipse 40% 35% at 0% 100%, rgba(166,124,82,0.04) 0%, transparent 60%), #141210`
+        : `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(201,168,76,0.14) 0%, transparent 65%), radial-gradient(ellipse 40% 35% at 0% 100%, rgba(166,124,82,0.06) 0%, transparent 60%), #FAFAF7`
+      }} />
+
+      <style>{`
+        .sc-card { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease; }
+        .sc-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px ${c.t09}, 0 4px 12px ${c.t05}; }
+        .float-card { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease; }
+        .float-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px ${c.t08}, 0 4px 12px rgba(201,168,76,0.08); }
+      `}</style>
+
+      <main className="pt-24 pb-16 md:pt-32 md:pb-24 px-6 md:px-12 max-w-7xl mx-auto space-y-8 md:space-y-16 relative z-10">
+
+        {/* ── Hero ── */}
+        <section>
+          <div className="rounded-[2.5rem] p-6 md:p-16 overflow-hidden relative flex flex-col md:flex-row items-center gap-8 md:gap-12"
+            style={{ background: c.card, border: '1px solid rgba(201,168,76,0.18)', boxShadow: '0 4px 32px rgba(201,168,76,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
+            <div style={{ position: 'absolute', top: -40, right: -40, width: 260, height: 260, borderRadius: '50%', background: 'rgba(201,168,76,0.09)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+
             <div className="flex-1 space-y-6 relative z-10 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-violet-200 text-xs font-bold tracking-widest uppercase border border-violet-400/30">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase" style={{ background: c.t05, border: `1px solid ${c.t10}`, color: c.t50 }}>
                 Analysis Complete
               </div>
-              <h1 className="font-headline text-2xl md:text-7xl font-black text-white tracking-tighter leading-tight">
+              <h1 className="font-headline text-3xl md:text-7xl font-black tracking-tighter leading-tight" style={{ color: c.text }}>
                 {results.predicted_role}
               </h1>
-              <div className="flex flex-wrap gap-4 md:gap-8 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-8 md:gap-12 justify-center md:justify-start">
                 <div className="space-y-1">
-                  <p className="text-white/50 text-xs font-bold tracking-widest uppercase">Predicted Tier</p>
-                  <p className="text-2xl font-headline font-bold text-white tracking-tight">{results.predicted_tier}</p>
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: c.t40 }}>Predicted Tier</p>
+                  <p className="text-2xl font-headline font-bold tracking-tight" style={{ color: c.text }}>{results.predicted_tier}</p>
                   {results.tier_confidence != null && (
-                    <p className="text-xs text-white/40 font-semibold">{results.tier_confidence}% tier confidence</p>
+                    <p className="text-xs font-semibold" style={{ color: c.t40 }}>{results.tier_confidence}% tier confidence</p>
                   )}
                 </div>
                 <div className="space-y-1">
-                  <p className="text-white/50 text-xs font-bold tracking-widest uppercase">Expected Package</p>
-                  <p className="text-2xl font-headline font-bold text-primary-fixed tracking-tight hover:text-white transition-colors">₹{results.salary_range?.expected} LPA</p>
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: c.t40 }}>Expected Package</p>
+                  <p className="text-2xl font-headline font-bold tracking-tight" style={{ color: c.text }}>₹{results.salary_range?.expected} LPA</p>
                   {results.salary_range?.low != null && results.salary_range?.high != null && (
-                    <p className="text-xs text-white/40 font-semibold">Range: ₹{results.salary_range.low}L – ₹{results.salary_range.high}L</p>
+                    <p className="text-xs font-semibold" style={{ color: c.t40 }}>Range: ₹{results.salary_range.low}L – ₹{results.salary_range.high}L</p>
                   )}
                 </div>
               </div>
-              <button onClick={handleDownload} className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-violet-300/30 text-violet-100 text-xs font-bold tracking-widest uppercase hover:bg-white/20 backdrop-blur-md transition-all">
+              <button onClick={handleDownload} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:opacity-75 transition-all" style={{ background: c.text, color: c.bg }}>
                 <span className="material-symbols-outlined text-sm">download</span> Download PDF Report
               </button>
             </div>
@@ -109,41 +140,46 @@ export default function Results() {
             {/* Confidence Dial */}
             <div className="relative w-44 h-44 md:w-64 md:h-64 flex items-center justify-center z-10 shrink-0">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 256 256">
-                <circle cx="128" cy="128" fill="transparent" r="110" stroke="rgba(255,255,255,0.05)" strokeWidth="12"></circle>
-                <circle className="drop-shadow-[0_0_20px_rgba(139,92,246,0.4)]" cx="128" cy="128" fill="transparent" r="110" stroke="url(#dialGradient)" strokeDasharray="691" strokeDashoffset={691 - (691 * (results.overall_confidence || 0)) / 100} strokeLinecap="round" strokeWidth="16" style={{ transition: 'stroke-dashoffset 1s ease-out' }}></circle>
+                <circle cx="128" cy="128" fill="transparent" r="110" stroke={c.t07} strokeWidth="12" />
+                <circle cx="128" cy="128" fill="transparent" r="110" stroke="url(#dialGradient)" strokeDasharray="691" strokeDashoffset={691 - (691 * (results.overall_confidence || 0)) / 100} strokeLinecap="round" strokeWidth="16" style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
                 <defs>
                   <linearGradient id="dialGradient" x1="0%" x2="100%" y1="0%" y2="100%">
-                    <stop offset="0%" stopColor="#7C3AED"></stop>
-                    <stop offset="50%" stopColor="#A78BFA"></stop>
-                    <stop offset="100%" stopColor="#C084FC"></stop>
+                    <stop offset="0%" stopColor="#D4B896" />
+                    <stop offset="50%" stopColor="#C9A84C" />
+                    <stop offset="100%" stopColor="#A67C52" />
                   </linearGradient>
                 </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-3xl md:text-5xl font-black text-white tracking-tighter">{results.overall_confidence}%</span>
-                <span className="text-[10px] text-white/60 font-bold uppercase tracking-[0.2em] mt-1">Confidence</span>
+                <span className="text-3xl md:text-5xl font-black tracking-tighter" style={{ color: c.text }}>{results.overall_confidence}%</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] mt-1" style={{ color: c.t40 }}>Confidence</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Profile Scorecard */}
+        {/* ── Scorecard ── */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: 'Resume Strength',   value: results.resume_strength,   suffix: '%',  icon: 'description', accent: '#4285F4' },
-            { label: 'Industry Readiness',value: results.industry_readiness, suffix: '%',  icon: 'factory',     accent: '#EA4335' },
-            { label: 'Peer Percentile',   value: results.peer_percentile,   suffix: 'th', icon: 'leaderboard', accent: '#FBBC05' },
-            { label: 'FAANG Probability', value: results.faang_probability, suffix: '%',  icon: 'stars',       accent: '#34A853' },
-          ].map(({ label, value, suffix, icon, accent }) => value != null && (
-            <div key={label} style={{ background: `linear-gradient(135deg, ${accent} 0%, rgba(255,255,255,0.7) 50%, ${accent} 100%)`, padding: '1.5px', borderRadius: '1.5rem', transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="hover:scale-[1.03]">
-              <div style={{ background: '#0d0f14', borderRadius: 'calc(1.5rem - 1.5px)' }} className="p-4 md:p-6 flex flex-col gap-3 h-full">
-                <div style={{ background: `${accent}18` }} className="w-10 h-10 rounded-xl flex items-center justify-center">
+            { label: 'Resume Strength',    value: results.resume_strength,    suffix: '%',  icon: 'description', accent: '#C9A84C' },
+            { label: 'Industry Readiness', value: results.industry_readiness, suffix: '%',  icon: 'factory',     accent: '#8C6A3F' },
+            { label: 'Peer Percentile',    value: results.peer_percentile,    suffix: 'th', icon: 'leaderboard', accent: '#5E4730' },
+            { label: 'FAANG Probability',  value: results.faang_probability,  suffix: '%',  icon: 'stars',       accent: '#3D2E20' },
+          ].map(({ label, value, suffix, icon, accent }, i) => value != null && (
+            <div key={label} className="sc-card rounded-[1.5rem] overflow-hidden" style={{
+              background: c.card,
+              border: `1px solid ${c.t09}`,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+            }}>
+              <div style={{ height: '3px', background: `linear-gradient(90deg, ${accent} 0%, ${accent}40 100%)` }} />
+              <div className="p-4 md:p-6 flex flex-col gap-4">
+                <div style={{ background: `${accent}12`, width: 40, height: 40 }} className="rounded-xl flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl" style={{ color: accent }}>{icon}</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: `${accent}99` }}>{label}</p>
-                  <p className="text-2xl md:text-3xl font-black font-headline tracking-tighter" style={{ color: accent }}>
-                    {value}<span className="text-lg font-bold">{suffix}</span>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: c.t42 }}>{label}</p>
+                  <p className="text-2xl md:text-3xl font-black font-headline tracking-tighter" style={{ color: c.text }}>
+                    {value}<span className="text-base font-semibold ml-0.5" style={{ color: c.t40 }}>{suffix}</span>
                   </p>
                 </div>
               </div>
@@ -151,48 +187,45 @@ export default function Results() {
           ))}
         </section>
 
-        {/* Insights Grid */}
+        {/* ── Charts ── */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-          
-          {/* Radar Chart Glass Card */}
-          <div style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card rounded-[2rem] p-5 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between hover:shadow-blue bg-white/60">
+          <div className="float-card rounded-[2rem] p-6 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
             <div>
-              <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-2">Skill Competency</h3>
-              <p className="font-headline text-2xl font-bold tracking-tight text-on-surface">Capability Spectrum</p>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: c.t40 }}>Skill Competency</h3>
+              <p className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>Capability Spectrum</p>
             </div>
             <div className="flex items-center justify-center py-4 h-[300px]">
               {radarData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData} outerRadius="75%">
-                    <PolarGrid stroke="rgba(0,0,0,0.10)" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(0,0,0,0.65)', fontSize: 13, fontWeight: 700 }} />
+                    <PolarGrid stroke={c.t08} />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: c.text, fontSize: 13, fontWeight: 700 }} />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                    <Radar name="Score" dataKey="score" stroke="#333333" fill="#888888" fillOpacity={0.4} strokeWidth={3} />
+                    <Radar name="Score" dataKey="score" stroke="#C9A84C" fill="#C9A84C" fillOpacity={0.14} strokeWidth={2.5} />
                   </RadarChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-sm font-bold text-on-surface-variant">Not enough data</p>
+                <p className="text-sm font-bold" style={{ color: c.t35 }}>Not enough data</p>
               )}
             </div>
           </div>
 
-          {/* Bar Chart Glass Card */}
-          <div style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card rounded-[2rem] p-5 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between hover:shadow-blue bg-white/60">
+          <div className="float-card rounded-[2rem] p-6 md:p-8 min-h-[320px] md:min-h-[400px] flex flex-col justify-between" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
             <div>
-              <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-secondary mb-2">Benchmarking</h3>
-              <p className="font-headline text-2xl font-bold tracking-tight text-on-surface">Tier Probability</p>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: c.t40 }}>Benchmarking</h3>
+              <p className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>Tier Probability</p>
             </div>
             <div className="flex items-center justify-center py-4 h-[300px]">
               {tierData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={tierData} layout="vertical" margin={{ left: 20 }}>
-                    <CartesianGrid strokeDasharray="4 4" stroke="rgba(0,0,0,0.08)" horizontal={false} />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'rgba(0,0,0,0.50)', fontSize: 11, fontWeight: 600 }} />
-                    <YAxis type="category" dataKey="name" tick={{ fill: 'rgba(0,0,0,0.65)', fontSize: 12, fontWeight: 700 }} width={100} axisLine={false} tickLine={false} />
+                    <CartesianGrid strokeDasharray="4 4" stroke={c.t06} horizontal={false} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fill: c.t45, fontSize: 11, fontWeight: 600 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: c.text, fontSize: 12, fontWeight: 700 }} width={100} axisLine={false} tickLine={false} />
                     <Tooltip
-                      contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}
-                      labelStyle={{ color: '#111111', fontWeight: 700, marginBottom: 4 }}
-                      itemStyle={{ color: '#333333', fontWeight: 600 }}
+                      contentStyle={{ background: c.card, border: `1px solid ${c.t10}`, borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}
+                      labelStyle={{ color: c.text, fontWeight: 700, marginBottom: 4 }}
+                      itemStyle={{ color: c.t65, fontWeight: 600 }}
                     />
                     <Bar dataKey="probability" radius={[0, 12, 12, 0]} barSize={24}>
                       {tierData.map((_, index) => (
@@ -202,122 +235,127 @@ export default function Results() {
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                 <p className="text-sm font-bold text-on-surface-variant">Not enough data</p>
+                <p className="text-sm font-bold" style={{ color: c.t35 }}>Not enough data</p>
               )}
             </div>
           </div>
         </section>
 
-        {/* ATS Report */}
+        {/* ── ATS Report ── */}
         {results.ats_score != null && (
-          <section style={{ transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} className="glass-card bg-white/60 rounded-[2rem] p-5 md:p-12 flex flex-col md:flex-row gap-5 md:gap-10 items-start hover:shadow-blue">
-            <div className="shrink-0 flex flex-col items-center gap-3">
-              <div className="relative w-28 h-28 md:w-36 md:h-36">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 144 144">
-                  <circle cx="72" cy="72" r="60" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="12" />
-                  <circle
-                    cx="72" cy="72" r="60" fill="none"
-                    stroke={results.ats_score >= 75 ? '#22c55e' : results.ats_score >= 50 ? '#f59e0b' : '#ef4444'}
-                    strokeWidth="12" strokeLinecap="round"
-                    strokeDasharray="377"
-                    strokeDashoffset={377 - (377 * (results.ats_score || 0)) / 100}
-                    style={{ transition: 'stroke-dashoffset 1s ease-out' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl md:text-3xl font-black text-[#111111] font-headline leading-none">{results.ats_score}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/60 mt-0.5">ATS Score</span>
+          <section className="float-card rounded-[2rem] p-6 md:p-10" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+
+              {/* Score column */}
+              <div className="shrink-0 flex flex-col items-center md:items-start gap-3">
+                <div>
+                  <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: c.t38 }}>Resume Quality</p>
+                  <h3 className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>ATS Compatibility</h3>
                 </div>
+                <div className="relative w-28 h-28 mt-2">
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 112 112">
+                    <circle cx="56" cy="56" r="46" fill="none" stroke={c.t08} strokeWidth="9" />
+                    <circle cx="56" cy="56" r="46" fill="none" stroke={c.text} strokeWidth="9" strokeLinecap="round"
+                      strokeDasharray="289" strokeDashoffset={289 - (289 * atsScore) / 100}
+                      style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-3xl font-black font-headline leading-none" style={{ color: c.text }}>{results.ats_score}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{ color: c.t32 }}>/ 100</span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold" style={{ color: c.t50 }}>{atsLabel}</span>
               </div>
-              <p className={`text-xs font-bold px-3 py-1 rounded-full ${results.ats_score >= 75 ? 'bg-primary-fixed text-on-primary-fixed' : results.ats_score >= 50 ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-[#111111]/80 text-white'}`}>
-                {results.ats_score >= 75 ? 'ATS Optimized' : results.ats_score >= 50 ? 'Needs Review' : 'Needs Work'}
-              </p>
-            </div>
-            <div className="flex-1 space-y-4">
-              <div>
-                <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-1">Resume Scan</h3>
-                <p className="font-headline text-2xl font-bold tracking-tight text-on-surface">ATS Compatibility Report</p>
-              </div>
+
+              {/* Vertical divider */}
+              <div className="hidden md:block w-px self-stretch" style={{ background: c.t07 }} />
+              {/* Horizontal divider (mobile) */}
+              <div className="md:hidden h-px w-full" style={{ background: c.t07 }} />
+
+              {/* Feedback list */}
               {results.ats_feedback?.length > 0 && (
-                <ul className="space-y-2 pt-2">
-                  {results.ats_feedback.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-[#111111]/80">
-                      <span className={`material-symbols-outlined text-base shrink-0 mt-0.5 ${item.toLowerCase().startsWith('missing') || item.toLowerCase().startsWith('no ') || item.toLowerCase().startsWith('low') ? 'text-red-500' : 'text-emerald-500'}`}>
-                        {item.toLowerCase().startsWith('missing') || item.toLowerCase().startsWith('no ') || item.toLowerCase().startsWith('low') ? 'error' : 'check_circle'}
-                      </span>
-                      <span className="leading-relaxed font-medium">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex-1 space-y-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: c.t36 }}>Detailed Feedback</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                    {results.ats_feedback.map((item, i) => {
+                      const isNeg = item.toLowerCase().startsWith('missing') || item.toLowerCase().startsWith('no ') || item.toLowerCase().startsWith('low')
+                      const clean = item.replace(/^\[ok\]\s*/i, '').replace(/^\[warn(ing)?\]\s*/i, '').replace(/^\[error\]\s*/i, '').replace(/^\[info\]\s*/i, '')
+                      return (
+                        <div key={i} className="flex items-start gap-2.5">
+                          <span className="material-symbols-outlined shrink-0 mt-0.5" style={{ fontSize: 16, color: isNeg ? '#ef4444' : c.t28 }}>
+                            {isNeg ? 'cancel' : 'check_circle'}
+                          </span>
+                          <span className="text-sm font-medium leading-relaxed" style={{ color: isNeg ? c.text : c.t65 }}>{clean}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               )}
             </div>
           </section>
         )}
 
-        {/* CTC Breakdown */}
+        {/* ── CTC Breakdown ── */}
         {results.ctc_breakdown && (
-          <section className="bg-[#111111] rounded-[2rem] p-5 md:p-12 overflow-hidden relative shadow-2xl">
-            <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
-            <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-secondary/10 blur-[120px] rounded-full pointer-events-none"></div>
+          <section className="float-card rounded-[2rem] p-6 md:p-12 overflow-hidden relative" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div style={{ position: 'absolute', top: -40, right: -40, width: 240, height: 240, borderRadius: '50%', background: 'rgba(201,168,76,0.08)', filter: 'blur(70px)', pointerEvents: 'none' }} />
             <div className="relative z-10 space-y-8">
               <div>
-                <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-primary-fixed/60 mb-1">Compensation Intelligence</h3>
-                <p className="font-headline text-3xl font-black text-white tracking-tighter">CTC Breakdown</p>
+                <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: c.t40 }}>Compensation Intelligence</h3>
+                <p className="font-headline text-3xl font-black tracking-tighter" style={{ color: c.text }}>CTC Breakdown</p>
               </div>
-              {/* Monthly in-hand highlight */}
               {results.ctc_breakdown.monthly_in_hand != null && (
-                <div className="flex items-end gap-2 border-b border-white/10 pb-6">
-                  <span className="text-3xl md:text-6xl font-black text-primary-fixed font-headline tracking-tighter leading-none">
+                <div className="flex items-end gap-3 pb-6" style={{ borderBottom: `1px solid ${c.t08}` }}>
+                  <span className="text-3xl md:text-6xl font-black font-headline tracking-tighter leading-none" style={{ color: c.text }}>
                     ₹{Math.round(results.ctc_breakdown.monthly_in_hand * 100)}K
                   </span>
-                  <span className="text-white/50 font-bold text-sm mb-2">/ month in-hand</span>
+                  <span className="font-semibold text-sm mb-2" style={{ color: c.t45 }}>/ month in-hand</span>
                 </div>
               )}
-              {/* Component grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
-                  { label: 'Base Salary', key: 'base_salary', icon: 'account_balance_wallet' },
-                  { label: 'HRA', key: 'hra', icon: 'home' },
-                  { label: 'Performance Bonus', key: 'performance_bonus', icon: 'emoji_events' },
-                  { label: 'Stocks / ESOPs', key: 'stocks_esops', icon: 'trending_up' },
+                  { label: 'Base Salary',        key: 'base_salary',        icon: 'account_balance_wallet' },
+                  { label: 'HRA',                key: 'hra',                icon: 'home' },
+                  { label: 'Performance Bonus',  key: 'performance_bonus',  icon: 'emoji_events' },
+                  { label: 'Stocks / ESOPs',     key: 'stocks_esops',       icon: 'trending_up' },
                   { label: 'Special Allowances', key: 'special_allowances', icon: 'savings' },
                   { label: 'Insurance & Benefits', key: 'insurance_benefits', icon: 'health_and_safety' },
                 ].map(({ label, key, icon }) => results.ctc_breakdown[key] != null && (
-                  <div key={key} className="bg-white/5 rounded-2xl p-5 space-y-2 border border-white/5">
+                  <div key={key} className="rounded-2xl p-5 space-y-2" style={{ background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.12)' }}>
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-base text-primary-fixed/60">{icon}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">{label}</span>
+                      <span className="material-symbols-outlined text-base" style={{ color: c.t38 }}>{icon}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: c.t45 }}>{label}</span>
                     </div>
-                    <p className="text-xl font-black text-white font-headline">₹{results.ctc_breakdown[key]} LPA</p>
+                    <p className="text-xl font-black font-headline" style={{ color: c.text }}>₹{results.ctc_breakdown[key]} LPA</p>
                   </div>
                 ))}
               </div>
               {results.ctc_breakdown.total_ctc != null && (
-                <p className="text-sm text-white/30 font-medium">Total CTC: ₹{results.ctc_breakdown.total_ctc} LPA</p>
+                <p className="text-sm font-medium" style={{ color: c.t40 }}>Total CTC: ₹{results.ctc_breakdown.total_ctc} LPA</p>
               )}
             </div>
           </section>
         )}
 
-        {/* Matching Section */}
+        {/* ── Matching Section ── */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
 
-          {/* Target Companies + Role Alternatives */}
-          <div className="lg:col-span-1 space-y-6 md:space-y-12">
-            <div className="space-y-6">
+          <div className="lg:col-span-1 space-y-10">
+            <div className="space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="font-headline text-2xl font-black tracking-tighter">Target Enterprises</h2>
-                <span className="material-symbols-outlined text-on-surface-variant">corporate_fare</span>
+                <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Target Enterprises</h2>
+                <span className="material-symbols-outlined" style={{ color: c.t30 }}>corporate_fare</span>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {(results.target_companies || []).map((company, i) => (
-                  <div key={i} style={{ transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }} className="p-6 bg-white/70 backdrop-blur-md rounded-3xl shadow-card border border-white/40 flex items-center gap-4 hover:scale-[1.02] hover:shadow-blue-sm cursor-default">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${i % 2 === 0 ? 'bg-[#111111] text-white' : 'bg-primary text-white'}`}>
-                      <span className="font-black text-xl italic">{company.charAt(0)}</span>
+                  <div key={i} className="float-card p-5 rounded-3xl flex items-center gap-4" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: i % 2 === 0 ? c.t07 : 'rgba(201,168,76,0.12)' }}>
+                      <span className="font-black text-lg italic" style={{ color: c.text }}>{company.charAt(0)}</span>
                     </div>
                     <div>
-                      <p className="font-bold text-lg leading-tight text-[#111111]">{company}</p>
-                      <p className="text-xs text-on-surface-variant font-medium">Top Match</p>
+                      <p className="font-bold text-base leading-tight" style={{ color: c.text }}>{company}</p>
+                      <p className="text-xs font-medium" style={{ color: c.t45 }}>Top Match</p>
                     </div>
                   </div>
                 ))}
@@ -325,16 +363,16 @@ export default function Results() {
             </div>
 
             {results.top_roles?.length > 1 && (
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-headline text-2xl font-black tracking-tighter text-[#111111]">Role Alternatives</h2>
-                  <span className="material-symbols-outlined text-secondary">work</span>
+                  <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Role Alternatives</h2>
+                  <span className="material-symbols-outlined" style={{ color: c.t30 }}>work</span>
                 </div>
                 <div className="flex flex-col gap-3">
                   {results.top_roles.slice(1).map((role, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-outline-variant/10">
-                      <span className="text-sm font-semibold text-[#111111]">{role.role}</span>
-                      <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">{role.probability}%</span>
+                    <div key={i} className="float-card flex items-center justify-between p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.t08}` }}>
+                      <span className="text-sm font-semibold" style={{ color: c.text }}>{role.role}</span>
+                      <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ color: c.text, background: 'rgba(201,168,76,0.12)' }}>{role.probability}%</span>
                     </div>
                   ))}
                 </div>
@@ -342,85 +380,69 @@ export default function Results() {
             )}
           </div>
 
-          {/* Skill Gaps + Quick Actions + Interview Tips */}
-          <div className="lg:col-span-2 space-y-6 md:space-y-12">
+          <div className="lg:col-span-2 space-y-10">
 
-            {/* Skills Analysis — all skills */}
+            {/* Skills */}
             {results.skill_gaps?.length > 0 && (
-              <div className="p-5 md:p-8 bg-white/60 backdrop-blur-md rounded-[2rem] border border-white/10 space-y-6 shadow-card">
+              <div className="float-card p-5 md:p-8 rounded-[2rem] space-y-6" style={{ background: c.card, border: `1px solid ${c.t08}`, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
                 <div className="flex items-start justify-between flex-wrap gap-4">
                   <div>
-                    <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-2">Competency Deep Dive</h3>
-                    <p className="font-headline text-2xl font-bold tracking-tight text-[#111111]">Skill Analysis</p>
+                    <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: c.t40 }}>Competency Deep Dive</h3>
+                    <p className="font-headline text-2xl font-bold tracking-tight" style={{ color: c.text }}>Skill Analysis</p>
                   </div>
-                  <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary-container inline-block"></span>Strong</span>
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-secondary-container inline-block"></span>Moderate</span>
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#111111]/50 inline-block"></span>Weak</span>
+                  <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: c.t45 }}>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: '#C9A84C' }} />Strong</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: '#A67C52' }} />Moderate</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: c.t25 }} />Weak</span>
                   </div>
                 </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {results.skill_gaps.map((gap, i) => (
-                    <div key={i} style={{ transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }} className={`space-y-2 p-4 rounded-2xl hover:scale-[1.02] ${
-                      gap.status === 'strong' ? 'bg-primary-container/20' :
-                      gap.status === 'weak'   ? 'bg-[#111111]/5'          : 'bg-secondary-container/20'
-                    }`}>
+                    <div key={i} className="space-y-2 p-4 rounded-2xl" style={{
+                      background: gap.status === 'strong' ? 'rgba(201,168,76,0.07)' : gap.status === 'weak' ? c.t04 : 'rgba(166,124,82,0.05)',
+                      border: `1px solid ${c.t07}`,
+                    }}>
                       <div className="flex items-center justify-between gap-2">
-                        <span className={`font-bold text-sm ${
-                          gap.status === 'strong' ? 'text-primary'   :
-                          gap.status === 'weak'   ? 'text-[#111111]' : 'text-secondary'
-                        }`}>{gap.skill}</span>
+                        <span className="font-bold text-sm" style={{ color: c.text }}>{gap.skill}</span>
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
-                            gap.status === 'strong' ? 'bg-primary-fixed text-on-primary-fixed' :
-                            gap.status === 'weak'   ? 'bg-[#111111]/10 text-[#111111]'          : 'bg-secondary-fixed text-on-secondary-fixed'
-                          }`}>{gap.status}</span>
-                          <span className="text-xs font-semibold text-on-surface-variant/70">{gap.current_score} / {gap.target_score}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize" style={{
+                            background: gap.status === 'strong' ? 'rgba(201,168,76,0.15)' : gap.status === 'weak' ? c.t08 : 'rgba(166,124,82,0.12)',
+                            color: c.text,
+                          }}>{gap.status}</span>
+                          <span className="text-xs font-semibold" style={{ color: c.t45 }}>{gap.current_score} / {gap.target_score}</span>
                         </div>
                       </div>
-
-                      <div className={`h-2 rounded-full overflow-hidden ${
-                        gap.status === 'strong' ? 'bg-primary-container/30'    :
-                        gap.status === 'weak'   ? 'bg-[#111111]/15'            : 'bg-secondary-container/30'
-                      }`}>
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${
-                            gap.status === 'strong' ? 'bg-primary-container'    :
-                            gap.status === 'weak'   ? 'bg-[#111111]/60'         : 'bg-secondary-container'
-                          }`}
-                          style={{ width: `${Math.min(100, (gap.current_score / gap.target_score) * 100)}%` }}
-                        />
+                      <div className="h-2 rounded-full overflow-hidden" style={{ background: c.t08 }}>
+                        <div className="h-full rounded-full transition-all duration-700" style={{
+                          width: `${Math.min(100, (gap.current_score / gap.target_score) * 100)}%`,
+                          background: gap.status === 'strong' ? '#C9A84C' : gap.status === 'weak' ? c.t28 : '#A67C52',
+                        }} />
                       </div>
-
                       {gap.recommendation && gap.status !== 'strong' && (
-                        <p className={`text-xs font-medium leading-relaxed ${
-                          gap.status === 'weak' ? 'text-[#111111]/70' : 'text-secondary/80'
-                        }`}>{gap.recommendation}</p>
+                        <p className="text-xs font-medium leading-relaxed" style={{ color: c.t58 }}>{gap.recommendation}</p>
                       )}
                     </div>
                   ))}
                 </div>
 
                 {results.skill_gaps.some(g => g.status !== 'strong') && (
-                  <div className="pt-4">
-                    <p className="text-sm text-on-surface-variant/70 leading-relaxed italic border-l-2 border-primary/15 pl-3">
-                      Addressing these gaps is proven to elevate interview success for the {results.predicted_tier} tier.
-                    </p>
-                  </div>
+                  <p className="text-sm leading-relaxed italic pl-3" style={{ color: c.t50, borderLeft: '2px solid rgba(201,168,76,0.30)' }}>
+                    Addressing these gaps is proven to elevate interview success for the {results.predicted_tier} tier.
+                  </p>
                 )}
               </div>
             )}
 
             {/* Quick Actions */}
             {results.quick_actions?.length > 0 && (
-              <div className="space-y-6">
-                <h2 className="font-headline text-2xl font-black tracking-tighter text-[#111111]">Quick Win Actions</h2>
-                <div className="flex flex-col gap-4">
+              <div className="space-y-5">
+                <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Quick Win Actions</h2>
+                <div className="flex flex-col gap-3">
                   {results.quick_actions.map((action, i) => (
-                    <div key={i} style={{ transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }} className="group flex gap-4 items-start p-5 bg-white/60 border border-white/40 rounded-[1.5rem] hover:bg-white hover:shadow-blue-sm hover:scale-[1.01]">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 shrink-0 flex items-center justify-center text-primary font-black text-sm mt-0.5">{i + 1}</div>
-                      <p className="text-sm font-medium text-[#111111] leading-relaxed">{action}</p>
+                    <div key={i} className="float-card flex gap-4 items-start p-5 rounded-[1.5rem]" style={{ background: c.card, border: `1px solid ${c.t08}` }}>
+                      <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-sm mt-0.5" style={{ background: c.t07, color: c.text }}>{i + 1}</div>
+                      <p className="text-sm font-medium leading-relaxed" style={{ color: c.t65 }}>{action}</p>
                     </div>
                   ))}
                 </div>
@@ -429,15 +451,15 @@ export default function Results() {
 
             {/* Interview Tips */}
             {results.interview_tips?.length > 0 && (
-              <div className="space-y-6">
-                <h2 className="font-headline text-2xl font-black tracking-tighter text-[#111111]">Interview Preparation</h2>
+              <div className="space-y-5">
+                <h2 className="font-headline text-2xl font-black tracking-tighter" style={{ color: c.text }}>Interview Preparation</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {results.interview_tips.map((tip, i) => (
-                    <div key={i} style={{ transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }} className="group flex gap-4 items-start p-5 bg-white/60 border border-white/40 rounded-[1.5rem] hover:bg-white hover:shadow-blue-sm hover:scale-[1.01] cursor-default">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 shrink-0 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <div key={i} className="float-card flex gap-4 items-start p-5 rounded-[1.5rem]" style={{ background: c.card, border: `1px solid ${c.t08}` }}>
+                      <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center" style={{ background: c.t06, color: c.text }}>
                         <span className="material-symbols-outlined text-xl">lightbulb</span>
                       </div>
-                      <p className="text-sm font-medium text-[#111111] leading-relaxed">{tip}</p>
+                      <p className="text-sm font-medium leading-relaxed" style={{ color: c.t65 }}>{tip}</p>
                     </div>
                   ))}
                 </div>
@@ -447,48 +469,6 @@ export default function Results() {
         </section>
       </main>
       <LandingFooter />
-
-      {false && (
-      <footer className="w-full py-16 px-12 grid grid-cols-1 md:grid-cols-4 gap-12 bg-[#111111] font-body tracking-tight text-sm text-slate-400 relative z-20 overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full translate-x-1/2 translate-y-1/2"></div>
-        
-        <div className="col-span-1 md:col-span-1 relative z-10">
-          <div className="flex items-center gap-2.5 mb-4">
-            <img src={logo} alt="Placify AI" className="h-8 w-auto brightness-0 invert" />
-            <span className="text-lg font-bold text-white font-headline uppercase tracking-widest">Placify AI</span>
-          </div>
-          <p className="max-w-xs leading-relaxed font-medium">
-            Empowering the next generation of tech leaders through algorithmic precision and career intelligence.
-          </p>
-        </div>
-        <div className="relative z-10">
-          <h4 className="text-white font-bold mb-4 uppercase tracking-widest text-[10px]">Product</h4>
-          <ul className="space-y-2 font-medium">
-            <li><Link className="hover:text-primary transition-colors duration-200" to="#">Analysis</Link></li>
-            <li><Link className="hover:text-primary transition-colors duration-200" to="#">Benchmarking</Link></li>
-            <li><Link className="hover:text-primary transition-colors duration-200" to="#">API</Link></li>
-          </ul>
-        </div>
-        <div className="relative z-10">
-          <h4 className="text-white font-bold mb-4 uppercase tracking-widest text-[10px]">Company</h4>
-          <ul className="space-y-2 font-medium">
-            <li><Link className="hover:text-primary transition-colors duration-200" to="#">Support</Link></li>
-            <li><Link className="hover:text-primary transition-colors duration-200" to="#">Privacy</Link></li>
-            <li><Link className="hover:text-primary transition-colors duration-200" to="#">Terms</Link></li>
-          </ul>
-        </div>
-        <div className="flex flex-col items-start md:items-end justify-between h-full relative z-10">
-          <div className="flex gap-4">
-            <span className="material-symbols-outlined hover:text-white cursor-pointer transition-colors">language</span>
-            <span className="material-symbols-outlined hover:text-white cursor-pointer transition-colors">share</span>
-          </div>
-          <p className="mt-8 md:mt-0 text-[10px] uppercase font-bold tracking-widest">
-            © 2026 Placify AI. All rights reserved. Prices in ₹.
-          </p>
-        </div>
-      </footer>
-      )}
     </div>
   )
 }

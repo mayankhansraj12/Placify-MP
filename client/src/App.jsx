@@ -10,13 +10,13 @@ import Dashboard from './pages/Dashboard'
 import Analyze from './pages/Analyze'
 import Results from './pages/Results'
 import { useAuth } from './context/useAuth'
+import { ThemeProvider } from './context/ThemeContext'
 
 export default function App() {
   const { user, loading } = useAuth()
 
   return (
-    <>
-      {/* App Navbar only shows on protected pages */}
+    <ThemeProvider>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
@@ -33,6 +33,7 @@ export default function App() {
         } />
         <Route path="*" element={<Navigate to={!loading && user ? '/dashboard' : '/'} replace />} />
       </Routes>
-    </>
+    </ThemeProvider>
   )
 }
+
